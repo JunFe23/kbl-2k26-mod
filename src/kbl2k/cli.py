@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 
 from . import __version__
@@ -27,6 +28,13 @@ from .mapping import coverage
 from .positions import export_csv, import_csv
 from .ratings import KBL, calibrate, rate_team
 from .validate import validate_dataset
+from .venuelab import (
+    VenueLabError,
+    apply_plan,
+    build_plan,
+    make_probe_runner,
+    write_report,
+)
 
 DEFAULT_DATA = Path("data")
 
@@ -239,6 +247,51 @@ def cmd_game_diff(args: argparse.Namespace) -> int:
     return 0 if d.clean else 2
 
 
+def cmd_venuelab_plan(args: argparse.Namespace) -> int:
+    ds = _load_valid(args.data)
+    plan = build_plan(list(ds.teams.values()), ds.rules)
+    if not plan["teams"]:
+        print("game_roster 와 nba_slot 이 지정된 팀이 없습니다", file=sys.stderr)
+        return 1
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(
+        json.dumps(plan, ensure_ascii=False, indent=2) + "\n", "utf-8", newline="\n"
+    )
+    for team in plan["teams"]:
+        print(f"{team['name_ko']} → {team['nba_slot']} ({len(team['players'])}명)")
+        for p in team["players"]:
+            mark = f"  ⚠ {p['name_review_reason']}" if p["name_needs_review"] else ""
+            name = f"{p['first_name']} {p['last_name']}".strip()
+            print(f"  #{p['jersey']:<3} {p['name_ko']:<8} {name:<24} OVR {p['ovr']}{mark}")
+    print(f"저장: {args.output}")
+    return 0
+
+
+def cmd_venuelab_apply(args: argparse.Namespace) -> int:
+    plan = json.loads(args.plan.read_text("utf-8"))
+    report_path = args.report or Path("game_backup/venuelab") / (
+        f"apply-{'write' if args.apply else 'dryrun'}-"
+        + datetime.now().strftime("%Y%m%d-%H%M%S")
+        + ".jsonl"
+    )
+    try:
+        probe = make_probe_runner(args.venuelab_dir)
+        report = apply_plan(plan, probe, write=args.apply)
+    except VenueLabError as e:
+        print(f"중단: {e}", file=sys.stderr)
+        return 1
+    write_report(report, report_path)
+    for status in ("planned", "dry_run", "write_readback_ok", "unchanged", "rejected", "error"):
+        n = report.count(status)
+        if n:
+            print(f"{status:<18} {n}")
+    print(f"보고서: {report_path}")
+    bad = report.count("error") + report.count("rejected")
+    if not args.apply:
+        print("dry-run: 아무것도 쓰지 않았습니다. 실제로 쓰려면 --apply")
+    return 1 if bad else 0
+
+
 def cmd_backup(args: argparse.Namespace) -> int:
     try:
         dest = create_backup(args.game_dir, args.files, args.out, args.label)
@@ -338,6 +391,18 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("old", type=Path)
     g.add_argument("new", type=Path, nargs="?")
     g.set_defaults(func=cmd_game_diff)
+
+    s = sub.add_parser("venuelab", help="2KVenueLab 으로 게임 로스터 일괄 입력 (ADR-0014/0015)")
+    v_sub = s.add_subparsers(dest="venuelab_command", required=True)
+    v = v_sub.add_parser("plan", help="게임 입력 계획 JSON 생성 (게임 불필요)")
+    v.add_argument("-o", "--output", type=Path, default=Path("game_backup/venuelab/plan.json"))
+    v.set_defaults(func=cmd_venuelab_plan)
+    v = v_sub.add_parser("apply", help="오프라인 게임 실행 중 계획 적용 (기본 dry-run)")
+    v.add_argument("--plan", type=Path, default=Path("game_backup/venuelab/plan.json"))
+    v.add_argument("--venuelab-dir", type=Path, default=Path("D:/2K Tools/2KVenueLab-2.15"))
+    v.add_argument("--apply", action="store_true", help="실제로 게임 메모리에 쓴다")
+    v.add_argument("--report", type=Path, help="결과 JSONL 경로")
+    v.set_defaults(func=cmd_venuelab_apply)
 
     s = sub.add_parser("backup", help="게임 파일 백업 (게임 폴더는 읽기만 함)")
     s.add_argument("--game-dir", type=Path, required=True)

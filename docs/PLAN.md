@@ -44,7 +44,7 @@
   - 공식 "without EAC (offline only)" 로 실행해 드라이빙 레이업 85→99 → MyNBA 저장 → 재실행 후 유지 확인
   - 게임 폴더는 변경 없음
 - [ ] 에디터의 import/export 포맷 실측 → 문서화 (추측 금지)
-- [x] 2K26 선수 필드 목록 확보 → docs/2k26-player-fields.md (능력치 약 51종)
+- [x] 2K26 선수 필드 목록 확보 → docs/2k26-player-fields.md (능력치 52종)
 - [ ] 능력치 모델을 2K26 필드 목록에 맞게 확장 → `attributes.schema.json` 갱신
 - [ ] 대체할 NBA 팀 슬롯 결정 → `team.nba_slot`
 

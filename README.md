@@ -32,6 +32,12 @@ kbl2k positions export -o positions.csv   # primary/secondary 열 채우기
 kbl2k positions import positions.csv --dry-run
 kbl2k positions import positions.csv
 
+# 게임 로스터 일괄 입력 (2KVenueLab, ADR-0014/0015)
+kbl2k venuelab plan                 # 입력 계획 생성 → game_backup/venuelab/plan.json
+# ↓ 인터넷 끊고 Steam "NBA 2K26 without EAC (offline only)" 실행, MyNBA 로드 상태에서
+kbl2k venuelab apply                # 점검(dry-run): 읽기만 하고 보고서 작성
+kbl2k venuelab apply --apply        # 실제 쓰기 (항목마다 이전값 확인 + 다시 읽기 검증)
+
 # 설치된 게임 확인·변경 감시 (읽기 전용)
 kbl2k game info                   # 설치 경로, Steam 빌드, 에셋 요약
 kbl2k game snapshot --label before-<도구>   # 외부 도구 사용 전 기록
@@ -59,6 +65,7 @@ src/kbl2k/
   game.py         설치 게임 정보, 스냅샷/변경 감시, 에셋 목록 요약
   kbl_api.py      KBL 공식 기록 API 클라이언트
   fetch.py        기록 수집 → data/ 반영
+  venuelab.py     2KVenueLab probe 로 게임 로스터 일괄 입력 (계획·점검·적용)
 data/
   sources.json            출처 목록 (URL, 조회일)
   teams/*.json            팀 + 선수 로스터

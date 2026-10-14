@@ -111,6 +111,10 @@
       "kbl_player_id": "291281",
       "name_ko": "김세창",
       "name_en": "KIM S C",
+      "game_name": {
+        "first": "Sechang",
+        "last": "Kim"
+      },
       "team_id": "anyang-kgc",
       "jersey_number": 2,
       "positions": [],

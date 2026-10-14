@@ -18,6 +18,16 @@
     },
     "name_ko": {"type": "string", "minLength": 1},
     "name_en": {"type": ["string", "null"], "minLength": 1},
+    "game_name": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["first", "last"],
+      "description": "게임에 넣을 영문 이름(자동 변환 대신 직접 지정, ADR-0015). 각 19자 이내",
+      "properties": {
+        "first": {"type": "string", "maxLength": 19},
+        "last": {"type": "string", "minLength": 1, "maxLength": 19}
+      }
+    },
     "team_id": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
     "jersey_number": {"type": ["integer", "null"], "minimum": 0, "maximum": 99},
     "position_kbl": {

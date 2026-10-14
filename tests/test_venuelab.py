@@ -1,0 +1,378 @@
+"""VenueLab 일괄 입력 로직 테스트 (가짜 probe, 게임·외부 도구 실행 없음)."""
+
+import copy
+import re
+from pathlib import Path
+
+import pytest
+from conftest import GUARD, make_player, make_team
+
+from kbl2k.venuelab import (
+    DURABILITY_FIELDS,
+    RATING_FIELD_MAP,
+    VenueLabError,
+    WriteOp,
+    apply_plan,
+    build_plan,
+    check_gate,
+    display_to_raw,
+    encode_name,
+    game_name,
+    plan_writes,
+    raw_to_display,
+    team_slots,
+)
+
+BASE = 0xBD5BB068
+ALL_KEYS = sorted({k for ks in RATING_FIELD_MAP.values() for k in ks})
+
+
+def fake_model(
+    raw=150, jersey_u16=25712, weight=209.0, height=20320, first="Matas", last="Buzelis"
+):
+    """실제 2K26 모델 구조를 흉내 낸 최소 모델 (docs/2k26-player-fields.md)."""
+    reg = []
+    off = 0x3E4
+    for k in ALL_KEYS:
+        if k in ("rating_driving_layup", "rating_post_fade"):
+            continue
+        reg.append(
+            {
+                "key": k,
+                "type": "rating_u8",
+                "offset_int": off,
+                "raw_rating": raw,
+                "write_enabled": True,
+                "value": raw,
+            }
+        )
+        off += 1
+    # 실제 기록값: driving_layup 컨테이너 0xED07(raw 180=85), post_fade 0x18ED(raw 99=58)
+    reg += [
+        {
+            "key": "rating_driving_layup",
+            "type": "rating_u8_bitfield",
+            "offset_int": 0x3E1,
+            "start_bit": 6,
+            "length": 8,
+            "raw_rating": 180,
+            "container_u16": 0xED07,
+            "write_enabled": True,
+        },
+        {
+            "key": "rating_post_fade",
+            "type": "rating_u8_bitfield",
+            "offset_int": 0x3E2,
+            "start_bit": 6,
+            "length": 8,
+            "raw_rating": 99,
+            "container_u16": 0x18ED,
+            "write_enabled": True,
+        },
+        {
+            "key": "jersey",
+            "type": "u16_bitfield",
+            "offset_int": 0x10D,
+            "value": jersey_u16,
+            "write_enabled": True,
+        },
+        {
+            "key": "weight",
+            "type": "float32",
+            "offset_int": 0x100,
+            "value": weight,
+            "write_enabled": True,
+        },
+        {
+            "key": "appearance_height_cm",
+            "type": "ushort_div100",
+            "offset_int": 0,
+            "address": "0xBEAC5498",
+            "value": height,
+            "write_enabled": True,
+        },
+    ]
+    return {
+        "status": "ok",
+        "player": {
+            "player_base": hex(BASE),
+            "first_name": first,
+            "last_name": last,
+            "field_registry": reg,
+        },
+    }
+
+
+def target(**kw):
+    t = {
+        "ratings": {},
+        "jersey": None,
+        "weight_lb": None,
+        "height_cm": None,
+        "first_name": None,
+        "last_name": None,
+    }
+    t.update(kw)
+    return t
+
+
+# --- 변환 ---
+
+
+@pytest.mark.parametrize("display, raw", [(25, 0), (85, 180), (58, 99), (99, 222), (120, 222)])
+def test_display_raw(display, raw):
+    assert display_to_raw(display) == raw
+    if display <= 99:
+        assert raw_to_display(raw) == display
+
+
+def test_rating_map_matches_documented_2k26_fields():
+    """매핑이 실제 게임에서 확인한 rating 필드 목록과 정확히 일치해야 한다."""
+    doc = (Path(__file__).resolve().parents[1] / "docs" / "2k26-player-fields.md").read_text(
+        "utf-8"
+    )
+    documented = set(re.findall(r"`(rating_[a-z_]+)`", doc))
+    assert documented and set(ALL_KEYS) == documented
+    assert len(ALL_KEYS) == 52 and len(DURABILITY_FIELDS) == 16
+
+
+def test_encode_name():
+    b = encode_name("Kim")
+    assert len(b) == 40 and b.startswith("Kim".encode("utf-16-le")) and b[6:] == bytes(34)
+    with pytest.raises(VenueLabError):
+        encode_name("X" * 20)
+
+
+@pytest.mark.parametrize(
+    "kw, expected",
+    [
+        (dict(name_ko="김낙현", name_en="KIM NAK HYEON", nationality="KR"), ("Nakhyeon", "Kim")),
+        (dict(name_ko="이민서", name_en="Lee Min Seo", nationality="KR"), ("Minseo", "Lee")),
+        (
+            dict(name_ko="데이본 리드", name_en="Davon Reed", player_type="foreign"),
+            ("Davon", "Reed"),
+        ),
+        (dict(name_ko="에디 다니엘", name_en="EDI DANIEL", nationality="KR"), ("Edi", "Daniel")),
+        (dict(name_ko="렌즈 아반도", name_en="Rhenz Joseph Abando"), ("Rhenz Joseph", "Abando")),
+    ],
+)
+def test_game_name(kw, expected):
+    p = make_player("test-x1", player_type=kw.pop("player_type", "domestic"), **kw)
+    n = game_name(p)
+    assert (n.first, n.last) == expected and not n.needs_review
+
+
+def test_game_name_flags_initials_and_uppercase_three_words():
+    assert game_name(
+        make_player("test-x1", name_ko="김세창", name_en="KIM S C", player_type="domestic")
+    ).needs_review
+    p = make_player(
+        "test-x1",
+        name_ko="프레디",
+        name_en="MBUYI FREDDY MUTEBA",
+        player_type="domestic",
+        nationality="CD",
+    )
+    assert game_name(p).needs_review
+
+
+def test_game_name_override():
+    p = make_player("test-x1", name_en="KIM S C", game_name={"first": "Sechang", "last": "Kim"})
+    assert game_name(p) == ("Sechang", "Kim", False, "") or game_name(p).first == "Sechang"
+
+
+# --- 계획 ---
+
+
+def test_build_plan_uses_game_roster_order(rules):
+    team = make_team(
+        players=[copy.deepcopy(GUARD)], game_roster=["test-g1"], nba_slot="Chicago Bulls"
+    )
+    plan = build_plan([team, make_team("test-b")], rules)
+    assert len(plan["teams"]) == 1
+    p = plan["teams"][0]["players"][0]
+    assert p["jersey"] == 3 and p["weight_lb"] == round(75 * 2.2046226218, 1)
+    assert set(p["ratings"]) == set(ALL_KEYS)
+    assert all(25 <= v <= 99 for v in p["ratings"].values())
+
+
+# --- 쓰기 연산 ---
+
+
+def test_no_ops_when_already_equal():
+    m = fake_model(raw=150)
+    t = target(
+        ratings={k: 75 for k in ALL_KEYS if k not in ("rating_driving_layup", "rating_post_fade")}
+    )
+    assert plan_writes(m, t) == []
+
+
+def test_u8_rating_op():
+    ops = plan_writes(fake_model(raw=150), target(ratings={"rating_steal": 99}))
+    (op,) = ops
+    reg = {e["key"]: e for e in fake_model()["player"]["field_registry"]}
+    assert op == WriteOp("rating_steal", BASE + reg["rating_steal"]["offset_int"], "u8", 150, 222)
+
+
+def test_packed_bitfield_matches_real_game_write():
+    # 실제 게임 기록: driving_layup 85→99 일 때 컨테이너 0xED07 → 0xF787
+    (op,) = plan_writes(fake_model(), target(ratings={"rating_driving_layup": 99}))
+    assert op.kind == "bytes" and op.address == BASE + 0x3E1
+    assert op.expected == bytes([0x07, 0xED, 0x18])
+    assert int.from_bytes(op.new[:2], "little") == 0xF787
+    assert op.new[2] == 0x18  # post_fade 상위 비트 보존
+
+
+def test_packed_both_fields_one_write():
+    (op,) = plan_writes(
+        fake_model(), target(ratings={"rating_driving_layup": 99, "rating_post_fade": 99})
+    )
+    v = int.from_bytes(op.new, "little")
+    assert (v >> 6) & 0xFF == 222 and (v >> 14) & 0xFF == 222
+
+
+def test_packed_inconsistent_containers_rejected():
+    m = fake_model()
+    for e in m["player"]["field_registry"]:
+        if e["key"] == "rating_post_fade":
+            e["container_u16"] = 0x1800
+    with pytest.raises(VenueLabError, match="컨테이너"):
+        plan_writes(m, target(ratings={"rating_driving_layup": 99}))
+
+
+def test_jersey_only_changes_bits_3_to_9():
+    (op,) = plan_writes(fake_model(jersey_u16=0x6470), target(jersey=25))
+    assert op.kind == "u16" and op.expected == 0x6470
+    assert (op.new & 0x3F8) >> 3 == 25 and op.new & ~0x3F8 == 0x6470 & ~0x3F8
+
+
+def test_weight_and_height_ops():
+    ops = {o.label: o for o in plan_writes(fake_model(), target(weight_lb=180.8, height_cm=199.0))}
+    assert ops["weight"].kind == "float32" and ops["weight"].new == 180.8
+    assert (
+        ops["appearance_height_cm"].address == 0xBEAC5498
+        and ops["appearance_height_cm"].new == 19900
+    )
+
+
+def test_name_ops_need_read():
+    ops = plan_writes(fake_model(), target(first_name="Jameel", last_name="Buzelis"))
+    (op,) = ops
+    assert op.label == "first_name" and op.needs_read and op.address == BASE + 0x28
+
+
+def test_unknown_field_and_bad_status():
+    with pytest.raises(VenueLabError):
+        plan_writes(fake_model(), target(ratings={"rating_nope": 50}))
+    with pytest.raises(VenueLabError):
+        plan_writes({"status": "process_not_found"}, target())
+
+
+def test_cli_args():
+    assert WriteOp("x", 0x10, "u8", 1, 2).cli_args()[-4:] == [
+        "--direct-expected-old-u8",
+        "1",
+        "--direct-new-u8",
+        "2",
+    ]
+    a = WriteOp("n", 0x10, "bytes", b"\x01", b"\x02").cli_args()
+    assert "--allow-memory-write" in a and a[-3:] == ["01", "--direct-new-hex", "02"]
+
+
+# --- 실행 흐름 ---
+
+
+def test_gate():
+    check_gate(["System", "NBA2K26.exe"])
+    with pytest.raises(VenueLabError, match="안티치트"):
+        check_gate(["NBA2K26.exe", "EasyAntiCheat.exe"])
+    with pytest.raises(VenueLabError, match="실행 중이 아닙니다"):
+        check_gate(["System"])
+
+
+def catalog(display="Chicago Bulls", n=3):
+    slots = [
+        {"slot": i + 1, "pointer": hex(BASE + i * 1176), "player": {"display_name": f"P{i}"}}
+        for i in range(n)
+    ]
+    return {
+        "status": "ok",
+        "teams": [
+            {"team": {"display": display}, "slots": slots},
+            {"team": {"display": "Atlanta Hawks"}, "slots": []},
+        ],
+    }
+
+
+def test_team_slots():
+    assert len(team_slots(catalog(), "Chicago Bulls")) == 3
+    with pytest.raises(VenueLabError, match="찾지 못했습니다"):
+        team_slots(catalog(), "Seoul SK")
+
+
+class FakeProbe:
+    def __init__(self, cat):
+        self.cat, self.calls, self.memory = cat, [], {}
+
+    def __call__(self, args):
+        self.calls.append(args)
+        if args[0] == "--bootstrap-team-slot-roster-catalog":
+            return self.cat
+        if args[0] == "--inspect-player-base-roster-model":
+            return fake_model(last="Old")
+        if args[0] == "--direct-guarded-write":
+            exp = (
+                args[args.index("--direct-expected-old-hex") + 1]
+                if "--direct-expected-old-hex" in args
+                else None
+            )
+            if exp is not None and args[args.index("--direct-new-hex") + 1] == exp:
+                return {"status": "rejected", "actual_old_hex": ("4f006c0064" + "00" * 35)}
+            return {"status": "write_readback_ok"}
+        raise AssertionError(args)
+
+
+def plan1(n=1):
+    return {
+        "teams": [
+            {
+                "nba_slot": "Chicago Bulls",
+                "players": [
+                    dict(target(ratings={"rating_steal": 99}, last_name="Kim"), name_ko=f"선수{i}")
+                    for i in range(n)
+                ],
+            }
+        ]
+    }
+
+
+def test_apply_dry_run_never_writes():
+    probe = FakeProbe(catalog())
+    rep = apply_plan(plan1(), probe, write=False, processes=["NBA2K26.exe"])
+    assert not any(c[0] == "--direct-guarded-write" for c in probe.calls)
+    assert rep.count("planned") == 1 and rep.count("dry_run") == 2
+
+
+def test_apply_writes_with_name_read_first():
+    probe = FakeProbe(catalog())
+    rep = apply_plan(plan1(), probe, write=True, processes=["NBA2K26.exe"])
+    writes = [c for c in probe.calls if c[0] == "--direct-guarded-write"]
+    assert len(writes) == 3  # steal + 이름 읽기 + 이름 쓰기
+    name_write = writes[-1]
+    assert name_write[name_write.index("--direct-expected-old-hex") + 1] == "4f006c0064" + "00" * 35
+    assert rep.count("write_readback_ok") == 2
+
+
+def test_apply_refuses_with_eac():
+    with pytest.raises(VenueLabError):
+        apply_plan(
+            plan1(),
+            FakeProbe(catalog()),
+            write=True,
+            processes=["NBA2K26.exe", "EasyAntiCheat_EOS.exe"],
+        )
+
+
+def test_apply_warns_when_fewer_slots():
+    rep = apply_plan(plan1(n=5), FakeProbe(catalog(n=2)), write=False, processes=["NBA2K26.exe"])
+    assert rep.count("warning") == 1 and rep.count("planned") == 2
