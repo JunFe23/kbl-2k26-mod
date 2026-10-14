@@ -20,6 +20,31 @@
 | mryangyeahfun/NBA2K-Roster-Editor | GitHub | 불명 | changelog.json 만 공개 | 라이선스·README 없음 | [확인] GitHub API |
 | Cheat Engine 테이블 | — | 검증된 2K26 테이블 없음 | — | itch.io "Cheat Menu" 류는 악성코드 위험 → 사용 금지 | [미확인] |
 
+## 검토한 GitHub 도구: OzWolf/nba2k26-custom-mynba (2026-10-15, 소스 직접 확인)
+- 저장소: https://github.com/OzWolf/nba2k26-custom-mynba
+  - Apache-2.0, C# 콘솔 앱, 최신 v1.1.0 (2026-05-15)
+  - ★1, 릴리스 다운로드 123회
+- 용도: **로스터 에디터가 아니다.** 로고·코트 바닥·유니폼 텍스처를 IFF 로 만드는 도구다(비주얼 단계용).
+- 동작 [확인 — 소스]:
+  - 자기 폴더의 `./mods/logos`, `./mods/levels`, `./work`, `./teams` 와 `%APPDATA%\NBA2K26CustomMyNBA\leagues.json` 에만 쓴다.
+  - 게임 폴더는 건드리지 않는다. 사용자가 결과 IFF 를 게임의 `mods` 폴더로 직접 복사한다.
+  - IFF 생성 방식: 내장 템플릿 IFF(logo.iff, arena_floor.iff)를 복사한다. PNG 를 texconv 로 BC7 DDS 로 변환해 7-Zip 으로 IFF 안에 넣는다.
+    - → **IFF 는 7z 형식 컨테이너**라는 근거다.
+  - 외부 의존성: Microsoft texconv, 7-Zip
+- 팀 슬롯 매핑 [소스 Configuration.json, 게임 내 미확인]:
+  - 36팀(NBA 30 + 확장 6)
+  - 예: 76ers = `logo000.iff` / `arena_000_int_floor.iff`
+  - 확장팀: Kansas City Knights, Nashville Stars, Pittsburgh Force, San Diego Surf, Virginia Storm, Vancouver Ravens
+- 위험 요소:
+  - 릴리스 exe 는 서명이 없고 1.2GB(게임 에셋 템플릿 내장)다.
+  - exe 가 공개 소스로 빌드된 것인지 확인할 수 없다.
+  - 템플릿 IFF 가 저장소에 없어 직접 빌드할 수 없다.
+- 판정: 비주얼 단계(5단계)에서 후보로 쓴다. 쓸 때는 다음을 지킨다.
+  - GitHub digest 와 SHA-256 을 대조한다.
+  - Windows Defender 로 검사한다.
+  - 프로젝트·게임 폴더 밖의 전용 폴더에서 실행한다.
+  - 게임 `mods` 에 복사하기 전후로 `kbl2k game snapshot/diff` 를 한다.
+
 ## 텍스처 / 모델 / 로딩
 | 도구 | 2K26 | 내용 | 근거 |
 |---|---|---|---|
