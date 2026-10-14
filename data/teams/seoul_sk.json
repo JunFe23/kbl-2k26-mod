@@ -7,7 +7,24 @@
   "arena": "잠실학생체육관",
   "head_coach": "전희철",
   "season": "2026-27",
-  "nba_slot": null,
+  "nba_slot": "Atlanta Hawks",
+  "game_roster": [
+    "sk-lee-min-seo",
+    "sk-choi-wonhyuk",
+    "sk-kim-nak-hyeon",
+    "sk-an-youngjun",
+    "sk-sun-sanghyuk",
+    "sk-choi-bukyung",
+    "sk-jeon-jun-beom",
+    "sk-mbuyi-freddy-muteba",
+    "sk-oh-jaehyun",
+    "sk-kim-hyungbin",
+    "sk-arvin-tolentino",
+    "sk-isaiah-hicks",
+    "sk-jameel-warney",
+    "sk-edi-daniel",
+    "sk-oh-sekeun"
+  ],
   "verification": {
     "status": "verified",
     "sources": [

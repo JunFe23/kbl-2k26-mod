@@ -211,3 +211,31 @@ def test_stat_line_requires_season_and_league(dataset):
 def test_stat_line_rejects_unknown_field(dataset):
     _edit_team(dataset, lambda t: t["players"][0]["stats"][0].update(per=20))
     assert errors(dataset)
+
+
+def test_game_roster_ok(dataset):
+    _edit_team(dataset, lambda t: t.update(game_roster=["test-g1"], nba_slot="Chicago Bulls"))
+    assert errors(dataset) == []
+
+
+def test_game_roster_unknown_player(dataset):
+    _edit_team(dataset, lambda t: t.update(game_roster=["ghost"], nba_slot="Chicago Bulls"))
+    assert any("팀에 없는 선수" in e.message for e in errors(dataset))
+
+
+def test_game_roster_max_15(dataset):
+    _edit_team(dataset, lambda t: t.update(game_roster=[f"p{i}" for i in range(16)]))
+    assert errors(dataset)
+
+
+def test_game_roster_without_slot_warns(dataset):
+    _edit_team(dataset, lambda t: t.update(game_roster=["test-g1"]))
+    issues = validate_dataset(dataset)
+    assert not has_errors(issues)
+    assert any("nba_slot" in i.path for i in issues)
+
+
+def test_repo_game_rosters():
+    for f, slot in (("anyang_kgc.json", "Chicago Bulls"), ("seoul_sk.json", "Atlanta Hawks")):
+        t = read(REPO_DATA / "teams" / f)
+        assert t["nba_slot"] == slot and len(t["game_roster"]) == 15

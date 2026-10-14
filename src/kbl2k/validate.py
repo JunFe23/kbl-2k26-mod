@@ -109,6 +109,21 @@ def check_team(
         if n > 1:
             issues.append(error(file, "$.players", f"등번호 {num} 중복 ({n}명)"))
     issues += _check_roster_status(team, file)
+    issues += _check_game_roster(team, file)
+    return issues
+
+
+def _check_game_roster(team: dict[str, Any], file: str) -> list[Issue]:
+    ids = {p["id"] for p in team["players"]}
+    issues = [
+        error(file, f"$.game_roster[{i}]", f"팀에 없는 선수 '{pid}'")
+        for i, pid in enumerate(team.get("game_roster", []))
+        if pid not in ids
+    ]
+    if "game_roster" in team and team["nba_slot"] is None:
+        issues.append(
+            warning(file, "$.nba_slot", "game_roster 가 있으나 교체할 NBA 팀(nba_slot)이 없음")
+        )
     return issues
 
 

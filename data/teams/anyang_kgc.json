@@ -7,7 +7,24 @@
   "arena": "안양 정관장 아레나",
   "head_coach": "유도훈",
   "season": "2026-27",
-  "nba_slot": null,
+  "nba_slot": "Chicago Bulls",
+  "game_roster": [
+    "kgc-kim-s-c",
+    "kgc-park-jung-woong",
+    "kgc-byun-jun-hyung",
+    "kgc-park-jihoon",
+    "kgc-pyo-seong-bin",
+    "kgc-davon-reed",
+    "kgc-heo-ilyoung",
+    "kgc-rhenz-joseph-abando",
+    "kgc-park-chan-ho",
+    "kgc-kim-jong-kyu",
+    "kgc-lee-dae-heon",
+    "kgc-moon-yu-hyeon",
+    "kgc-rashawn-thomas",
+    "kgc-john-mooney",
+    "kgc-han-seung-hee"
+  ],
   "verification": {
     "status": "verified",
     "sources": [

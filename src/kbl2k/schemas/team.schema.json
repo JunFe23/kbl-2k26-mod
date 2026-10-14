@@ -21,6 +21,13 @@
       "type": ["string", "null"],
       "description": "MyNBA에서 대체할 NBA 팀 이름(미정이면 null)"
     },
+    "game_roster": {
+      "type": "array",
+      "items": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
+      "uniqueItems": true,
+      "maxItems": 15,
+      "description": "2K 게임에 넣을 선수 id (최대 15명, ADR-0015)"
+    },
     "verification": {"$ref": "urn:kbl2k:schema:common#/$defs/verification"},
     "players": {
       "type": "array",
