@@ -153,3 +153,17 @@
 | 도구 | 버전 | SHA-256 | 게임 빌드 | 결과 | 날짜 |
 |---|---|---|---|---|---|
 | (미검증) | | | 24237529 | | |
+
+## 2K26 세이브 파일 형식 [확인 — 이 PC, 2026-10-15]
+- 위치: `E:\game\steam\userdata\<SteamID>\3472040\remote\` (Steam 클라우드 동기화 대상)
+- 파일 목록: `UserData`, `Settings`, `CreatedPlayers`, `MyCAREER0001`, `RosterDescriptions`, `SaveDescriptions`, `CareerModeBuilds` 등
+- 모든 파일이 `EBNH` 매직 + 8바이트(파일별 상이) + 8바이트(3종) + 암호화 본문 구조다.
+  - 엔트로피는 약 8.0, 크기는 8의 배수다.
+- 결론: 로스터·세이브 파일은 **암호화**되어 있어 파일 기반 편집이 불가하다.
+  - 2K26 에디터가 모두 메모리 편집 방식인 이유로 보인다.
+  - 자세한 판단은 docs/adr/0014 를 본다.
+- 2KVenueLab 2.15 다운로드 정보: https://forums.nba-live.com/downloads.php?view=detail&df_id=13923
+  - `2K VenueLab 2.15.zip`, MD5 `fb5e5bc97ce31d85de60093520b3711b` (2026-07-22)
+  - 본 사이트(www.nba-live.com)는 접속 불가, 포럼 주소는 접속 가능(2026-10-15)
+  - 2K26 로스터 편집은 메모리 편집이며 "EAC 끄고 오프라인 실행"이 필요하다(제작자 안내).
+  - 새 선수 생성과 CSV 가져오기는 아직 지원하지 않는다. 기존 선수를 덮어쓰는 방식이다.
