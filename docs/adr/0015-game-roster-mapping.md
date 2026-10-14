@@ -55,3 +55,11 @@
 - 평균·표준편차는 2025-26 KBL 133명으로 다시 보정했다(`kbl2k calibrate`).
 - 고정 기본값(잠정): Intangibles 60, Potential 65, Durability 80
   - `ratings_override` 로 선수별로 바꿀 수 있다.
+
+## 게임 이름 직접 지정 (2026-10-15, 사용자)
+자동 변환이 어려운 선수는 `game_name` 으로 직접 지정한다.
+
+| 선수 | KBL 영문명 | 게임 이름 |
+|---|---|---|
+| 김세창 | KIM S C (이니셜) | Sechang Kim (국어의 로마자 표기법) |
+| 프레디 | MBUYI FREDDY MUTEBA | Freddy Mbuyi (사용자 지정) |

@@ -1029,6 +1029,10 @@
       "kbl_player_id": "291869",
       "name_ko": "프레디",
       "name_en": "MBUYI FREDDY MUTEBA",
+      "game_name": {
+        "first": "Freddy",
+        "last": "Mbuyi"
+      },
       "team_id": "seoul-sk",
       "jersey_number": 21,
       "positions": [],
