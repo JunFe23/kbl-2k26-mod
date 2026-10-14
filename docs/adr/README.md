@@ -19,3 +19,4 @@
 | [0010](0010-rating-model.md) | 능력치 산정 모델 | 승인 |
 | [0011](0011-long-absence-players.md) | 장기 미출전 국내 선수 처리 | 승인 |
 | [0012](0012-rating-scale-realistic.md) | 전체 능력치 수준 = 현실 반영 | 시험 중 |
+| [0013](0013-editor-verification-procedure.md) | 로스터 에디터 검증 절차 | 제안 |

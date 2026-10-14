@@ -12,6 +12,15 @@ from . import __version__
 from .backup import BackupError, create_backup, restore_backup, verify_backup
 from .dataset import RULES_FILE, DataError, load_dataset
 from .fetch import fetch_league, fetch_players, league_file
+from .game import (
+    GameError,
+    asset_summary,
+    diff_snapshots,
+    find_game,
+    read_asset_manifest,
+    save_snapshot,
+    take_snapshot,
+)
 from .issues import has_errors
 from .kbl_api import KblApiError, fetch_team_names, season_code
 from .mapping import coverage
@@ -168,6 +177,68 @@ def cmd_positions_import(args: argparse.Namespace) -> int:
     return 0
 
 
+def _game(args: argparse.Namespace):
+    return find_game(args.steam_dir)
+
+
+def cmd_game_info(args: argparse.Namespace) -> int:
+    try:
+        info = _game(args)
+        summary = asset_summary(read_asset_manifest(info.install_dir))
+    except GameError as e:
+        print(f"확인 실패: {e}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps({**info.as_dict(), "assets": summary}, ensure_ascii=False, indent=2))
+        return 0
+    print(f"{info.name} (appid {info.appid})")
+    print(f"  설치 폴더   {info.install_dir}")
+    print(f"  Steam 빌드  {info.buildid} (업데이트 {info.last_updated})")
+    print("  에셋 (manifest 기준):")
+    for kind, s in summary.items():
+        print(f"    {kind:<18} {s['count']:>5}개  ID {s['min']}~{s['max']}")
+    return 0
+
+
+def cmd_game_snapshot(args: argparse.Namespace) -> int:
+    try:
+        info = _game(args)
+        target = args.dir or info.install_dir
+        print(f"스냅샷 작성 중: {target}", file=sys.stderr)
+        snap = take_snapshot(target, info.buildid)
+        path = save_snapshot(snap, args.out, args.label)
+    except GameError as e:
+        print(f"스냅샷 실패: {e}", file=sys.stderr)
+        return 1
+    print(f"저장: {path} (파일 {len(snap['files'])}개, 빌드 {info.buildid})")
+    return 0
+
+
+def cmd_game_diff(args: argparse.Namespace) -> int:
+    old = json.loads(args.old.read_text("utf-8"))
+    if args.new:
+        new = json.loads(args.new.read_text("utf-8"))
+    else:
+        try:
+            info = _game(args)
+        except GameError as e:
+            print(f"확인 실패: {e}", file=sys.stderr)
+            return 1
+        new = take_snapshot(Path(old["game_dir"]), info.buildid, old.get("hash_limit", 64 << 20))
+    d = diff_snapshots(old, new)
+    if d.build_changed:
+        print(f"빌드 변경: {old.get('buildid')} → {new.get('buildid')} (게임 업데이트)")
+    for label, items in (("추가", d.added), ("삭제", d.removed), ("변경", d.changed)):
+        for rel in items:
+            print(f"{label}  {rel}")
+    print(
+        "변경 없음"
+        if d.clean
+        else f"추가 {len(d.added)} / 삭제 {len(d.removed)} / 변경 {len(d.changed)}"
+    )
+    return 0 if d.clean else 2
+
+
 def cmd_backup(args: argparse.Namespace) -> int:
     try:
         dest = create_backup(args.game_dir, args.files, args.out, args.label)
@@ -247,6 +318,26 @@ def build_parser() -> argparse.ArgumentParser:
     m.add_argument("csv", type=Path)
     m.add_argument("--dry-run", action="store_true", help="변경 내용만 보여주기")
     m.set_defaults(func=cmd_positions_import)
+
+    s = sub.add_parser("game", help="설치된 NBA 2K26 확인·변경 감시 (읽기 전용)")
+    s.add_argument("--steam-dir", type=Path, help="Steam 폴더 (기본: 레지스트리)")
+    g_sub = s.add_subparsers(dest="game_command", required=True)
+    g = g_sub.add_parser("info", help="설치 경로, Steam 빌드, 에셋 요약")
+    g.add_argument("--json", action="store_true")
+    g.set_defaults(func=cmd_game_info)
+    g = g_sub.add_parser("snapshot", help="게임 폴더 파일 목록·해시 기록")
+    g.add_argument("--out", type=Path, default=Path("game_backup/snapshots"))
+    g.add_argument("--label", help="예: before-2kvenuelab")
+    g.add_argument(
+        "--dir", type=Path, help="게임 폴더 대신 기록할 폴더 (예: Steam userdata 세이브 폴더)"
+    )
+    g.set_defaults(func=cmd_game_snapshot)
+    g = g_sub.add_parser(
+        "diff", help="스냅샷 비교 (new 생략 시 현재 상태와 비교). 변경 있으면 exit 2"
+    )
+    g.add_argument("old", type=Path)
+    g.add_argument("new", type=Path, nargs="?")
+    g.set_defaults(func=cmd_game_diff)
 
     s = sub.add_parser("backup", help="게임 파일 백업 (게임 폴더는 읽기만 함)")
     s.add_argument("--game-dir", type=Path, required=True)

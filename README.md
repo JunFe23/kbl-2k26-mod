@@ -32,6 +32,11 @@ kbl2k positions export -o positions.csv   # primary/secondary 열 채우기
 kbl2k positions import positions.csv --dry-run
 kbl2k positions import positions.csv
 
+# 설치된 게임 확인·변경 감시 (읽기 전용)
+kbl2k game info                   # 설치 경로, Steam 빌드, 에셋 요약
+kbl2k game snapshot --label before-<도구>   # 외부 도구 사용 전 기록
+kbl2k game diff game_backup\snapshots\<스냅샷>.json   # 사용 후 바뀐 파일 확인
+
 # 게임 파일 백업/복구 — 게임 폴더는 읽기만 하고, 백업은 게임 폴더 밖에 저장
 kbl2k backup --game-dir "D:\SteamLibrary\steamapps\common\NBA 2K26" --label pre-roster <상대경로...>
 kbl2k verify-backup game_backup\<타임스탬프>
@@ -51,6 +56,9 @@ src/kbl2k/
   mapping.py      에셋 ID 매핑 검증·진행 현황
   positions.py    KBL(G/F/C) ↔ 2K(PG…C) 포지션, CSV 입출력
   backup.py       게임 파일 백업/복구 (SHA-256 manifest)
+  game.py         설치 게임 정보, 스냅샷/변경 감시, 에셋 목록 요약
+  kbl_api.py      KBL 공식 기록 API 클라이언트
+  fetch.py        기록 수집 → data/ 반영
 data/
   sources.json            출처 목록 (URL, 조회일)
   teams/*.json            팀 + 선수 로스터

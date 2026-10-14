@@ -35,6 +35,10 @@
 - [ ] 능력치 결과 검토(포지션별 분포, OVR 범위) 및 `ratings_override` 수동 보정
 
 ### 3단계 — 도구 검증 (게임 쓰기 직전 단계)
+- [x] 설치 게임 확인(`kbl2k game info`): Steam 빌드 24237529, 기존 모드 없음
+- [x] 2K26 에셋 파일명 규칙 확인(게임 manifest): 얼굴 `char/sig/png{ID}`, 로고 `logos/logo{ID}`, 코트 `levels/arena_{ID}_int_floor`, 확장팀 유니폼 존재
+- [x] 기준 스냅샷(게임 폴더·세이브 폴더) + 변경 감시 도구(`kbl2k game snapshot/diff`)
+- [ ] 검증 절차 승인(ADR-0013)
 - [ ] 로스터 에디터 후보(2KVenueLab 등) 설치·체크리스트 검증
 - [ ] 에디터의 import/export 포맷 실측 → 문서화 (추측 금지)
 - [ ] 2K26 능력치 목록을 에디터 화면과 대조 → `attributes.schema.json` 확정
