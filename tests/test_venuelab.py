@@ -1,13 +1,18 @@
 """VenueLab 일괄 입력 로직 테스트 (가짜 probe, 게임·외부 도구 실행 없음)."""
 
 import copy
+import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 from conftest import GUARD, make_player, make_team
 
 from kbl2k.venuelab import (
+    BATCH_WORKER,
+    BATCH_WRITE,
     DURABILITY_FIELDS,
     OWNER_TABLE_CATALOG,
     RATING_FIELD_MAP,
@@ -312,8 +317,12 @@ def test_team_slots():
 
 
 class FakeProbe:
+    """카탈로그·모델·일괄 쓰기를 흉내. 이름 칸은 'Old' 가 들어 있다고 가정."""
+
+    OLD_NAME_HEX = "4f006c0064" + "00" * 35
+
     def __init__(self, cat):
-        self.cat, self.calls, self.memory = cat, [], {}
+        self.cat, self.calls, self.batches = cat, [], []
 
     def __call__(self, args):
         self.calls.append(args)
@@ -321,15 +330,18 @@ class FakeProbe:
             return self.cat
         if args[0] == "--inspect-player-base-roster-model":
             return fake_model(last="Old")
-        if args[0] == "--direct-guarded-write":
-            exp = (
-                args[args.index("--direct-expected-old-hex") + 1]
-                if "--direct-expected-old-hex" in args
-                else None
-            )
-            if exp is not None and args[args.index("--direct-new-hex") + 1] == exp:
-                return {"status": "rejected", "actual_old_hex": ("4f006c0064" + "00" * 35)}
-            return {"status": "write_readback_ok"}
+        if args[0] == BATCH_WRITE:
+            ops = json.loads(args[1])
+            self.batches.append(ops)
+            out = []
+            for o in ops:
+                if o["needs_read"]:
+                    out.append(
+                        {"status": "write_readback_ok", "used_expected_old_hex": self.OLD_NAME_HEX}
+                    )
+                else:
+                    out.append({"status": "write_readback_ok"})
+            return {"results": out}
         raise AssertionError(args)
 
 
@@ -354,14 +366,66 @@ def test_apply_dry_run_never_writes():
     assert rep.count("planned") == 1 and rep.count("dry_run") == 2
 
 
-def test_apply_writes_with_name_read_first():
+def test_apply_writes_one_batch_per_player():
     probe = FakeProbe(catalog())
     rep = apply_plan(plan1(), probe, write=True, processes=["NBA2K26.exe"])
-    writes = [c for c in probe.calls if c[0] == "--direct-guarded-write"]
-    assert len(writes) == 3  # steal + 이름 읽기 + 이름 쓰기
-    name_write = writes[-1]
-    assert name_write[name_write.index("--direct-expected-old-hex") + 1] == "4f006c0064" + "00" * 35
+    assert len(probe.batches) == 1
+    (batch,) = probe.batches
+    assert [o["needs_read"] for o in batch] == [False, True]  # steal, last_name
+    assert batch[0]["kwargs"]["value_kind"] == "u8" and batch[0]["kwargs"]["new_u8"] == 222
     assert rep.count("write_readback_ok") == 2
+    name_ev = [e for e in rep.events if e.get("op", {}).get("label") == "last_name"][0]
+    assert name_ev["op"]["expected"] == FakeProbe.OLD_NAME_HEX
+
+
+FAKE_VENUELAB = """
+MEM = {}
+def direct_guarded_write(executable, *, address, value_kind, expected_old_hex="", new_hex="", **kw):
+    cur = MEM.get(address)
+    if value_kind == "bytes":
+        exp, new = bytes.fromhex(expected_old_hex), bytes.fromhex(new_hex)
+        if cur != exp:
+            return {"status": "rejected", "actual_old_hex": cur.hex(" ")}
+        MEM[address] = new
+        return {"status": "write_readback_ok", "after_hex": new.hex(" ")}
+    if cur != kw["expected_old_u8"]:
+        return {"status": "rejected"}
+    MEM[address] = kw["new_u8"]
+    return {"status": "write_readback_ok"}
+MEM[0x10] = "Old".encode("utf-16-le") + bytes(34)
+MEM[0x50] = "New".encode("utf-16-le") + bytes(34)
+MEM[0x20] = 150
+"""
+
+
+def test_batch_worker_runs_against_fake_venuelab(tmp_path):
+    """실제 BATCH_WORKER 코드를 가짜 VenueLab 모듈로 실행."""
+    from kbl2k.venuelab import op_kwargs
+
+    (tmp_path / "roster_live_memory_probe.py").write_text(FAKE_VENUELAB, "utf-8")
+    ops = [
+        WriteOp("steal", 0x20, "u8", 150, 222),
+        WriteOp("steal_again_stale", 0x20, "u8", 150, 99),  # 이전값 불일치 → 거부
+        WriteOp("last_name", 0x10, "bytes", None, encode_name("Kim"), needs_read=True),
+        WriteOp("same_name", 0x50, "bytes", None, encode_name("New"), needs_read=True),
+    ]
+    ops_file, out_file = tmp_path / "ops.json", tmp_path / "out.json"
+    ops_file.write_text(
+        json.dumps([{"kwargs": op_kwargs(o), "needs_read": o.needs_read} for o in ops])
+    )
+    subprocess.run(
+        [sys.executable, "-c", BATCH_WORKER, str(tmp_path), str(ops_file), str(out_file)],
+        check=True,
+        cwd=tmp_path,
+    )
+    res = json.loads(out_file.read_text("utf-8"))
+    assert [r["status"] for r in res] == [
+        "write_readback_ok",
+        "rejected",
+        "write_readback_ok",
+        "unchanged",
+    ]
+    assert res[2]["used_expected_old_hex"] == ("Old".encode("utf-16-le") + bytes(34)).hex()
 
 
 def test_apply_refuses_with_eac():

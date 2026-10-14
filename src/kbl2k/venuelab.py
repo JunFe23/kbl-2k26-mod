@@ -268,6 +268,40 @@ class WriteOp:
         return args
 
 
+def op_kwargs(op: WriteOp) -> dict[str, Any]:
+    """WriteOp → VenueLab direct_guarded_write 키워드 인자."""
+    kw: dict[str, Any] = {
+        "address": op.address,
+        "value_kind": op.kind,
+        "expected_old_float": 0.0,
+        "new_float": 0.0,
+        "expected_old_u8": 0,
+        "new_u8": 0,
+        "expected_old_u16": 0,
+        "new_u16": 0,
+        "expected_old_u64": 0,
+        "new_u64": 0,
+        "tolerance": 0.01,
+        "label": op.label,
+        "expected_old_hex": "",
+        "new_hex": "",
+    }
+    if op.kind == "u8":
+        kw.update(expected_old_u8=int(op.expected), new_u8=int(op.new))
+    elif op.kind == "u16":
+        kw.update(expected_old_u16=int(op.expected), new_u16=int(op.new))
+    elif op.kind == "float32":
+        kw.update(expected_old_float=float(op.expected), new_float=float(op.new))
+    elif op.kind == "bytes":
+        kw.update(
+            expected_old_hex=op.expected.hex() if op.expected is not None else "",
+            new_hex=op.new.hex(),
+        )
+    else:
+        raise VenueLabError(f"지원하지 않는 kind: {op.kind}")
+    return kw
+
+
 def _registry(model: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {e["key"]: e for e in model["player"]["field_registry"]}
 
@@ -367,6 +401,34 @@ def plan_writes(model: dict[str, Any], target: dict[str, Any]) -> list[WriteOp]:
 ProbeRunner = Callable[[list[str]], dict[str, Any]]
 OWNER_TABLE_CATALOG = "kbl2k:owner-table-catalog"  # 내부 전용 의사 명령
 BOOTSTRAP_CATALOG = "--bootstrap-team-slot-roster-catalog"
+BATCH_WRITE = "kbl2k:batch-write"  # 내부 전용: 한 프로세스에서 guarded write 연속 실행
+
+# VenueLab 파이썬으로 실행되는 일괄 쓰기 워커. 각 쓰기는 VenueLab 의 direct_guarded_write 를
+# 그대로 호출한다(이전값 확인 → 쓰기 → 다시 읽기). needs_read 항목은 이전값=새값 호출로
+# 실제 바이트를 먼저 읽는다(무변경).
+BATCH_WORKER = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import roster_live_memory_probe as p
+ops = json.load(open(sys.argv[2], encoding='utf-8'))
+out = []
+for o in ops:
+    kw = dict(o['kwargs'])
+    if o.get('needs_read'):
+        r = p.direct_guarded_write('NBA2K26.exe', **{**kw, 'expected_old_hex': kw['new_hex']})
+        if r.get('status') == 'write_readback_ok':
+            out.append({'status': 'unchanged', 'reason': 'already equal'})
+            continue
+        a = (r.get('actual_old_hex') or '').replace(' ', '')
+        if r.get('status') != 'rejected' or len(a) != len(kw['new_hex']):
+            out.append({'status': 'error', 'reason': 'read failed: ' + str(r.get('reason'))})
+            continue
+        kw['expected_old_hex'] = a
+    r = p.direct_guarded_write('NBA2K26.exe', **kw)
+    r['used_expected_old_hex'] = kw.get('expected_old_hex', '')
+    out.append(r)
+json.dump(out, open(sys.argv[3], 'w', encoding='utf-8'), default=str)
+"""
 
 
 def make_probe_runner(venuelab_dir: Path, timeout: float = 600) -> ProbeRunner:
@@ -380,7 +442,11 @@ def make_probe_runner(venuelab_dir: Path, timeout: float = 600) -> ProbeRunner:
     def run(args: list[str]) -> dict[str, Any]:
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "out.json"
-            if args == [OWNER_TABLE_CATALOG]:
+            if args and args[0] == BATCH_WRITE:
+                ops_path = Path(td) / "ops.json"
+                ops_path.write_text(args[1], "utf-8")
+                cmd = [str(python), "-c", BATCH_WORKER, str(script.parent), str(ops_path), str(out)]
+            elif args == [OWNER_TABLE_CATALOG]:
                 # CLI 플래그가 없는 읽기 전용 함수 — VenueLab 앱의 팀 목록과 같은 방식
                 code = (
                     "import json,sys;sys.path.insert(0,sys.argv[1]);"
@@ -399,7 +465,8 @@ def make_probe_runner(venuelab_dir: Path, timeout: float = 600) -> ProbeRunner:
                 timeout=timeout,
             )
             if out.is_file():
-                return json.loads(out.read_text("utf-8-sig"))
+                data = json.loads(out.read_text("utf-8-sig"))
+                return {"results": data} if isinstance(data, list) else data
             try:
                 return json.loads(proc.stdout)
             except json.JSONDecodeError as e:
@@ -609,8 +676,7 @@ def apply_plan(
                 for op in ops:
                     report.log(stage="op", status="dry_run", op=_op_dict(op), **who)
                 continue
-            for op in ops:
-                _execute(op, probe, report, who)
+            _execute_batch(ops, probe, report, who)
     return report
 
 
@@ -623,33 +689,26 @@ def _op_dict(op: WriteOp) -> dict[str, Any]:
     return d
 
 
-def _execute(op: WriteOp, probe: ProbeRunner, report: ApplyReport, who: dict[str, Any]) -> None:
-    if op.needs_read:
-        # 이전값=새값으로 호출한다.
-        # 일치하면 그대로(무변경), 다르면 거부되며 실제 바이트를 돌려준다.
-        res = probe(WriteOp(op.label, op.address, "bytes", op.new, op.new).cli_args())
-        if res.get("status") == "write_readback_ok":
-            report.log(stage="op", status="unchanged", op=_op_dict(op), **who)
-            return
-        actual = res.get("actual_old_hex", "").replace(" ", "")
-        if res.get("status") != "rejected" or len(actual) != len(op.new) * 2:
-            report.log(
-                stage="op",
-                status="error",
-                reason=f"이전값 읽기 실패: {res.get('reason')}",
-                op=_op_dict(op),
-                **who,
-            )
-            return
-        op = WriteOp(op.label, op.address, "bytes", bytes.fromhex(actual), op.new)
-    res = probe(op.cli_args())
-    report.log(
-        stage="op",
-        status=res.get("status", "unknown"),
-        reason=res.get("reason", ""),
-        op=_op_dict(op),
-        **who,
-    )
+def _execute_batch(
+    ops: list[WriteOp], probe: ProbeRunner, report: ApplyReport, who: dict[str, Any]
+) -> None:
+    if not ops:
+        return
+    payload = json.dumps([{"kwargs": op_kwargs(o), "needs_read": o.needs_read} for o in ops])
+    res = probe([BATCH_WRITE, payload])
+    results = res.get("results")
+    if not isinstance(results, list) or len(results) != len(ops):
+        report.log(
+            stage="op", status="error", reason=f"일괄 쓰기 결과 이상: {str(res)[:300]}", **who
+        )
+        return
+    for op, r in zip(ops, results, strict=True):
+        d = _op_dict(op)
+        if r.get("used_expected_old_hex"):
+            d["expected"] = r["used_expected_old_hex"]
+        report.log(
+            stage="op", status=r.get("status", "unknown"), reason=r.get("reason", ""), op=d, **who
+        )
 
 
 def write_report(report: ApplyReport, path: Path) -> None:
