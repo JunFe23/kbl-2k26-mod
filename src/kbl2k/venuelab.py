@@ -414,14 +414,58 @@ def check_gate(processes: list[str]) -> None:
         raise VenueLabError("NBA2K26.exe 가 실행 중이 아닙니다.")
 
 
-def team_slots(catalog: dict[str, Any], display: str) -> list[dict[str, Any]]:
+NBA_TEAM_INDEX_MAX = 29  # 2K 팀 테이블 0~29번 = 현역 NBA 팀 (클래식·확장팀은 그 뒤)
+
+
+def team_index(catalog: dict[str, Any], entry: dict[str, Any]) -> int | None:
+    """팀 레코드의 팀 테이블 번호. owner_tables 정보가 없거나 맞지 않으면 None."""
+    table = (catalog.get("owner_tables") or {}).get("Team") or {}
+    try:
+        base = int(str(table["base"]), 0)
+        stride = int(table["stride"])
+        ptr = int(str(entry["team_pointer"]), 0)
+    except (KeyError, TypeError, ValueError):
+        return None
+    off = ptr - base
+    if stride <= 0 or off < 0 or off % stride:
+        return None
+    return off // stride
+
+
+def describe_team(catalog: dict[str, Any], entry: dict[str, Any]) -> dict[str, Any]:
+    slots = sorted(entry.get("slots", []), key=lambda s: s["slot"])
+    return {
+        "team_pointer": entry.get("team_pointer"),
+        "team_index": team_index(catalog, entry),
+        "abbr": entry.get("team", {}).get("abbr"),
+        "players": [s["player"].get("display_name") for s in slots if s.get("player")][:5],
+    }
+
+
+def select_team(catalog: dict[str, Any], display: str) -> tuple[dict[str, Any], str]:
+    """display 이름의 팀 레코드를 고른다.
+
+    같은 이름이 여럿이면(클래식 팀 등) 현역 번호대(0~29)가 하나일 때만 고르고, 아니면 멈춘다.
+    """
     teams = [t for t in catalog.get("teams", []) if t.get("team", {}).get("display") == display]
     if not teams:
         found = sorted({t.get("team", {}).get("display", "?") for t in catalog.get("teams", [])})
         raise VenueLabError(f"게임에서 '{display}' 팀을 찾지 못했습니다. 발견된 팀: {found[:40]}")
-    if len(teams) > 1:
-        raise VenueLabError(f"'{display}' 팀이 {len(teams)}개 발견되었습니다(모호함)")
-    slots = sorted(teams[0].get("slots", []), key=lambda s: s["slot"])
+    if len(teams) == 1:
+        return teams[0], "유일"
+    current = [
+        t for t in teams if (i := team_index(catalog, t)) is not None and i <= NBA_TEAM_INDEX_MAX
+    ]
+    if len(current) == 1:
+        others = [describe_team(catalog, t) for t in teams if t is not current[0]]
+        return current[0], f"같은 이름 {len(teams)}개 중 현역 번호대(0~29) 선택. 제외: {others}"
+    detail = [describe_team(catalog, t) for t in teams]
+    raise VenueLabError(f"'{display}' 팀이 {len(teams)}개 발견되었습니다(모호함): {detail}")
+
+
+def team_slots(catalog: dict[str, Any], display: str) -> list[dict[str, Any]]:
+    entry, _ = select_team(catalog, display)
+    slots = sorted(entry.get("slots", []), key=lambda s: s["slot"])
     return [s for s in slots if s.get("player") and s.get("pointer")]
 
 
@@ -443,15 +487,37 @@ def apply_plan(
     write: bool = False,
     processes: list[str] | None = None,
     report: ApplyReport | None = None,
+    progress: Callable[[str], None] = lambda msg: None,
+    catalog_path: Path | None = None,
 ) -> ApplyReport:
     report = report or ApplyReport()
+    progress("1/3 안전 확인 (안티치트·게임 실행 여부)")
     check_gate(processes if processes is not None else running_processes())
+    progress("2/3 게임에서 팀·선수 목록 읽는 중 — 1~3분 걸릴 수 있습니다. 기다려 주세요")
     catalog = probe(["--bootstrap-team-slot-roster-catalog"])
+    if catalog_path is not None:
+        catalog_path.parent.mkdir(parents=True, exist_ok=True)
+        catalog_path.write_text(json.dumps(catalog, ensure_ascii=False), "utf-8")
+    report.log(
+        stage="catalog",
+        status=catalog.get("status"),
+        team_count=catalog.get("team_count"),
+        path=str(catalog_path) if catalog_path else None,
+    )
     if catalog.get("status") != "ok":
         raise VenueLabError(f"팀 목록 생성 실패: {catalog.get('status')} {catalog.get('reason')}")
 
     for team in plan["teams"]:
+        entry, decision = select_team(catalog, team["nba_slot"])
+        report.log(
+            stage="team",
+            team=team["nba_slot"],
+            status="selected",
+            decision=decision,
+            **describe_team(catalog, entry),
+        )
         slots = team_slots(catalog, team["nba_slot"])
+        progress(f"3/3 {team['nba_slot']}: 선수 {min(len(slots), len(team['players']))}명 처리")
         targets = team["players"]
         if len(slots) < len(targets):
             report.log(

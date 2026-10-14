@@ -29,6 +29,7 @@ from .positions import export_csv, import_csv
 from .ratings import KBL, calibrate, rate_team
 from .validate import validate_dataset
 from .venuelab import (
+    ApplyReport,
     VenueLabError,
     apply_plan,
     build_plan,
@@ -274,12 +275,25 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
         + datetime.now().strftime("%Y%m%d-%H%M%S")
         + ".jsonl"
     )
+    report = ApplyReport()
+    catalog_path = report_path.with_name(report_path.stem + "-catalog.json")
+    failed = None
     try:
         probe = make_probe_runner(args.venuelab_dir)
-        report = apply_plan(plan, probe, write=args.apply)
+        apply_plan(
+            plan,
+            probe,
+            write=args.apply,
+            report=report,
+            progress=lambda m: print(m, file=sys.stderr, flush=True),
+            catalog_path=catalog_path,
+        )
     except VenueLabError as e:
-        print(f"중단: {e}", file=sys.stderr)
-        return 1
+        failed = str(e)
+        report.log(stage="abort", status="error", reason=failed)
+    except KeyboardInterrupt:
+        failed = "사용자가 중단함"
+        report.log(stage="abort", status="error", reason=failed)
     write_report(report, report_path)
     contexts = {
         e.get("context") for e in report.events if e.get("stage") == "plan" and e.get("context")
@@ -291,6 +305,9 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
         if n:
             print(f"{status:<18} {n}")
     print(f"보고서: {report_path}")
+    if failed:
+        print(f"중단: {failed}", file=sys.stderr)
+        return 1
     bad = report.count("error") + report.count("rejected")
     if not args.apply:
         print("dry-run: 아무것도 쓰지 않았습니다. 실제로 쓰려면 --apply")

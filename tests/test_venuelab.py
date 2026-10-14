@@ -376,3 +376,54 @@ def test_apply_refuses_with_eac():
 def test_apply_warns_when_fewer_slots():
     rep = apply_plan(plan1(n=5), FakeProbe(catalog(n=2)), write=False, processes=["NBA2K26.exe"])
     assert rep.count("warning") == 1 and rep.count("planned") == 2
+
+
+def dup_catalog(idx_a, idx_b):
+    base, stride = 0x1000, 5672
+
+    def team(i, who):
+        return {
+            "team_pointer": hex(base + i * stride),
+            "team": {"display": "Chicago Bulls", "abbr": "CHI"},
+            "slots": [{"slot": 1, "pointer": hex(BASE), "player": {"display_name": who}}],
+        }
+
+    return {
+        "status": "ok",
+        "owner_tables": {"Team": {"base": hex(base), "stride": stride}},
+        "teams": [team(idx_a, "Modern"), team(idx_b, "Classic")],
+    }
+
+
+def test_select_team_prefers_current_nba_index():
+    from kbl2k.venuelab import select_team, team_index
+
+    cat = dup_catalog(3, 45)
+    entry, decision = select_team(cat, "Chicago Bulls")
+    assert team_index(cat, entry) == 3 and "현역" in decision
+    assert entry["slots"][0]["player"]["display_name"] == "Modern"
+
+
+def test_select_team_ambiguous_when_both_current_or_unknown():
+    from kbl2k.venuelab import select_team
+
+    with pytest.raises(VenueLabError, match="모호함"):
+        select_team(dup_catalog(3, 4), "Chicago Bulls")
+    cat = dup_catalog(3, 45)
+    del cat["owner_tables"]
+    with pytest.raises(VenueLabError, match="모호함"):
+        select_team(cat, "Chicago Bulls")
+
+
+def test_apply_saves_catalog_and_logs_selection(tmp_path):
+    path = tmp_path / "cat.json"
+    msgs = []
+    rep = apply_plan(
+        plan1(),
+        FakeProbe(catalog()),
+        processes=["NBA2K26.exe"],
+        catalog_path=path,
+        progress=msgs.append,
+    )
+    assert path.is_file() and len(msgs) == 3
+    assert any(e["stage"] == "team" and e["status"] == "selected" for e in rep.events)
