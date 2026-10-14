@@ -1,0 +1,172 @@
+{
+  "version": "0.1.0",
+  "provisional": true,
+  "notes": "mean/sd 는 KBL 실측값이 아닌 초기 튜닝값이다. 2025-26 기록 입력 후 `kbl2k calibrate 2025-26 --write` 로 재계산하고, 게임 내에서 밸런스를 확인해 base/spread/league_offset 을 조정한다.",
+  "stats_season": "2025-26",
+  "base": 60,
+  "spread": 10,
+  "league_offset": -8,
+  "clamp": {"min": 25, "max": 99},
+  "min_games": 20,
+  "z_cap": 3,
+  "attributes": {
+    "Close Shot": {
+      "components": [
+        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 1.0, "volume": {"input": "mpg", "full": 15}},
+        {"input": "ppg", "mean": 8, "sd": 5, "weight": 0.5},
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.3}
+      ],
+      "position_bonus": {"C": 4, "PF": 2}
+    },
+    "Driving Layup": {
+      "components": [
+        {"input": "ppg", "mean": 8, "sd": 5, "weight": 1.0},
+        {"input": "fta_pg", "mean": 1.5, "sd": 1.2, "weight": 0.7},
+        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 0.5, "volume": {"input": "mpg", "full": 15}}
+      ],
+      "position_bonus": {"PG": 2, "SG": 2, "C": -3}
+    },
+    "Driving Dunk": {
+      "components": [
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.6},
+        {"input": "fta_pg", "mean": 1.5, "sd": 1.2, "weight": 0.5},
+        {"input": "ppg", "mean": 8, "sd": 5, "weight": 0.4}
+      ]
+    },
+    "Standing Dunk": {
+      "components": [
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 1.0},
+        {"input": "orpg", "mean": 0.8, "sd": 0.6, "weight": 0.6}
+      ],
+      "position_bonus": {"C": 5, "PF": 3, "SG": -4, "PG": -5}
+    },
+    "Post Control": {
+      "components": [
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.6},
+        {"input": "ppg", "mean": 8, "sd": 5, "weight": 0.6},
+        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 0.4, "volume": {"input": "mpg", "full": 15}}
+      ],
+      "position_bonus": {"C": 4, "PF": 2, "PG": -4}
+    },
+    "Mid-Range Shot": {
+      "components": [
+        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 0.6, "volume": {"input": "mpg", "full": 15}},
+        {"input": "ft_pct", "mean": 0.72, "sd": 0.1, "weight": 0.6, "volume": {"input": "fta_pg", "full": 2}}
+      ]
+    },
+    "Three-Point Shot": {
+      "components": [
+        {"input": "fg3_pct", "mean": 0.32, "sd": 0.06, "weight": 1.0, "volume": {"input": "fg3a_pg", "full": 3}},
+        {"input": "fg3a_pg", "mean": 2.0, "sd": 1.5, "weight": 0.5}
+      ]
+    },
+    "Free Throw": {
+      "components": [
+        {"input": "ft_pct", "mean": 0.72, "sd": 0.1, "weight": 1.0, "volume": {"input": "fta_pg", "full": 2}}
+      ]
+    },
+    "Pass Accuracy": {
+      "components": [
+        {"input": "apg", "mean": 2.0, "sd": 1.5, "weight": 1.0},
+        {"input": "tpg", "mean": 1.2, "sd": 0.6, "weight": -0.3}
+      ],
+      "position_bonus": {"PG": 3}
+    },
+    "Ball Handle": {
+      "components": [
+        {"input": "apg", "mean": 2.0, "sd": 1.5, "weight": 0.7},
+        {"input": "tpg", "mean": 1.2, "sd": 0.6, "weight": -0.2},
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -0.4}
+      ],
+      "position_bonus": {"PG": 5, "SG": 2, "C": -5}
+    },
+    "Speed With Ball": {
+      "components": [
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -0.7},
+        {"input": "apg", "mean": 2.0, "sd": 1.5, "weight": 0.5}
+      ]
+    },
+    "Interior Defense": {
+      "components": [
+        {"input": "bpg", "mean": 0.3, "sd": 0.3, "weight": 0.7},
+        {"input": "drpg", "mean": 2.0, "sd": 1.4, "weight": 0.5},
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.5}
+      ]
+    },
+    "Perimeter Defense": {
+      "components": [
+        {"input": "spg", "mean": 0.7, "sd": 0.4, "weight": 0.8},
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -0.2}
+      ],
+      "position_bonus": {"PG": 2, "SG": 2, "SF": 1, "C": -3}
+    },
+    "Steal": {
+      "components": [
+        {"input": "spg", "mean": 0.7, "sd": 0.4, "weight": 1.0}
+      ]
+    },
+    "Block": {
+      "components": [
+        {"input": "bpg", "mean": 0.3, "sd": 0.3, "weight": 1.0},
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.4}
+      ]
+    },
+    "Offensive Rebound": {
+      "components": [
+        {"input": "orpg", "mean": 0.8, "sd": 0.6, "weight": 1.0},
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.3}
+      ]
+    },
+    "Defensive Rebound": {
+      "components": [
+        {"input": "drpg", "mean": 2.0, "sd": 1.4, "weight": 1.0},
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.3}
+      ]
+    },
+    "Speed": {
+      "components": [
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -1.0}
+      ],
+      "position_bonus": {"PG": 3}
+    },
+    "Agility": {
+      "components": [
+        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -1.0}
+      ]
+    },
+    "Strength": {
+      "components": [
+        {"input": "weight_kg", "mean": 88, "sd": 12, "weight": 1.0}
+      ]
+    },
+    "Vertical": {
+      "components": [
+        {"input": "bpg", "mean": 0.3, "sd": 0.3, "weight": 0.5},
+        {"input": "orpg", "mean": 0.8, "sd": 0.6, "weight": 0.5}
+      ]
+    },
+    "Stamina": {
+      "components": [
+        {"input": "mpg", "mean": 20, "sd": 8, "weight": 1.0}
+      ]
+    }
+  },
+  "ovr": {
+    "default": {
+      "Close Shot": 1, "Driving Layup": 1, "Mid-Range Shot": 1, "Three-Point Shot": 1,
+      "Free Throw": 0.5, "Pass Accuracy": 1, "Ball Handle": 1,
+      "Interior Defense": 1, "Perimeter Defense": 1, "Steal": 0.5, "Block": 0.5,
+      "Offensive Rebound": 0.5, "Defensive Rebound": 1, "Speed": 0.5, "Strength": 0.5
+    },
+    "PG": {
+      "Driving Layup": 1, "Mid-Range Shot": 1, "Three-Point Shot": 1.5, "Free Throw": 0.5,
+      "Pass Accuracy": 2, "Ball Handle": 2, "Speed With Ball": 1,
+      "Perimeter Defense": 1, "Steal": 1, "Speed": 1
+    },
+    "C": {
+      "Close Shot": 1.5, "Standing Dunk": 1, "Post Control": 1, "Mid-Range Shot": 0.5,
+      "Interior Defense": 2, "Block": 1.5, "Offensive Rebound": 1.5, "Defensive Rebound": 2,
+      "Strength": 1
+    }
+  }
+}

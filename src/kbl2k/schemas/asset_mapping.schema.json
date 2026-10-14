@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:kbl2k:schema:asset_mapping",
+  "title": "에셋 ID 매핑 (얼굴/유니폼/코트/로고)",
+  "description": "2K26 파일명·ID 규칙은 아직 검증되지 않았으므로 패턴을 강제하지 않는다. status=verified 는 게임 내에서 실제 로드를 확인한 경우에만 사용.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["game", "game_version", "entries"],
+  "properties": {
+    "game": {"const": "NBA 2K26 PC (Steam)"},
+    "game_version": {
+      "type": ["string", "null"],
+      "description": "매핑을 검증한 게임 패치 버전. 패치 후 재검증 필요"
+    },
+    "entries": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "entity_id", "asset_type", "game_id", "file", "status"],
+      "properties": {
+        "entity_type": {"enum": ["player", "team"]},
+        "entity_id": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
+        "asset_type": {
+          "enum": [
+            "face", "portrait",
+            "uniform_home", "uniform_away", "uniform_alt",
+            "court", "logo"
+          ]
+        },
+        "game_id": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "게임 내부 ID(예: 사이버페이스 ID). 미정이면 null"
+        },
+        "file": {
+          "type": ["string", "null"],
+          "description": "모드 폴더 기준 상대 경로. 미정이면 null"
+        },
+        "tool": {
+          "type": ["string", "null"],
+          "description": "적용에 사용한 외부 도구와 버전 (예: 2KVenueLab 1.5)"
+        },
+        "status": {"enum": ["planned", "in_progress", "verified"]},
+        "notes": {"type": "string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"entity_type": {"const": "player"}}},
+          "then": {"properties": {"asset_type": {"enum": ["face", "portrait"]}}}
+        },
+        {
+          "if": {"properties": {"entity_type": {"const": "team"}}},
+          "then": {
+            "properties": {
+              "asset_type": {"enum": ["uniform_home", "uniform_away", "uniform_alt", "court", "logo"]}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "verified"}}, "required": ["status"]},
+          "then": {
+            "required": ["tool"],
+            "properties": {"tool": {"type": "string"}},
+            "anyOf": [
+              {"properties": {"game_id": {"type": "integer"}}},
+              {"properties": {"file": {"type": "string"}}}
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

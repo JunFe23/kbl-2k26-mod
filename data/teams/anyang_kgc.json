@@ -1,0 +1,498 @@
+{
+  "id": "anyang-kgc",
+  "name_ko": "안양 정관장 레드부스터스",
+  "name_en": "ANYANG JUNG KWAN JANG RED BOOSTERS",
+  "abbreviation": null,
+  "city": "안양",
+  "arena": "안양 정관장 아레나",
+  "head_coach": "유도훈",
+  "season": "2026-27",
+  "nba_slot": null,
+  "verification": {
+    "status": "verified",
+    "sources": [
+      "kbl-api-team-list",
+      "kbl-api-staff-70",
+      "kbl-api-schedule-2026-10"
+    ],
+    "checked_at": "2026-10-14",
+    "notes": "KBL 팀 코드 70"
+  },
+  "players": [
+    {
+      "id": "kgc-kim-jin-young",
+      "kbl_player_id": "291277",
+      "name_ko": "김진영",
+      "name_en": "KIM JIN YOUNG",
+      "team_id": "anyang-kgc",
+      "jersey_number": 1,
+      "positions": [],
+      "position_ko": "가드",
+      "height_cm": 193.0,
+      "weight_kg": 65,
+      "birth_date": "1998-06-22",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-kim-s-c",
+      "kbl_player_id": "291281",
+      "name_ko": "김세창",
+      "name_en": "KIM S C",
+      "team_id": "anyang-kgc",
+      "jersey_number": 2,
+      "positions": [],
+      "position_ko": "가드",
+      "height_cm": 183.0,
+      "weight_kg": 73,
+      "birth_date": "1997-10-07",
+      "nationality": null,
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-park-jung-woong",
+      "kbl_player_id": "291746",
+      "name_ko": "박정웅",
+      "name_en": "Park Jung Woong",
+      "team_id": "anyang-kgc",
+      "jersey_number": 4,
+      "positions": [],
+      "position_ko": "가드",
+      "height_cm": 193.0,
+      "weight_kg": 81,
+      "birth_date": "2006-04-17",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-byun-jun-hyung",
+      "kbl_player_id": "291220",
+      "name_ko": "변준형",
+      "name_en": "BYUN JUN HYUNG",
+      "team_id": "anyang-kgc",
+      "jersey_number": 5,
+      "positions": [],
+      "position_ko": "가드",
+      "height_cm": 185.0,
+      "weight_kg": 92,
+      "birth_date": "1996-03-11",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-park-jihoon",
+      "kbl_player_id": "291008",
+      "name_ko": "박지훈",
+      "name_en": "PARK JIHOON",
+      "team_id": "anyang-kgc",
+      "jersey_number": 6,
+      "positions": [],
+      "position_ko": "가드",
+      "height_cm": 182.0,
+      "weight_kg": 85,
+      "birth_date": "1995-01-21",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-pyo-seong-bin",
+      "kbl_player_id": "291648",
+      "name_ko": "표승빈",
+      "name_en": "PYO SEONG BIN",
+      "team_id": "anyang-kgc",
+      "jersey_number": 7,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 189.0,
+      "weight_kg": 90,
+      "birth_date": "2002-03-07",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-davon-reed",
+      "kbl_player_id": "291888",
+      "name_ko": "데이본 리드",
+      "name_en": "Davon Reed",
+      "team_id": "anyang-kgc",
+      "jersey_number": 9,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 195.0,
+      "weight_kg": 106,
+      "birth_date": "1995-06-11",
+      "nationality": "US",
+      "player_type": "foreign",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-heo-ilyoung",
+      "kbl_player_id": "290284",
+      "name_ko": "허일영",
+      "name_en": "HEO ILYOUNG",
+      "team_id": "anyang-kgc",
+      "jersey_number": 10,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 196.0,
+      "weight_kg": 94,
+      "birth_date": "1985-08-05",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-rhenz-joseph-abando",
+      "kbl_player_id": "291583",
+      "name_ko": "렌즈 아반도",
+      "name_en": "Rhenz Joseph Abando",
+      "team_id": "anyang-kgc",
+      "jersey_number": 12,
+      "positions": [],
+      "position_ko": "가드",
+      "height_cm": 187.0,
+      "weight_kg": 75,
+      "birth_date": "1998-03-11",
+      "nationality": "PH",
+      "player_type": "asian_quota",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight",
+          "mydaily-2026-05-29"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-park-chan-ho",
+      "kbl_player_id": "291276",
+      "name_ko": "박찬호",
+      "name_en": "PARK CHAN HO",
+      "team_id": "anyang-kgc",
+      "jersey_number": 13,
+      "positions": [],
+      "position_ko": "센터",
+      "height_cm": 202.0,
+      "weight_kg": 104,
+      "birth_date": "1996-09-03",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-ju-h-w",
+      "kbl_player_id": "291482",
+      "name_ko": "주현우",
+      "name_en": "JU H W",
+      "team_id": "anyang-kgc",
+      "jersey_number": 14,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 198.0,
+      "weight_kg": 99,
+      "birth_date": "1998-09-06",
+      "nationality": null,
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-kim-jong-kyu",
+      "kbl_player_id": "290750",
+      "name_ko": "김종규",
+      "name_en": "KIM JONG KYU",
+      "team_id": "anyang-kgc",
+      "jersey_number": 15,
+      "positions": [],
+      "position_ko": "센터",
+      "height_cm": 207.0,
+      "weight_kg": 105,
+      "birth_date": "1991-07-03",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-lee-dae-heon",
+      "kbl_player_id": "290603",
+      "name_ko": "이대헌",
+      "name_en": "LEE DAE HEON",
+      "team_id": "anyang-kgc",
+      "jersey_number": 21,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 195.0,
+      "weight_kg": 98,
+      "birth_date": "1992-04-29",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-moon-yu-hyeon",
+      "kbl_player_id": "291857",
+      "name_ko": "문유현",
+      "name_en": "MOON YU HYEON",
+      "team_id": "anyang-kgc",
+      "jersey_number": 24,
+      "positions": [],
+      "position_ko": "가드",
+      "height_cm": 180.0,
+      "weight_kg": 79,
+      "birth_date": "2004-06-08",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-rashawn-thomas",
+      "kbl_player_id": "291436",
+      "name_ko": "라숀 토마스",
+      "name_en": "Rashawn Thomas",
+      "team_id": "anyang-kgc",
+      "jersey_number": 25,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 200.0,
+      "weight_kg": null,
+      "birth_date": "1994-08-18",
+      "nationality": "US",
+      "player_type": "foreign",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고 / KBL 2026-27 프로필은 정관장이나 계약 기사 미확인, 체중 미표기 — 재확인 필요"
+    },
+    {
+      "id": "kgc-john-mooney",
+      "kbl_player_id": "291883",
+      "name_ko": "존 무니",
+      "name_en": "John Mooney",
+      "team_id": "anyang-kgc",
+      "jersey_number": 33,
+      "positions": [],
+      "position_ko": "센터",
+      "height_cm": 203.0,
+      "weight_kg": 111,
+      "birth_date": "1998-03-20",
+      "nationality": "US",
+      "player_type": "foreign",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-kim-jun-hyung",
+      "kbl_player_id": "291210",
+      "name_ko": "김준형",
+      "name_en": "KIM JUN HYUNG",
+      "team_id": "anyang-kgc",
+      "jersey_number": 35,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 201.0,
+      "weight_kg": 75,
+      "birth_date": "1997-04-21",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-song-han-june",
+      "kbl_player_id": "291858",
+      "name_ko": "송한준",
+      "name_en": "SONG HAN JUNE",
+      "team_id": "anyang-kgc",
+      "jersey_number": 44,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 197.0,
+      "weight_kg": 84,
+      "birth_date": "2007-06-02",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    },
+    {
+      "id": "kgc-han-seung-hee",
+      "kbl_player_id": "291372",
+      "name_ko": "한승희",
+      "name_en": "HAN SEUNG HEE",
+      "team_id": "anyang-kgc",
+      "jersey_number": 51,
+      "positions": [],
+      "position_ko": "포워드",
+      "height_cm": 196.0,
+      "weight_kg": 102,
+      "birth_date": "1998-05-05",
+      "nationality": "KR",
+      "player_type": "domestic",
+      "verification": {
+        "status": "verified",
+        "sources": [
+          "kbl-active-roster-70",
+          "kbl-player-profile-2026-27",
+          "kbl-player-list-weight"
+        ],
+        "checked_at": "2026-10-14"
+      },
+      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+    }
+  ]
+}

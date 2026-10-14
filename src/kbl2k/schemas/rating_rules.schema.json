@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:kbl2k:schema:rating_rules",
+  "title": "능력치 산정 규칙",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "base", "spread", "league_offset", "clamp", "min_games", "z_cap", "attributes", "ovr"],
+  "properties": {
+    "version": {"type": "string"},
+    "provisional": {"type": "boolean"},
+    "notes": {"type": "string"},
+    "stats_season": {"$ref": "urn:kbl2k:schema:common#/$defs/season"},
+    "base": {"type": "number", "description": "평균 선수(z=0)의 능력치"},
+    "spread": {"type": "number", "exclusiveMinimum": 0, "description": "z 1당 능력치 변화량"},
+    "league_offset": {"type": "number", "description": "KBL→NBA 수준 보정 (보통 음수)"},
+    "clamp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": {"type": "integer", "minimum": 25, "maximum": 99},
+        "max": {"type": "integer", "minimum": 25, "maximum": 99}
+      }
+    },
+    "min_games": {"type": "integer", "minimum": 1, "description": "이 경기 수 미만이면 z를 비례 축소"},
+    "z_cap": {"type": "number", "exclusiveMinimum": 0},
+    "attributes": {
+      "type": "object",
+      "propertyNames": {"$ref": "urn:kbl2k:schema:attributes#/$defs/attribute_name"},
+      "additionalProperties": {"$ref": "#/$defs/attribute_rule"}
+    },
+    "ovr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": {"$ref": "#/$defs/weights"},
+        "PG": {"$ref": "#/$defs/weights"},
+        "SG": {"$ref": "#/$defs/weights"},
+        "SF": {"$ref": "#/$defs/weights"},
+        "PF": {"$ref": "#/$defs/weights"},
+        "C": {"$ref": "#/$defs/weights"}
+      }
+    }
+  },
+  "$defs": {
+    "weights": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "urn:kbl2k:schema:attributes#/$defs/attribute_name"},
+      "additionalProperties": {"type": "number", "exclusiveMinimum": 0}
+    },
+    "attribute_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components"],
+      "properties": {
+        "components": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/component"}
+        },
+        "position_bonus": {
+          "type": "object",
+          "propertyNames": {"enum": ["PG", "SG", "SF", "PF", "C"]},
+          "additionalProperties": {"type": "number"}
+        }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input", "mean", "sd", "weight"],
+      "properties": {
+        "input": {
+          "enum": [
+            "mpg", "ppg", "rpg", "orpg", "drpg", "apg", "spg", "bpg", "tpg",
+            "fg_pct", "fg3_pct", "ft_pct", "fg3a_pg", "fta_pg",
+            "height_cm", "weight_kg"
+          ]
+        },
+        "mean": {"type": "number"},
+        "sd": {"type": "number", "exclusiveMinimum": 0},
+        "weight": {"type": "number", "description": "음수면 역상관(예: 신장↑ → 스피드↓)"},
+        "volume": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["input", "full"],
+          "description": "성공률 지표의 시도 수가 적으면 z를 축소",
+          "properties": {
+            "input": {"enum": ["fg3a_pg", "fta_pg", "mpg"]},
+            "full": {"type": "number", "exclusiveMinimum": 0}
+          }
+        }
+      }
+    }
+  }
+}

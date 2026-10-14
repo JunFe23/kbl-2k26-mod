@@ -1,0 +1,25 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# 게임 원본/바이너리 — 절대 커밋하지 않음
+game_backup/
+*.ROS
+*.ros
+*.iff
+*.IFF
+*.dds
+*.exe
+*.dll
+
+# OS / IDE
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

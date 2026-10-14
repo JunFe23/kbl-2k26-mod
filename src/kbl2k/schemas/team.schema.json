@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:kbl2k:schema:team",
+  "title": "KBL 팀 로스터 파일",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "name_ko", "name_en", "abbreviation", "city", "arena", "head_coach",
+    "season", "nba_slot", "verification", "players"
+  ],
+  "properties": {
+    "id": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
+    "name_ko": {"type": "string", "minLength": 1},
+    "name_en": {"type": ["string", "null"]},
+    "abbreviation": {"type": ["string", "null"], "pattern": "^[A-Z]{2,4}$"},
+    "city": {"type": ["string", "null"]},
+    "arena": {"type": ["string", "null"]},
+    "head_coach": {"type": ["string", "null"]},
+    "season": {"const": "2026-27"},
+    "nba_slot": {
+      "type": ["string", "null"],
+      "description": "MyNBA에서 대체할 NBA 팀 이름(미정이면 null)"
+    },
+    "verification": {"$ref": "urn:kbl2k:schema:common#/$defs/verification"},
+    "players": {
+      "type": "array",
+      "items": {"$ref": "urn:kbl2k:schema:player"}
+    }
+  }
+}

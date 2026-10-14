@@ -1,0 +1,429 @@
+{
+  "game": "NBA 2K26 PC (Steam)",
+  "game_version": null,
+  "entries": [
+    {
+      "entity_type": "team",
+      "entity_id": "seoul-sk",
+      "asset_type": "court",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "team",
+      "entity_id": "seoul-sk",
+      "asset_type": "uniform_away",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "team",
+      "entity_id": "seoul-sk",
+      "asset_type": "uniform_home",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "team",
+      "entity_id": "seoul-sk",
+      "asset_type": "logo",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "team",
+      "entity_id": "anyang-kgc",
+      "asset_type": "court",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "team",
+      "entity_id": "anyang-kgc",
+      "asset_type": "uniform_away",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "team",
+      "entity_id": "anyang-kgc",
+      "asset_type": "uniform_home",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "team",
+      "entity_id": "anyang-kgc",
+      "asset_type": "logo",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-kim-jin-young",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-kim-s-c",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-park-jung-woong",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-byun-jun-hyung",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-park-jihoon",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-pyo-seong-bin",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-davon-reed",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-heo-ilyoung",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-rhenz-joseph-abando",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-park-chan-ho",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-ju-h-w",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-kim-jong-kyu",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-lee-dae-heon",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-moon-yu-hyeon",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-rashawn-thomas",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-john-mooney",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-kim-jun-hyung",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-song-han-june",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "kgc-han-seung-hee",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-lee-min-seo",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-choi-wonhyuk",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-kim-nak-hyeon",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-jeon-seonghwan",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-kim-suhwan",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-an-youngjun",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-sun-sanghyuk",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-an-sung-woo",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-choi-bukyung",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-jeon-jun-beom",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-kim-myeong-jin",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-mbuyi-freddy-muteba",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-oh-jaehyun",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-kim-hyungbin",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-arvin-tolentino",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-isaiah-hicks",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-jameel-warney",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-lim-h-t",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-edi-daniel",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    },
+    {
+      "entity_type": "player",
+      "entity_id": "sk-oh-sekeun",
+      "asset_type": "face",
+      "game_id": null,
+      "file": null,
+      "tool": null,
+      "status": "planned"
+    }
+  ]
+}

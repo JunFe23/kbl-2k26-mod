@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:kbl2k:schema:common",
+  "title": "공통 정의",
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "소문자/숫자/하이픈 식별자"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+      "format": "date"
+    },
+    "season": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}$",
+      "description": "예: 2026-27"
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "sources", "checked_at"],
+      "properties": {
+        "status": {
+          "enum": ["verified", "unverified"],
+          "description": "verified = 공식 출처에서 직접 확인한 값만 포함"
+        },
+        "sources": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/slug"},
+          "uniqueItems": true,
+          "description": "data/sources.json 의 source id 목록"
+        },
+        "checked_at": {"anyOf": [{"$ref": "#/$defs/date"}, {"type": "null"}]},
+        "notes": {"type": "string"}
+      },
+      "if": {"properties": {"status": {"const": "verified"}}},
+      "then": {
+        "properties": {
+          "sources": {"minItems": 1},
+          "checked_at": {"$ref": "#/$defs/date"}
+        }
+      }
+    },
+    "nullable_number": {"type": ["number", "null"], "minimum": 0},
+    "nullable_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "sources": [
+    {
+      "id": "kbl-api-team-list",
+      "title": "KBL 팀 목록 API (공식 국문/영문 팀명)",
+      "url": "https://api.kbl.or.kr/common/teamList",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "요청 헤더 필요: Channel: WEB, X-Requested-With: XMLHttpRequest, TeamCode"
+    },
+    {
+      "id": "kbl-api-staff-70",
+      "title": "KBL 코칭스태프 API — 정관장(70)",
+      "url": "https://api.kbl.or.kr/staff/list?staffTypeSq=1",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "요청 헤더 필요: Channel: WEB, X-Requested-With: XMLHttpRequest, TeamCode"
+    },
+    {
+      "id": "kbl-api-staff-55",
+      "title": "KBL 코칭스태프 API — SK(55)",
+      "url": "https://api.kbl.or.kr/staff/list?staffTypeSq=1",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "요청 헤더 필요: Channel: WEB, X-Requested-With: XMLHttpRequest, TeamCode"
+    },
+    {
+      "id": "kbl-api-schedule-2026-10",
+      "title": "KBL 2026-27 10월 경기 일정 API (홈 경기장)",
+      "url": "https://api.kbl.or.kr/match/list?fromDate=20261001&toDate=20261031&tcodeList=70,55",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "요청 헤더 필요: Channel: WEB, X-Requested-With: XMLHttpRequest, TeamCode"
+    },
+    {
+      "id": "kbl-active-roster-70",
+      "title": "KBL 현역 선수 목록 API — 정관장(70)",
+      "url": "https://api.kbl.or.kr/players?searchOption=active&tcodeList=70",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "요청 헤더 필요: Channel: WEB, X-Requested-With: XMLHttpRequest, TeamCode"
+    },
+    {
+      "id": "kbl-active-roster-55",
+      "title": "KBL 현역 선수 목록 API — SK(55)",
+      "url": "https://api.kbl.or.kr/players?searchOption=active&tcodeList=55",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "요청 헤더 필요: Channel: WEB, X-Requested-With: XMLHttpRequest, TeamCode"
+    },
+    {
+      "id": "kbl-player-profile-2026-27",
+      "title": "KBL 선수 프로필 (seasonCode 49 = 2026-2027; 생년월일·신장·국적)",
+      "url": "https://kbl-api.sports2i.com/api/v1/players/profile/49/",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "Origin/Referer https://www.kbl.or.kr 필요. 선수 번호를 URL 끝에 붙임"
+    },
+    {
+      "id": "kbl-player-list-weight",
+      "title": "KBL 선수 목록 (체중)",
+      "url": "https://kbl-api.sports2i.com/api/v1/players?pageNo=1&listCn=3000",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "Origin/Referer https://www.kbl.or.kr 필요. 선수 번호를 URL 끝에 붙임"
+    },
+    {
+      "id": "mydaily-2026-05-29",
+      "title": "마이데일리 2026-05-29 — 워니(SK)·아반도(정관장) 재계약",
+      "url": "https://www.mydaily.co.kr/page/view/2026052922243247339",
+      "publisher": "마이데일리",
+      "official": false,
+      "retrieved_at": "2026-10-14"
+    }
+  ]
+}
