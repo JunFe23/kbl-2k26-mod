@@ -39,10 +39,13 @@
 - [x] 2K26 에셋 파일명 규칙 확인(게임 manifest): 얼굴 `char/sig/png{ID}`, 로고 `logos/logo{ID}`, 코트 `levels/arena_{ID}_int_floor`, 확장팀 유니폼 존재
 - [x] 기준 스냅샷(게임 폴더·세이브 폴더) + 변경 감시 도구(`kbl2k game snapshot/diff`)
 - [x] 검증 절차 승인(ADR-0013)
-- [ ] 로스터 에디터 확보 — nba-live.com 본 사이트 접속 불가(2026-10-15, 시간 초과)
-- [ ] 로스터 에디터 후보(2KVenueLab 등) 설치·체크리스트 검증
+- [x] 로스터 에디터 확보 — 2KVenueLab 2.15 (NLSC 포럼, MD5 일치, 점검 완료)
+- [x] 2KVenueLab 검증 (2026-10-15)
+  - 공식 "without EAC (offline only)" 로 실행해 드라이빙 레이업 85→99 → MyNBA 저장 → 재실행 후 유지 확인
+  - 게임 폴더는 변경 없음
 - [ ] 에디터의 import/export 포맷 실측 → 문서화 (추측 금지)
-- [ ] 2K26 능력치 목록을 에디터 화면과 대조 → `attributes.schema.json` 확정
+- [x] 2K26 선수 필드 목록 확보 → docs/2k26-player-fields.md (능력치 약 51종)
+- [ ] 능력치 모델을 2K26 필드 목록에 맞게 확장 → `attributes.schema.json` 갱신
 - [ ] 대체할 NBA 팀 슬롯 결정 → `team.nba_slot`
 
 ### 4단계 — 로스터 게임 반영 (첫 목표)
