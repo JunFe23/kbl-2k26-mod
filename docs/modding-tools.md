@@ -130,7 +130,12 @@
 ## 안티치트 / 안전
 - PC 판은 Easy Anti-Cheat 를 사용한다 **[요약]** https://support.nba2k.com/hc/en-us/articles/42216723600659-NBA-2K-Anti-Cheat-on-PC
 - 온라인 상태에서 편집 도구를 쓰다 제재된 사례 보고가 있다 **[요약]** https://www.nba-live.com/tff-5-unfortunate-barriers-modding/
-- **모드 작업과 테스트는 오프라인 MyNBA 에서만 한다.** EAC 우회 실행 옵션은 2K25 기준 정보이므로 [미확인].
+- **모드 작업과 테스트는 오프라인 MyNBA 에서만 한다.**
+- **공식 EAC 없는 실행 옵션 [확인 — 이 PC Steam appinfo, 2026-10-15]**
+  - 2K26 에는 Steam 실행 옵션이 2개 있다.
+    - 기본 `start_protected_game.exe` "Play NBA 2K26"
+    - option1 `NBA2K26.exe` **"NBA 2K26 without EAC (offline only)"**
+  - 2KVenueLab 의 "EAC 끄고 오프라인 실행"은 이 공식 옵션으로 할 수 있다.
 - 이 계정은 MyTEAM 등 온라인 모드를 사용한 기록이 있다(userdata 캐시). 다음을 지킨다.
   - 메모리 편집형 에디터(실행 중인 게임에 붙는 방식)는 온라인 접속 상태에서 절대 쓰지 않는다.
   - 커스텀 로스터 세이브는 Steam 클라우드로 동기화된다. 필요하면 테스트 기간에 클라우드 동기화를 끈다.
@@ -165,5 +170,5 @@
 - 2KVenueLab 2.15 다운로드 정보: https://forums.nba-live.com/downloads.php?view=detail&df_id=13923
   - `2K VenueLab 2.15.zip`, MD5 `fb5e5bc97ce31d85de60093520b3711b` (2026-07-22)
   - 본 사이트(www.nba-live.com)는 접속 불가, 포럼 주소는 접속 가능(2026-10-15)
-  - 2K26 로스터 편집은 메모리 편집이며 "EAC 끄고 오프라인 실행"이 필요하다(제작자 안내).
+  - 2K26 로스터 편집은 메모리 편집이며 "EAC 끄고 오프라인 실행"이 필요하다(제작자 안내). Steam 공식 옵션 "without EAC (offline only)" 로 실행하면 된다.
   - 새 선수 생성과 CSV 가져오기는 아직 지원하지 않는다. 기존 선수를 덮어쓰는 방식이다.
