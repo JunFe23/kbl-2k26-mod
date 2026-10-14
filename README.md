@@ -123,3 +123,9 @@ rating = clamp(base + spread·z + league_offset + position_bonus, 25, 99)
 pytest
 ruff check .
 ```
+
+## 공개 저장소 주의
+이 저장소는 공개(public)다.
+- KBL·구단 로고, 유니폼, 선수 얼굴 텍스처 등 상표권·초상권 에셋은 `assets_private/` 에 두며 커밋하지 않는다.
+- 이미지 파일(`*.png`, `*.psd`, `*.tga`)과 게임 원본 파일(`*.iff`, `*.ROS`)은 `.gitignore` 로 차단되어 있다.
+- 커밋 이메일은 GitHub noreply 주소를 쓴다(이 저장소의 로컬 git 설정).

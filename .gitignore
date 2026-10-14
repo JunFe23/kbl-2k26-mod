@@ -26,3 +26,9 @@ Thumbs.db
 
 # 포지션 입력 작업 파일 (원본은 data/teams/*.json)
 positions.csv
+
+# 로고·유니폼·얼굴 등 상표권/초상권 에셋 — 공개 저장소에 올리지 않음
+assets_private/
+*.png
+*.psd
+*.tga
