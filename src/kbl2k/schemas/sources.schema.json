@@ -15,12 +15,18 @@
         "properties": {
           "id": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
           "title": {"type": "string", "minLength": 1},
-          "url": {"type": "string", "pattern": "^https?://"},
+          "url": {
+            "type": ["string", "null"],
+            "pattern": "^https?://",
+            "description": "null 은 사용자 직접 제보 등 URL 이 없는 출처 (official 불가)"
+          },
           "publisher": {"type": ["string", "null"]},
           "official": {"type": "boolean", "default": false},
           "retrieved_at": {"$ref": "urn:kbl2k:schema:common#/$defs/date"},
           "notes": {"type": "string"}
-        }
+        },
+        "if": {"properties": {"official": {"const": true}}, "required": ["official"]},
+        "then": {"properties": {"url": {"type": "string"}}}
       }
     }
   }

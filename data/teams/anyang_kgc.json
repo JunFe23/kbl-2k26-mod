@@ -27,7 +27,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 1,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 193.0,
       "weight_kg": 65,
       "birth_date": "1998-06-22",
@@ -41,8 +41,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-kim-s-c",
@@ -52,7 +51,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 2,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 183.0,
       "weight_kg": 73,
       "birth_date": "1997-10-07",
@@ -66,8 +65,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-park-jung-woong",
@@ -77,7 +75,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 4,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 193.0,
       "weight_kg": 81,
       "birth_date": "2006-04-17",
@@ -91,8 +89,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-byun-jun-hyung",
@@ -102,7 +99,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 5,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 185.0,
       "weight_kg": 92,
       "birth_date": "1996-03-11",
@@ -116,8 +113,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-park-jihoon",
@@ -127,7 +123,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 6,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 182.0,
       "weight_kg": 85,
       "birth_date": "1995-01-21",
@@ -141,8 +137,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-pyo-seong-bin",
@@ -152,7 +147,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 7,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 189.0,
       "weight_kg": 90,
       "birth_date": "2002-03-07",
@@ -166,8 +161,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-davon-reed",
@@ -177,7 +171,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 9,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 195.0,
       "weight_kg": 106,
       "birth_date": "1995-06-11",
@@ -188,11 +182,17 @@
         "sources": [
           "kbl-active-roster-70",
           "kbl-player-profile-2026-27",
-          "kbl-player-list-weight"
+          "kbl-player-list-weight",
+          "user-report-2026-10-14"
         ],
         "checked_at": "2026-10-14"
       },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      "roster_status": {
+        "state": "replacement",
+        "replaces": "kgc-rashawn-thomas",
+        "since": null,
+        "note": "라숀 토마스 부상 기간 일시 대체 외국인"
+      }
     },
     {
       "id": "kgc-heo-ilyoung",
@@ -202,7 +202,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 10,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 196.0,
       "weight_kg": 94,
       "birth_date": "1985-08-05",
@@ -216,8 +216,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-rhenz-joseph-abando",
@@ -227,7 +226,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 12,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 187.0,
       "weight_kg": 75,
       "birth_date": "1998-03-11",
@@ -242,8 +241,7 @@
           "mydaily-2026-05-29"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-park-chan-ho",
@@ -253,7 +251,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 13,
       "positions": [],
-      "position_ko": "센터",
+      "position_kbl": "C",
       "height_cm": 202.0,
       "weight_kg": 104,
       "birth_date": "1996-09-03",
@@ -267,8 +265,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-ju-h-w",
@@ -278,7 +275,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 14,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 198.0,
       "weight_kg": 99,
       "birth_date": "1998-09-06",
@@ -292,8 +289,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-kim-jong-kyu",
@@ -303,7 +299,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 15,
       "positions": [],
-      "position_ko": "센터",
+      "position_kbl": "C",
       "height_cm": 207.0,
       "weight_kg": 105,
       "birth_date": "1991-07-03",
@@ -317,8 +313,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-lee-dae-heon",
@@ -328,7 +323,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 21,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 195.0,
       "weight_kg": 98,
       "birth_date": "1992-04-29",
@@ -342,8 +337,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-moon-yu-hyeon",
@@ -353,7 +347,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 24,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 180.0,
       "weight_kg": 79,
       "birth_date": "2004-06-08",
@@ -367,8 +361,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-rashawn-thomas",
@@ -378,7 +371,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 25,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 200.0,
       "weight_kg": null,
       "birth_date": "1994-08-18",
@@ -388,11 +381,17 @@
         "status": "verified",
         "sources": [
           "kbl-active-roster-70",
-          "kbl-player-profile-2026-27"
+          "kbl-player-profile-2026-27",
+          "user-report-2026-10-14"
         ],
         "checked_at": "2026-10-14"
       },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고 / KBL 2026-27 프로필은 정관장이나 계약 기사 미확인, 체중 미표기 — 재확인 필요"
+      "roster_status": {
+        "state": "injured",
+        "since": null,
+        "expected_return": null,
+        "note": "골타박상(골멍), 약 2주 결장 예상. 존 무니와 함께 정규 외국인 2인 중 1명"
+      }
     },
     {
       "id": "kgc-john-mooney",
@@ -402,7 +401,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 33,
       "positions": [],
-      "position_ko": "센터",
+      "position_kbl": "C",
       "height_cm": 203.0,
       "weight_kg": 111,
       "birth_date": "1998-03-20",
@@ -416,8 +415,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-kim-jun-hyung",
@@ -427,7 +425,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 35,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 201.0,
       "weight_kg": 75,
       "birth_date": "1997-04-21",
@@ -441,8 +439,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-song-han-june",
@@ -452,7 +449,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 44,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 197.0,
       "weight_kg": 84,
       "birth_date": "2007-06-02",
@@ -466,8 +463,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "kgc-han-seung-hee",
@@ -477,7 +473,7 @@
       "team_id": "anyang-kgc",
       "jersey_number": 51,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 196.0,
       "weight_kg": 102,
       "birth_date": "1998-05-05",
@@ -491,8 +487,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     }
   ]
 }

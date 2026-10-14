@@ -13,6 +13,7 @@ from .backup import BackupError, create_backup, restore_backup, verify_backup
 from .dataset import RULES_FILE, DataError, load_dataset
 from .issues import has_errors
 from .mapping import coverage
+from .positions import export_csv, import_csv
 from .ratings import calibrate, rate_team
 from .validate import validate_dataset
 
@@ -95,6 +96,36 @@ def cmd_mapping(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_positions_export(args: argparse.Namespace) -> int:
+    ds = _load_valid(args.data)
+    text = export_csv(list(ds.teams.values()))
+    if args.output:
+        # utf-8-sig: 엑셀에서 한글이 깨지지 않도록 BOM 포함
+        args.output.write_text(text, "utf-8-sig")
+        print(f"내보냄: {args.output} — primary/secondary 열을 채운 뒤 import 하세요")
+    else:
+        sys.stdout.write(text)
+    return 0
+
+
+def cmd_positions_import(args: argparse.Namespace) -> int:
+    changes, issues = import_csv(args.data, args.csv, apply=not args.dry_run)
+    for i in issues:
+        print(i)
+    if has_errors(issues):
+        print("가져오기 취소: 오류가 있어 아무것도 바꾸지 않았습니다")
+        return 1
+    for c in changes:
+        old = "/".join(c.old) or "(미정)"
+        new = "/".join(c.new) or "(미정)"
+        print(f"{c.name_ko:<10} {old:>7} → {new}")
+    verb = "변경 예정" if args.dry_run else "변경"
+    print(f"{verb} {len(changes)}명")
+    if not args.dry_run and changes:
+        return cmd_validate(argparse.Namespace(data=args.data, warnings=True))
+    return 0
+
+
 def cmd_backup(args: argparse.Namespace) -> int:
     try:
         dest = create_backup(args.game_dir, args.files, args.out, args.label)
@@ -154,6 +185,16 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("mapping", help="에셋 매핑 진행 현황")
     s.add_argument("-v", "--verbose", action="store_true")
     s.set_defaults(func=cmd_mapping)
+
+    s = sub.add_parser("positions", help="2K26 포지션 직접 입력 (CSV)")
+    pos_sub = s.add_subparsers(dest="pos_command", required=True)
+    e = pos_sub.add_parser("export", help="포지션 입력용 CSV 내보내기")
+    e.add_argument("-o", "--output", type=Path, help="파일 경로 (생략 시 화면 출력)")
+    e.set_defaults(func=cmd_positions_export)
+    m = pos_sub.add_parser("import", help="CSV 의 primary/secondary 를 팀 파일에 반영")
+    m.add_argument("csv", type=Path)
+    m.add_argument("--dry-run", action="store_true", help="변경 내용만 보여주기")
+    m.set_defaults(func=cmd_positions_import)
 
     s = sub.add_parser("backup", help="게임 파일 백업 (게임 폴더는 읽기만 함)")
     s.add_argument("--game-dir", type=Path, required=True)

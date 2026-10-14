@@ -25,6 +25,11 @@ kbl2k ratings seoul-sk --json     # 22개 능력치 전체를 JSON 으로 출력
 kbl2k calibrate 2025-26           # 데이터로 평균/표준편차 재계산 (--write 로 저장)
 kbl2k mapping -v                  # 얼굴/유니폼/코트/로고 매핑 진행 현황
 
+# 2K26 포지션 직접 입력 (엑셀)
+kbl2k positions export -o positions.csv   # primary/secondary 열 채우기
+kbl2k positions import positions.csv --dry-run
+kbl2k positions import positions.csv
+
 # 게임 파일 백업/복구 — 게임 폴더는 읽기만 하고, 백업은 게임 폴더 밖에 저장
 kbl2k backup --game-dir "D:\SteamLibrary\steamapps\common\NBA 2K26" --label pre-roster <상대경로...>
 kbl2k verify-backup game_backup\<타임스탬프>
@@ -42,6 +47,7 @@ src/kbl2k/
   validate.py     의미 검증 (ID·등번호 중복, 출처 참조, 팀 소속 등)
   ratings.py      능력치 산정 (순수 함수, 규칙은 JSON)
   mapping.py      에셋 ID 매핑 검증·진행 현황
+  positions.py    KBL(G/F/C) ↔ 2K(PG…C) 포지션, CSV 입출력
   backup.py       게임 파일 백업/복구 (SHA-256 manifest)
 data/
   sources.json            출처 목록 (URL, 조회일)
@@ -58,6 +64,34 @@ docs/             계획, 도구 조사
 - 모든 출처는 `data/sources.json` 에 먼저 등록한다. 검증기는 등록되지 않은 출처 ID 를 거부한다.
 - 비율 기록은 0–1 범위다 (38% → `0.38`).
 - 능력치는 2K26 속성 22종을 쓴다(25–99). 수동 보정은 `ratings_override` 로 한다.
+- URL 이 없는 출처(사용자 제보 등)는 `url: null` 로 등록한다. `official: true` 출처는 URL 이 필수다.
+
+### 포지션
+| 필드 | 값 | 성격 |
+|---|---|---|
+| `position_kbl` | `G` / `F` / `C` | KBL 공식 표기 (사실 데이터) |
+| `positions` | `PG` `SG` `SF` `PF` `C` 중 최대 2개 `[주, 보조]` | 2K26 에 넣을 값 (모드 설계값, 직접 입력) |
+
+- 2K 시리즈 로스터는 5포지션 체계다. 2K26 에서도 같은지는 로스터 에디터 확정 후 최종 확인한다.
+- `positions export` 로 만든 CSV 의 `suggested` 열에 KBL 포지션에 맞는 후보(G→PG/SG, F→SF/PF, C→C)가 나온다.
+- 주 포지션이 후보와 다르면 경고만 하고 허용한다(예: F 를 C 로 쓰는 경우).
+- `positions import` 는 CSV 에 오류가 하나라도 있으면 아무것도 바꾸지 않는다.
+- CSV 에 없는 선수는 바뀌지 않는다.
+- primary 를 비우면 '미정'(빈 배열)이 된다.
+- 엑셀에서 저장할 때는 **CSV UTF-8** 형식을 쓴다.
+
+### 로스터 상태
+`roster_status` 를 생략하면 정상(active)이다.
+
+```json
+"roster_status": {"state": "injured", "since": null, "expected_return": null, "note": "골타박상, 약 2주"}
+"roster_status": {"state": "replacement", "replaces": "kgc-rashawn-thomas", "note": "일시 대체 외국인"}
+```
+
+검증기는 다음을 확인한다.
+- `replaces` 가 같은 팀 선수인지 (오류)
+- 자기 자신을 대체하지 않는지 (오류)
+- 대체 대상이 `injured` 상태인지 (아니면 경고)
 
 ### 능력치 산정
 속성별로 기록·신체 입력의 z-score 를 가중 평균한다.

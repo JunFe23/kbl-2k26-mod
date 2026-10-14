@@ -27,7 +27,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 1,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 180.0,
       "weight_kg": 80,
       "birth_date": "2003-12-03",
@@ -41,8 +41,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-choi-wonhyuk",
@@ -52,7 +51,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 3,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 183.0,
       "weight_kg": 80,
       "birth_date": "1992-08-07",
@@ -66,8 +65,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-kim-nak-hyeon",
@@ -77,7 +75,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 4,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 184.0,
       "weight_kg": 88,
       "birth_date": "1995-03-12",
@@ -91,8 +89,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-jeon-seonghwan",
@@ -102,7 +99,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 6,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 178.0,
       "weight_kg": 77,
       "birth_date": "1997-12-16",
@@ -116,8 +113,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-kim-suhwan",
@@ -127,7 +123,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 7,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 189.0,
       "weight_kg": 83,
       "birth_date": "1998-09-18",
@@ -141,8 +137,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-an-youngjun",
@@ -152,7 +147,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 8,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 195.0,
       "weight_kg": 95,
       "birth_date": "1995-06-28",
@@ -166,8 +161,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-sun-sanghyuk",
@@ -177,7 +171,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 11,
       "positions": [],
-      "position_ko": "센터",
+      "position_kbl": "C",
       "height_cm": 205.0,
       "weight_kg": 105,
       "birth_date": "1999-06-10",
@@ -191,8 +185,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-an-sung-woo",
@@ -202,7 +195,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 12,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 184.0,
       "weight_kg": 81,
       "birth_date": "2003-06-07",
@@ -216,8 +209,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-choi-bukyung",
@@ -227,7 +219,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 14,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 200.0,
       "weight_kg": 105,
       "birth_date": "1989-06-28",
@@ -241,8 +233,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-jeon-jun-beom",
@@ -252,7 +243,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 17,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 194.0,
       "weight_kg": 80,
       "birth_date": "1991-08-27",
@@ -266,8 +257,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-kim-myeong-jin",
@@ -277,7 +267,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 20,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 199.0,
       "weight_kg": 91,
       "birth_date": "2003-08-14",
@@ -291,8 +281,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-mbuyi-freddy-muteba",
@@ -302,22 +291,23 @@
       "team_id": "seoul-sk",
       "jersey_number": 21,
       "positions": [],
-      "position_ko": "센터",
+      "position_kbl": "C",
       "height_cm": 202.0,
       "weight_kg": 103,
       "birth_date": "2003-02-02",
-      "nationality": null,
+      "nationality": "CD",
       "player_type": "domestic",
       "verification": {
         "status": "verified",
         "sources": [
           "kbl-active-roster-55",
           "kbl-player-profile-2026-27",
-          "kbl-player-list-weight"
+          "kbl-player-list-weight",
+          "user-report-2026-10-14"
         ],
         "checked_at": "2026-10-14"
       },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고 / KBL 국적 표기 '콩고' — ISO 코드 미확정 / KBL playerFlag=0(국내선수) 그대로 기록. 사유 미확인"
+      "notes": "국적: KBL 표기 '콩고' = 콩고민주공화국(사용자 확인) / KBL playerFlag=0(국내선수) 그대로 기록. 사유 미확인"
     },
     {
       "id": "sk-oh-jaehyun",
@@ -327,7 +317,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 22,
       "positions": [],
-      "position_ko": "가드",
+      "position_kbl": "G",
       "height_cm": 187.0,
       "weight_kg": 85,
       "birth_date": "1999-11-30",
@@ -341,8 +331,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-kim-hyungbin",
@@ -352,7 +341,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 23,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 201.0,
       "weight_kg": 99,
       "birth_date": "2000-06-05",
@@ -366,8 +355,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-arvin-tolentino",
@@ -377,7 +365,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 25,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 192.0,
       "weight_kg": 93,
       "birth_date": "1995-11-05",
@@ -391,8 +379,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-isaiah-hicks",
@@ -402,7 +389,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 31,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 203.0,
       "weight_kg": 116,
       "birth_date": "1994-07-24",
@@ -416,8 +403,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-jameel-warney",
@@ -427,7 +413,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 34,
       "positions": [],
-      "position_ko": "센터",
+      "position_kbl": "C",
       "height_cm": 199.0,
       "weight_kg": 118,
       "birth_date": "1994-01-31",
@@ -442,8 +428,7 @@
           "mydaily-2026-05-29"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-lim-h-t",
@@ -453,7 +438,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 35,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 197.0,
       "weight_kg": 84,
       "birth_date": "1997-09-18",
@@ -467,8 +452,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-edi-daniel",
@@ -478,7 +462,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 36,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 191.0,
       "weight_kg": 97,
       "birth_date": "2007-04-03",
@@ -492,8 +476,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     },
     {
       "id": "sk-oh-sekeun",
@@ -503,7 +486,7 @@
       "team_id": "seoul-sk",
       "jersey_number": 41,
       "positions": [],
-      "position_ko": "포워드",
+      "position_kbl": "F",
       "height_cm": 200.0,
       "weight_kg": 105,
       "birth_date": "1987-05-20",
@@ -517,8 +500,7 @@
           "kbl-player-list-weight"
         ],
         "checked_at": "2026-10-14"
-      },
-      "notes": "positions(2K 포지션)는 미정. KBL 표기는 position_ko 참고"
+      }
     }
   ]
 }

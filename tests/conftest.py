@@ -20,6 +20,7 @@ def make_player(pid: str, team_id: str = "test-a", **kw) -> dict:
         "name_en": None,
         "team_id": team_id,
         "jersey_number": None,
+        "position_kbl": None,
         "positions": [],
         "height_cm": None,
         "weight_kg": None,
@@ -53,6 +54,7 @@ def make_team(tid: str = "test-a", players: list | None = None, **kw) -> dict:
 GUARD = make_player(
     "test-g1",
     jersey_number=3,
+    position_kbl="G",
     positions=["PG"],
     height_cm=180,
     weight_kg=75,
@@ -84,6 +86,7 @@ GUARD = make_player(
 CENTER = make_player(
     "test-c1",
     jersey_number=33,
+    position_kbl="C",
     positions=["C"],
     height_cm=205,
     weight_kg=110,

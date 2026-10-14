@@ -99,3 +99,74 @@ def test_rules_clamp_order(dataset):
     r["clamp"] = {"min": 90, "max": 40}
     write(path, r)
     assert any("min 이 max" in e.message for e in errors(dataset))
+
+
+def _set_status(dataset, injured_state="injured", **replacement):
+    def fn(t):
+        t["players"][1]["roster_status"] = {"state": injured_state}
+        t["players"][0]["roster_status"] = {"state": "replacement", **replacement}
+
+    _edit_team(dataset, fn)
+
+
+def test_replacement_of_injured_player_ok(dataset):
+    _set_status(dataset, replaces="test-c1")
+    assert validate_dataset(dataset) == [
+        i for i in validate_dataset(dataset) if i.level == "warning"
+    ]
+    assert not any("roster_status" in i.path for i in validate_dataset(dataset))
+
+
+def test_replacement_requires_replaces(dataset):
+    _set_status(dataset)
+    assert any("roster_status" in e.path for e in errors(dataset))
+
+
+def test_replaces_unknown_player(dataset):
+    _set_status(dataset, replaces="ghost")
+    assert any("같은 팀에 없는" in e.message for e in errors(dataset))
+
+
+def test_replaces_self(dataset):
+    _set_status(dataset, replaces="test-g1")
+    assert any("자기 자신" in e.message for e in errors(dataset))
+
+
+def test_replaces_non_injured_warns(dataset):
+    _set_status(dataset, injured_state="active", replaces="test-c1")
+    issues = validate_dataset(dataset)
+    assert not has_errors(issues)
+    assert any("injured 상태가 아님" in i.message for i in issues)
+
+
+def test_replaces_only_for_replacement(dataset):
+    _edit_team(
+        dataset,
+        lambda t: t["players"][0].update(roster_status={"state": "injured", "replaces": "test-c1"}),
+    )
+    assert errors(dataset)
+
+
+def _edit_sources(dataset, **kw):
+    s = read(dataset / "sources.json")
+    s["sources"][0].update(kw)
+    write(dataset / "sources.json", s)
+
+
+def test_manual_source_without_url_ok(dataset):
+    _edit_sources(dataset, url=None, official=False)
+    assert errors(dataset) == []
+
+
+def test_official_source_needs_url(dataset):
+    _edit_sources(dataset, url=None, official=True)
+    assert any(e.file == "sources.json" for e in errors(dataset))
+
+
+def test_repo_roster_status_consistent():
+    team = read(REPO_DATA / "teams" / "anyang_kgc.json")
+    by_name = {p["name_ko"]: p for p in team["players"]}
+    assert by_name["라숀 토마스"]["roster_status"]["state"] == "injured"
+    assert by_name["데이본 리드"]["roster_status"]["replaces"] == by_name["라숀 토마스"]["id"]
+    sk = {p["name_ko"]: p for p in read(REPO_DATA / "teams" / "seoul_sk.json")["players"]}
+    assert sk["프레디"]["nationality"] == "CD"

@@ -6,7 +6,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "id", "name_ko", "name_en", "team_id", "jersey_number", "positions",
+    "id", "name_ko", "name_en", "team_id", "jersey_number", "position_kbl", "positions",
     "height_cm", "weight_kg", "birth_date", "nationality", "player_type", "verification"
   ],
   "properties": {
@@ -20,16 +20,37 @@
     "name_en": {"type": ["string", "null"], "minLength": 1},
     "team_id": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
     "jersey_number": {"type": ["integer", "null"], "minimum": 0, "maximum": 99},
+    "position_kbl": {
+      "enum": ["G", "F", "C", null],
+      "description": "KBL 공식 포지션 (G=가드, F=포워드, C=센터)"
+    },
     "positions": {
       "type": "array",
       "items": {"enum": ["PG", "SG", "SF", "PF", "C"]},
       "uniqueItems": true,
-      "maxItems": 3,
-      "description": "첫 번째가 주 포지션. 미확인 시 빈 배열"
+      "maxItems": 2,
+      "description": "2K26 포지션 [주, 보조]. 모드 설계값으로 직접 입력 (kbl2k positions export/import). 미정이면 빈 배열"
     },
-    "position_ko": {
-      "type": ["string", "null"],
-      "description": "출처에 표기된 원문 포지션(가드/포워드/센터 등)"
+    "roster_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "description": "생략하면 active",
+      "properties": {
+        "state": {"enum": ["active", "injured", "replacement"]},
+        "replaces": {
+          "$ref": "urn:kbl2k:schema:common#/$defs/slug",
+          "description": "대체 선수일 때, 대체 대상 선수 id"
+        },
+        "since": {"anyOf": [{"$ref": "urn:kbl2k:schema:common#/$defs/date"}, {"type": "null"}]},
+        "expected_return": {
+          "anyOf": [{"$ref": "urn:kbl2k:schema:common#/$defs/date"}, {"type": "null"}]
+        },
+        "note": {"type": "string"}
+      },
+      "if": {"properties": {"state": {"const": "replacement"}}},
+      "then": {"required": ["replaces"]},
+      "else": {"not": {"required": ["replaces"]}}
     },
     "height_cm": {"type": ["number", "null"], "minimum": 150, "maximum": 240},
     "weight_kg": {"type": ["number", "null"], "minimum": 50, "maximum": 180},

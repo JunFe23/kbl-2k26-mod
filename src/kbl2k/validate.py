@@ -9,6 +9,7 @@ from typing import Any
 from .dataset import MAPPING_FILE, RULES_FILE, SOURCES_FILE, Dataset, load_dataset
 from .issues import Issue, error, warning
 from .mapping import check_mapping
+from .positions import position_issues
 from .schema import schema_issues
 
 EXPECTED_SEASON = "2026-27"
@@ -90,9 +91,29 @@ def check_team(team: dict[str, Any], file: str, source_ids: set[str]) -> list[Is
                 issues.append(
                     warning(file, path, f"verified 선수에 비어있는 필드: {', '.join(missing)}")
                 )
+        issues += position_issues(p, file, path)
     for num, n in jerseys.items():
         if n > 1:
             issues.append(error(file, "$.players", f"등번호 {num} 중복 ({n}명)"))
+    issues += _check_roster_status(team, file)
+    return issues
+
+
+def _check_roster_status(team: dict[str, Any], file: str) -> list[Issue]:
+    issues: list[Issue] = []
+    by_id = {p["id"]: p for p in team["players"]}
+    for i, p in enumerate(team["players"]):
+        rs = p.get("roster_status")
+        if not rs or rs["state"] != "replacement":
+            continue
+        path = f"$.players[{i}].roster_status.replaces"
+        target = by_id.get(rs["replaces"])
+        if target is None:
+            issues.append(error(file, path, f"같은 팀에 없는 선수 '{rs['replaces']}'"))
+        elif target["id"] == p["id"]:
+            issues.append(error(file, path, "자기 자신을 대체할 수 없습니다"))
+        elif (target.get("roster_status") or {}).get("state") != "injured":
+            issues.append(warning(file, path, f"대체 대상 '{target['id']}' 이 injured 상태가 아님"))
     return issues
 
 
