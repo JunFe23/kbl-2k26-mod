@@ -32,3 +32,26 @@
 | 서울 SK | Atlanta Hawks | 안성우, 김명진, 전성환, 임현택, 김수환 |
 
 - 각 팀의 나머지 15명을 `game_roster` 에 기록했다.
+
+## 능력치 확장 (2026-10-15)
+- 능력치를 22종에서 37종으로 늘렸다. 2K26 로스터 필드 51개를 덮는다(Durability 1종 → 부위별 16개 필드).
+- 기록으로 산정하는 항목:
+
+| 항목 | 입력 |
+|---|---|
+| Post Fade | 야투율, 득점, 신장 |
+| Post Hook | 신장, 야투율, 득점 |
+| Draw Foul | 자유투 시도, 득점 |
+| Pass IQ | 어시스트, 턴오버(−) |
+| Pass Vision | 어시스트 |
+| Hands | 턴오버(−), 야투율 |
+| Pass Perception | 스틸 |
+| Help Defense IQ | 블록, 수비리바운드, 스틸 |
+| Shot IQ | 야투율, 3P%, FT% |
+| Offensive Consistency | 득점, 출전시간 |
+| Defensive Consistency | 스틸, 블록, 출전시간 |
+| Hustle | 공격리바운드, 스틸, 출전시간 |
+
+- 평균·표준편차는 2025-26 KBL 133명으로 다시 보정했다(`kbl2k calibrate`).
+- 고정 기본값(잠정): Intangibles 60, Potential 65, Durability 80
+  - `ratings_override` 로 선수별로 바꿀 수 있다.

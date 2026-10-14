@@ -58,12 +58,16 @@
     "attribute_rule": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["components"],
+      "oneOf": [{"required": ["components"]}, {"required": ["fixed"]}],
       "properties": {
         "components": {
           "type": "array",
           "minItems": 1,
           "items": {"$ref": "#/$defs/component"}
+        },
+        "fixed": {
+          "$ref": "urn:kbl2k:schema:attributes#/$defs/rating",
+          "description": "기록으로 알 수 없는 항목의 고정 기본값 (ADR-0015)"
         },
         "position_bonus": {
           "type": "object",

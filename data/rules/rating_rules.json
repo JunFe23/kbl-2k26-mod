@@ -435,6 +435,272 @@
           "weight": 1.0
         }
       ]
+    },
+    "Post Fade": {
+      "components": [
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 0.5,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        },
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 0.4
+        },
+        {
+          "input": "height_cm",
+          "mean": 192.9549,
+          "sd": 8.7203,
+          "weight": 0.4
+        }
+      ],
+      "position_bonus": {
+        "C": 3,
+        "PF": 2,
+        "PG": -3
+      }
+    },
+    "Post Hook": {
+      "components": [
+        {
+          "input": "height_cm",
+          "mean": 192.9549,
+          "sd": 8.7203,
+          "weight": 0.7
+        },
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 0.4,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        },
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 0.4
+        }
+      ],
+      "position_bonus": {
+        "C": 4,
+        "PF": 2,
+        "PG": -4,
+        "SG": -3
+      }
+    },
+    "Draw Foul": {
+      "components": [
+        {
+          "input": "fta_pg",
+          "mean": 1.3371,
+          "sd": 1.3249,
+          "weight": 1.0
+        },
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 0.3
+        }
+      ]
+    },
+    "Pass IQ": {
+      "components": [
+        {
+          "input": "apg",
+          "mean": 1.6427,
+          "sd": 1.4834,
+          "weight": 0.8
+        },
+        {
+          "input": "tpg",
+          "mean": 0.971,
+          "sd": 0.6981,
+          "weight": -0.5
+        }
+      ],
+      "position_bonus": {
+        "PG": 3
+      }
+    },
+    "Pass Vision": {
+      "components": [
+        {
+          "input": "apg",
+          "mean": 1.6427,
+          "sd": 1.4834,
+          "weight": 1.0
+        }
+      ],
+      "position_bonus": {
+        "PG": 3
+      }
+    },
+    "Hands": {
+      "components": [
+        {
+          "input": "tpg",
+          "mean": 0.971,
+          "sd": 0.6981,
+          "weight": -0.6
+        },
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 0.3,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        }
+      ]
+    },
+    "Pass Perception": {
+      "components": [
+        {
+          "input": "spg",
+          "mean": 0.5923,
+          "sd": 0.3871,
+          "weight": 1.0
+        }
+      ]
+    },
+    "Help Defense IQ": {
+      "components": [
+        {
+          "input": "bpg",
+          "mean": 0.2311,
+          "sd": 0.2391,
+          "weight": 0.5
+        },
+        {
+          "input": "drpg",
+          "mean": 2.1875,
+          "sd": 1.7534,
+          "weight": 0.5
+        },
+        {
+          "input": "spg",
+          "mean": 0.5923,
+          "sd": 0.3871,
+          "weight": 0.3
+        }
+      ]
+    },
+    "Shot IQ": {
+      "components": [
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 0.6,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        },
+        {
+          "input": "fg3_pct",
+          "mean": 0.3007,
+          "sd": 0.0915,
+          "weight": 0.3,
+          "volume": {
+            "input": "fg3a_pg",
+            "full": 3
+          }
+        },
+        {
+          "input": "ft_pct",
+          "mean": 0.7155,
+          "sd": 0.1262,
+          "weight": 0.2,
+          "volume": {
+            "input": "fta_pg",
+            "full": 2
+          }
+        }
+      ]
+    },
+    "Offensive Consistency": {
+      "components": [
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 0.6
+        },
+        {
+          "input": "mpg",
+          "mean": 18.3591,
+          "sd": 8.2808,
+          "weight": 0.4
+        }
+      ]
+    },
+    "Defensive Consistency": {
+      "components": [
+        {
+          "input": "spg",
+          "mean": 0.5923,
+          "sd": 0.3871,
+          "weight": 0.5
+        },
+        {
+          "input": "bpg",
+          "mean": 0.2311,
+          "sd": 0.2391,
+          "weight": 0.5
+        },
+        {
+          "input": "mpg",
+          "mean": 18.3591,
+          "sd": 8.2808,
+          "weight": 0.3
+        }
+      ]
+    },
+    "Hustle": {
+      "components": [
+        {
+          "input": "orpg",
+          "mean": 0.8929,
+          "sd": 0.8236,
+          "weight": 0.5
+        },
+        {
+          "input": "spg",
+          "mean": 0.5923,
+          "sd": 0.3871,
+          "weight": 0.3
+        },
+        {
+          "input": "mpg",
+          "mean": 18.3591,
+          "sd": 8.2808,
+          "weight": 0.4
+        }
+      ]
+    },
+    "Intangibles": {
+      "fixed": 60
+    },
+    "Potential": {
+      "fixed": 65
+    },
+    "Durability": {
+      "fixed": 80
     }
   },
   "ovr": {

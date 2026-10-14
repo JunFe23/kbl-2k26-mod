@@ -13,7 +13,8 @@ def test_schemas_are_valid_draft_2020_12(name):
 
 def test_attribute_names_count():
     names = attribute_names()
-    assert len(names) == 22
+    assert len(names) == 37
+    assert {"Shot IQ", "Durability", "Post Hook"} <= set(names)
     assert "Three-Point Shot" in names
 
 

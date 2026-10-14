@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:kbl2k:schema:attributes",
   "title": "NBA 2K26 선수 능력치 이름",
-  "description": "2K26 MyPLAYER 빌더 속성 22종. 출처: hoopsgamers.com/nba-2k26-attributes (팬 사이트, 게임 내 확인 필요). 로스터 전용 속성(Hands, Shot IQ 등)은 2K26 확인 전까지 포함하지 않음.",
+  "description": "능력치 이름. 앞 22종은 2K26 MyPLAYER 빌더 속성, 뒤 15종은 2K26 로스터 레코드 필드(2KVenueLab 2.15 field_registry, docs/2k26-player-fields.md)에서 확인한 항목. Durability 는 16개 부위 내구도에 공통 적용.",
   "$defs": {
     "attribute_name": {
       "enum": [
@@ -11,7 +11,12 @@
         "Pass Accuracy", "Ball Handle", "Speed With Ball",
         "Interior Defense", "Perimeter Defense", "Steal", "Block",
         "Offensive Rebound", "Defensive Rebound",
-        "Speed", "Agility", "Strength", "Vertical", "Stamina"
+        "Speed", "Agility", "Strength", "Vertical", "Stamina",
+        "Post Fade", "Post Hook", "Draw Foul",
+        "Pass IQ", "Pass Vision", "Hands",
+        "Pass Perception", "Help Defense IQ",
+        "Shot IQ", "Offensive Consistency", "Defensive Consistency", "Hustle",
+        "Intangibles", "Potential", "Durability"
       ]
     },
     "rating": {"type": "integer", "minimum": 25, "maximum": 99}

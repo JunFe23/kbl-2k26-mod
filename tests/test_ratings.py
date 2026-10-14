@@ -4,6 +4,7 @@ import pytest
 from conftest import CENTER, GUARD, make_player
 
 from kbl2k.ratings import (
+    AttributeResult,
     calibrate,
     component_z,
     compute_ovr,
@@ -43,7 +44,8 @@ def test_guard_vs_center_profiles(rules):
 def test_no_data_player_gets_defaults(rules):
     r = rate_player(make_player("test-x1"), rules)
     expected = rules["base"] + rules["league_offset"]
-    assert all(a.source == "default" for a in r.attributes.values())
+    assert all(a.source in ("default", "fixed") for a in r.attributes.values())
+    assert r.attributes["Durability"].source == "fixed"
     assert r.attributes["Steal"].value == expected
     assert r.season is None and r.games_factor == 0
 
@@ -236,3 +238,32 @@ def test_calibrate_ignores_small_samples_and_low_games(rules):
     new, counts = calibrate(rows, rules, "2025-26", min_samples=10)
     assert counts == {}
     assert new["attributes"] == rules["attributes"]
+
+
+def test_fixed_attribute_ignores_stats_and_overridable(rules):
+    r = rate_player(GUARD, rules)
+    assert r.attributes["Durability"] == AttributeResult(
+        rules["attributes"]["Durability"]["fixed"], "fixed"
+    )
+    p = copy.deepcopy(GUARD)
+    p["ratings_override"] = {"Durability": 95}
+    assert rate_player(p, rules).attributes["Durability"].value == 95
+
+
+def test_fixed_rule_schema(rules):
+    bad = copy.deepcopy(rules)
+    bad["attributes"]["Durability"] = {
+        "fixed": 80,
+        "components": rules["attributes"]["Steal"]["components"],
+    }
+    assert schema_issues("rating_rules", bad, "f")
+    bad["attributes"]["Durability"] = {"fixed": 120}
+    assert schema_issues("rating_rules", bad, "f")
+
+
+def test_extended_attributes_computed(rules):
+    a = rate_player(GUARD, rules).attributes
+    c = rate_player(CENTER, rules).attributes
+    assert a["Pass IQ"].value > c["Pass IQ"].value
+    assert c["Post Hook"].value > a["Post Hook"].value
+    assert c["Draw Foul"].source == "computed"

@@ -38,7 +38,7 @@ STAT_INPUTS = (
     "fg_pct", "fg3_pct", "ft_pct", "fg3a_pg", "fta_pg",
 )  # fmt: skip
 
-Source = Literal["computed", "override", "default"]
+Source = Literal["computed", "override", "default", "fixed"]
 
 
 @dataclass(frozen=True)
@@ -165,6 +165,8 @@ def compute_attribute(
     gfactor: float,
     league_adj: float = 0.0,
 ) -> AttributeResult:
+    if "fixed" in rule:
+        return AttributeResult(rule["fixed"], "fixed")
     lo, hi = rules["clamp"]["min"], rules["clamp"]["max"]
     bonus = position_bonus(rule, positions)
     num = den = stat_w = 0.0
@@ -266,7 +268,7 @@ def calibrate(
     new = copy.deepcopy(rules)
     counts = {k: len(v) for k, v in samples.items()}
     for rule in new["attributes"].values():
-        for comp in rule["components"]:
+        for comp in rule.get("components", []):
             xs = samples.get(comp["input"], [])
             if len(xs) >= min_samples:
                 sd = statistics.pstdev(xs)

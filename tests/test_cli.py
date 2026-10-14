@@ -39,7 +39,7 @@ def test_ratings_json(capsys, dataset):
     assert code == 0
     rows = json.loads(out)
     assert {r["player_id"] for r in rows} == {"test-g1", "test-c1"}
-    assert len(rows[0]["attributes"]) == 22
+    assert len(rows[0]["attributes"]) == 37
 
 
 def test_ratings_unknown_team(capsys, dataset):
