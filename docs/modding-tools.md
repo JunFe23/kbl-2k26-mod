@@ -172,3 +172,33 @@
   - 본 사이트(www.nba-live.com)는 접속 불가, 포럼 주소는 접속 가능(2026-10-15)
   - 2K26 로스터 편집은 메모리 편집이며 "EAC 끄고 오프라인 실행"이 필요하다(제작자 안내). Steam 공식 옵션 "without EAC (offline only)" 로 실행하면 된다.
   - 새 선수 생성과 CSV 가져오기는 아직 지원하지 않는다. 기존 선수를 덮어쓰는 방식이다.
+
+## 2KVenueLab 2.15 점검 결과 (2026-10-15)
+- 파일: `D:\2K Tools\2K VenueLab 2.15.zip`
+  - NLSC 포럼 다운로드(Zone.Identifier 의 출처 URL 로 확인)
+  - MD5 `fb5e5bc97ce31d85de60093520b3711b` — **포럼 공개값과 일치**
+  - SHA-256 `fe71ff870be965c74fe060134db1f407bb0283f5aac0db72f95dda6e8f0da4d2`
+- 압축 해제: `D:\2K Tools\2KVenueLab-2.15\` (3,859개 파일, 경로 이탈 없음, V3 실시간 감시가 격리한 파일 없음)
+- 구성: .NET 8 앱(`VenueLab.exe`, `app/`) + 내장 Python 3.14 + 제작자 파이썬 소스 `app/tools/*.py`(소스로 읽을 수 있음)
+  - 2K26 필드 정의도 들어 있다: `app/data/roster_profiles/nba2k26_*.json`
+- VirusTotal: **9/54 탐지**
+  - 탐지명은 모두 일반 휴리스틱이다: Trojan/Win32.Agent, MSIL_Binder.gen, PossibleThreat, Elastic ML moderate 등
+  - AhnLab-V3, Microsoft, ESET, BitDefender, Sophos, Symantec, Malwarebytes, CrowdStrike 는 미탐지였다.
+  - VT Code Insight: "악성 행위·난독화·자격증명 유출 없음"
+- 소스·문자열 감사 결과:
+  - 위험해 보이는 기능은 있다.
+    - Hook Tools 용 DLL 주입 로더(`venuelab_delayed_loader.exe`, CreateRemoteThread, cpp 소스 포함)
+    - 로스터 편집용 Read/WriteProcessMemory
+    - PowerShell 호출
+  - 정보 유출 흔적(웹훅·토큰·비밀번호·지갑·다운로드)은 없다.
+  - 외부 URL 은 포럼 참고 링크와 3D 뷰어용 three.js CDN 뿐이다.
+- 판정: 휴리스틱 오탐 가능성이 높다. 컴파일된 .NET 부분까지 전수 검증하지는 않았다. 사용 조건은 다음과 같다.
+  1. **Hook Tools / Mod Manager / Blacktop 스위치는 쓰지 않는다** (DLL 주입·게임 폴더 변경).
+  2. 로스터 에디터만 쓰고, **인터넷을 끊은 상태**에서 Steam 공식 "without EAC (offline only)" 로 실행한다.
+  3. 사용 전후로 `kbl2k game snapshot/diff` 를 한다.
+     - 기준: `20261015-003249-before-2kvenuelab`(게임), `20261015-003253-before-2kvenuelab-save`(세이브)
+- 자동화 가능성: `roster_live_memory_probe.py` 는 명령줄 도구다.
+  - `--bootstrap-team-slot-roster-catalog`: 팀·선수 카탈로그 JSON
+  - `--inspect-player-base-roster-model`: 필드 주소·현재값 JSON
+  - `--direct-guarded-write --allow-memory-write`: 예상 이전값 일치 시에만 쓰고, 쓴 뒤 다시 읽어 확인
+  - → 우리 데이터로 일괄 쓰기 계획을 만들 수 있다. 실제 게임 검증 후 구현한다.
