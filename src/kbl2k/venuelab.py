@@ -365,6 +365,8 @@ def plan_writes(model: dict[str, Any], target: dict[str, Any]) -> list[WriteOp]:
 # --- 실행 -----------------------------------------------------------------------
 
 ProbeRunner = Callable[[list[str]], dict[str, Any]]
+OWNER_TABLE_CATALOG = "kbl2k:owner-table-catalog"  # 내부 전용 의사 명령
+BOOTSTRAP_CATALOG = "--bootstrap-team-slot-roster-catalog"
 
 
 def make_probe_runner(venuelab_dir: Path, timeout: float = 600) -> ProbeRunner:
@@ -378,8 +380,19 @@ def make_probe_runner(venuelab_dir: Path, timeout: float = 600) -> ProbeRunner:
     def run(args: list[str]) -> dict[str, Any]:
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "out.json"
+            if args == [OWNER_TABLE_CATALOG]:
+                # CLI 플래그가 없는 읽기 전용 함수 — VenueLab 앱의 팀 목록과 같은 방식
+                code = (
+                    "import json,sys;sys.path.insert(0,sys.argv[1]);"
+                    "import roster_live_memory_probe as p;"
+                    "r=p.build_team_slot_roster_catalog_from_owner_tables('NBA2K26.exe');"
+                    "open(sys.argv[2],'w',encoding='utf-8').write(json.dumps(r,default=str))"
+                )
+                cmd = [str(python), "-c", code, str(script.parent), str(out)]
+            else:
+                cmd = [str(python), str(script), *args, "--out", str(out)]
             proc = subprocess.run(
-                [str(python), str(script), *args, "--out", str(out)],
+                cmd,
                 cwd=str(script.parent),
                 capture_output=True,
                 text=True,
@@ -395,6 +408,43 @@ def make_probe_runner(venuelab_dir: Path, timeout: float = 600) -> ProbeRunner:
                 ) from e
 
     return run
+
+
+def catalog_is_usable(catalog: dict[str, Any]) -> bool:
+    """팀 목록이 쓸 만한지: 상태 ok 이고, 이름이 정상인 팀(“Team 0x…” 아님)이 2개 이상."""
+    if catalog.get("status") != "ok":
+        return False
+    named = [
+        t
+        for t in catalog.get("teams", [])
+        if (d := t.get("team", {}).get("display", "")) and not d.startswith("Team 0x")
+    ]
+    return len(named) >= 2
+
+
+def read_catalog(probe: ProbeRunner) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """선수·팀 테이블 방식 → 실패 시 구조 스캔. (사용한 목록, 시도 기록)"""
+    tried: list[dict[str, Any]] = []
+    last: dict[str, Any] = {}
+    for method in (OWNER_TABLE_CATALOG, BOOTSTRAP_CATALOG):
+        try:
+            cat = probe([method])
+        except VenueLabError as e:
+            tried.append({"method": method, "status": "error", "reason": str(e)[:300]})
+            continue
+        ok = catalog_is_usable(cat)
+        tried.append(
+            {
+                "method": method,
+                "status": cat.get("status"),
+                "usable": ok,
+                "team_count": cat.get("team_count"),
+            }
+        )
+        last = cat
+        if ok:
+            return cat, tried
+    return last or {"status": "not_found", "teams": []}, tried
 
 
 def running_processes() -> list[str]:
@@ -494,7 +544,7 @@ def apply_plan(
     progress("1/3 안전 확인 (안티치트·게임 실행 여부)")
     check_gate(processes if processes is not None else running_processes())
     progress("2/3 게임에서 팀·선수 목록 읽는 중 — 1~3분 걸릴 수 있습니다. 기다려 주세요")
-    catalog = probe(["--bootstrap-team-slot-roster-catalog"])
+    catalog, tried = read_catalog(probe)
     if catalog_path is not None:
         catalog_path.parent.mkdir(parents=True, exist_ok=True)
         catalog_path.write_text(json.dumps(catalog, ensure_ascii=False), "utf-8")
@@ -502,10 +552,14 @@ def apply_plan(
         stage="catalog",
         status=catalog.get("status"),
         team_count=catalog.get("team_count"),
+        source=catalog.get("source") or catalog.get("mode"),
+        tried=tried,
         path=str(catalog_path) if catalog_path else None,
     )
-    if catalog.get("status") != "ok":
-        raise VenueLabError(f"팀 목록 생성 실패: {catalog.get('status')} {catalog.get('reason')}")
+    if not catalog_is_usable(catalog):
+        raise VenueLabError(
+            f"팀 목록을 제대로 읽지 못했습니다(시도: {tried}). 로스터 화면에서 다시 실행하세요."
+        )
 
     for team in plan["teams"]:
         entry, decision = select_team(catalog, team["nba_slot"])

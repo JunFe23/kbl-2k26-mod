@@ -9,6 +9,7 @@ from conftest import GUARD, make_player, make_team
 
 from kbl2k.venuelab import (
     DURABILITY_FIELDS,
+    OWNER_TABLE_CATALOG,
     RATING_FIELD_MAP,
     VenueLabError,
     WriteOp,
@@ -316,7 +317,7 @@ class FakeProbe:
 
     def __call__(self, args):
         self.calls.append(args)
-        if args[0] == "--bootstrap-team-slot-roster-catalog":
+        if args[0] in (OWNER_TABLE_CATALOG, "--bootstrap-team-slot-roster-catalog"):
             return self.cat
         if args[0] == "--inspect-player-base-roster-model":
             return fake_model(last="Old")
@@ -427,3 +428,25 @@ def test_apply_saves_catalog_and_logs_selection(tmp_path):
     )
     assert path.is_file() and len(msgs) == 3
     assert any(e["stage"] == "team" and e["status"] == "selected" for e in rep.events)
+
+
+def test_read_catalog_falls_back_when_owner_table_unusable():
+    from kbl2k.venuelab import read_catalog
+
+    bogus = {"status": "ok", "teams": [{"team": {"display": "Team 0x262CD09E0"}, "slots": []}]}
+    good = catalog()
+    calls = []
+
+    def probe(args):
+        calls.append(args[0])
+        return bogus if args[0] == OWNER_TABLE_CATALOG else good
+
+    cat, tried = read_catalog(probe)
+    assert cat is good and calls == [OWNER_TABLE_CATALOG, "--bootstrap-team-slot-roster-catalog"]
+    assert tried[0]["usable"] is False and tried[1]["usable"] is True
+
+
+def test_apply_stops_when_no_usable_catalog():
+    bogus = {"status": "ok", "teams": [{"team": {"display": "Team 0x1"}, "slots": []}]}
+    with pytest.raises(VenueLabError, match="제대로 읽지 못했습니다"):
+        apply_plan(plan1(), lambda a: bogus, processes=["NBA2K26.exe"])
