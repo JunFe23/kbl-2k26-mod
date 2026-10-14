@@ -475,7 +475,16 @@ def apply_plan(
             except VenueLabError as e:
                 report.log(stage="plan", status="error", reason=str(e), **who)
                 continue
-            report.log(stage="plan", status="planned", ops=len(ops), **who)
+            ctx = model.get("current_context") or {}
+            report.log(
+                stage="plan",
+                status="planned",
+                ops=len(ops),
+                context=ctx.get("detected"),
+                context_confidence=ctx.get("confidence"),
+                save_authoritative=(model.get("save_authoritative_filter") or {}).get("allowed"),
+                **who,
+            )
             if not write:
                 for op in ops:
                     report.log(stage="op", status="dry_run", op=_op_dict(op), **who)

@@ -281,6 +281,11 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
         print(f"중단: {e}", file=sys.stderr)
         return 1
     write_report(report, report_path)
+    contexts = {
+        e.get("context") for e in report.events if e.get("stage") == "plan" and e.get("context")
+    }
+    if contexts:
+        print(f"불러와진 로스터(VenueLab 판단): {', '.join(sorted(contexts))}")
     for status in ("planned", "dry_run", "write_readback_ok", "unchanged", "rejected", "error"):
         n = report.count(status)
         if n:
