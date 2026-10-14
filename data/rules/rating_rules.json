@@ -6,166 +6,470 @@
   "base": 60,
   "spread": 10,
   "league_offset": -8,
-  "clamp": {"min": 25, "max": 99},
+  "clamp": {
+    "min": 25,
+    "max": 99
+  },
   "min_games": 20,
   "z_cap": 3,
   "attributes": {
     "Close Shot": {
       "components": [
-        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 1.0, "volume": {"input": "mpg", "full": 15}},
-        {"input": "ppg", "mean": 8, "sd": 5, "weight": 0.5},
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.3}
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 1.0,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        },
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 0.5
+        },
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 0.3
+        }
       ],
-      "position_bonus": {"C": 4, "PF": 2}
+      "position_bonus": {
+        "C": 4,
+        "PF": 2
+      }
     },
     "Driving Layup": {
       "components": [
-        {"input": "ppg", "mean": 8, "sd": 5, "weight": 1.0},
-        {"input": "fta_pg", "mean": 1.5, "sd": 1.2, "weight": 0.7},
-        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 0.5, "volume": {"input": "mpg", "full": 15}}
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 1.0
+        },
+        {
+          "input": "fta_pg",
+          "mean": 1.3371,
+          "sd": 1.3249,
+          "weight": 0.7
+        },
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 0.5,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        }
       ],
-      "position_bonus": {"PG": 2, "SG": 2, "C": -3}
+      "position_bonus": {
+        "PG": 2,
+        "SG": 2,
+        "C": -3
+      }
     },
     "Driving Dunk": {
       "components": [
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.6},
-        {"input": "fta_pg", "mean": 1.5, "sd": 1.2, "weight": 0.5},
-        {"input": "ppg", "mean": 8, "sd": 5, "weight": 0.4}
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 0.6
+        },
+        {
+          "input": "fta_pg",
+          "mean": 1.3371,
+          "sd": 1.3249,
+          "weight": 0.5
+        },
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 0.4
+        }
       ]
     },
     "Standing Dunk": {
       "components": [
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 1.0},
-        {"input": "orpg", "mean": 0.8, "sd": 0.6, "weight": 0.6}
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 1.0
+        },
+        {
+          "input": "orpg",
+          "mean": 0.8929,
+          "sd": 0.8236,
+          "weight": 0.6
+        }
       ],
-      "position_bonus": {"C": 5, "PF": 3, "SG": -4, "PG": -5}
+      "position_bonus": {
+        "C": 5,
+        "PF": 3,
+        "SG": -4,
+        "PG": -5
+      }
     },
     "Post Control": {
       "components": [
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.6},
-        {"input": "ppg", "mean": 8, "sd": 5, "weight": 0.6},
-        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 0.4, "volume": {"input": "mpg", "full": 15}}
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 0.6
+        },
+        {
+          "input": "ppg",
+          "mean": 6.9911,
+          "sd": 5.28,
+          "weight": 0.6
+        },
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 0.4,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        }
       ],
-      "position_bonus": {"C": 4, "PF": 2, "PG": -4}
+      "position_bonus": {
+        "C": 4,
+        "PF": 2,
+        "PG": -4
+      }
     },
     "Mid-Range Shot": {
       "components": [
-        {"input": "fg_pct", "mean": 0.45, "sd": 0.07, "weight": 0.6, "volume": {"input": "mpg", "full": 15}},
-        {"input": "ft_pct", "mean": 0.72, "sd": 0.1, "weight": 0.6, "volume": {"input": "fta_pg", "full": 2}}
+        {
+          "input": "fg_pct",
+          "mean": 0.413,
+          "sd": 0.0804,
+          "weight": 0.6,
+          "volume": {
+            "input": "mpg",
+            "full": 15
+          }
+        },
+        {
+          "input": "ft_pct",
+          "mean": 0.7155,
+          "sd": 0.1262,
+          "weight": 0.6,
+          "volume": {
+            "input": "fta_pg",
+            "full": 2
+          }
+        }
       ]
     },
     "Three-Point Shot": {
       "components": [
-        {"input": "fg3_pct", "mean": 0.32, "sd": 0.06, "weight": 1.0, "volume": {"input": "fg3a_pg", "full": 3}},
-        {"input": "fg3a_pg", "mean": 2.0, "sd": 1.5, "weight": 0.5}
+        {
+          "input": "fg3_pct",
+          "mean": 0.3007,
+          "sd": 0.0915,
+          "weight": 1.0,
+          "volume": {
+            "input": "fg3a_pg",
+            "full": 3
+          }
+        },
+        {
+          "input": "fg3a_pg",
+          "mean": 2.4532,
+          "sd": 1.7631,
+          "weight": 0.5
+        }
       ]
     },
     "Free Throw": {
       "components": [
-        {"input": "ft_pct", "mean": 0.72, "sd": 0.1, "weight": 1.0, "volume": {"input": "fta_pg", "full": 2}}
+        {
+          "input": "ft_pct",
+          "mean": 0.7155,
+          "sd": 0.1262,
+          "weight": 1.0,
+          "volume": {
+            "input": "fta_pg",
+            "full": 2
+          }
+        }
       ]
     },
     "Pass Accuracy": {
       "components": [
-        {"input": "apg", "mean": 2.0, "sd": 1.5, "weight": 1.0},
-        {"input": "tpg", "mean": 1.2, "sd": 0.6, "weight": -0.3}
+        {
+          "input": "apg",
+          "mean": 1.6427,
+          "sd": 1.4834,
+          "weight": 1.0
+        },
+        {
+          "input": "tpg",
+          "mean": 0.971,
+          "sd": 0.6981,
+          "weight": -0.3
+        }
       ],
-      "position_bonus": {"PG": 3}
+      "position_bonus": {
+        "PG": 3
+      }
     },
     "Ball Handle": {
       "components": [
-        {"input": "apg", "mean": 2.0, "sd": 1.5, "weight": 0.7},
-        {"input": "tpg", "mean": 1.2, "sd": 0.6, "weight": -0.2},
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -0.4}
+        {
+          "input": "apg",
+          "mean": 1.6427,
+          "sd": 1.4834,
+          "weight": 0.7
+        },
+        {
+          "input": "tpg",
+          "mean": 0.971,
+          "sd": 0.6981,
+          "weight": -0.2
+        },
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": -0.4
+        }
       ],
-      "position_bonus": {"PG": 5, "SG": 2, "C": -5}
+      "position_bonus": {
+        "PG": 5,
+        "SG": 2,
+        "C": -5
+      }
     },
     "Speed With Ball": {
       "components": [
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -0.7},
-        {"input": "apg", "mean": 2.0, "sd": 1.5, "weight": 0.5}
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": -0.7
+        },
+        {
+          "input": "apg",
+          "mean": 1.6427,
+          "sd": 1.4834,
+          "weight": 0.5
+        }
       ]
     },
     "Interior Defense": {
       "components": [
-        {"input": "bpg", "mean": 0.3, "sd": 0.3, "weight": 0.7},
-        {"input": "drpg", "mean": 2.0, "sd": 1.4, "weight": 0.5},
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.5}
+        {
+          "input": "bpg",
+          "mean": 0.2311,
+          "sd": 0.2391,
+          "weight": 0.7
+        },
+        {
+          "input": "drpg",
+          "mean": 2.1875,
+          "sd": 1.7534,
+          "weight": 0.5
+        },
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 0.5
+        }
       ]
     },
     "Perimeter Defense": {
       "components": [
-        {"input": "spg", "mean": 0.7, "sd": 0.4, "weight": 0.8},
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -0.2}
+        {
+          "input": "spg",
+          "mean": 0.5923,
+          "sd": 0.3871,
+          "weight": 0.8
+        },
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": -0.2
+        }
       ],
-      "position_bonus": {"PG": 2, "SG": 2, "SF": 1, "C": -3}
+      "position_bonus": {
+        "PG": 2,
+        "SG": 2,
+        "SF": 1,
+        "C": -3
+      }
     },
     "Steal": {
       "components": [
-        {"input": "spg", "mean": 0.7, "sd": 0.4, "weight": 1.0}
+        {
+          "input": "spg",
+          "mean": 0.5923,
+          "sd": 0.3871,
+          "weight": 1.0
+        }
       ]
     },
     "Block": {
       "components": [
-        {"input": "bpg", "mean": 0.3, "sd": 0.3, "weight": 1.0},
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.4}
+        {
+          "input": "bpg",
+          "mean": 0.2311,
+          "sd": 0.2391,
+          "weight": 1.0
+        },
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 0.4
+        }
       ]
     },
     "Offensive Rebound": {
       "components": [
-        {"input": "orpg", "mean": 0.8, "sd": 0.6, "weight": 1.0},
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.3}
+        {
+          "input": "orpg",
+          "mean": 0.8929,
+          "sd": 0.8236,
+          "weight": 1.0
+        },
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 0.3
+        }
       ]
     },
     "Defensive Rebound": {
       "components": [
-        {"input": "drpg", "mean": 2.0, "sd": 1.4, "weight": 1.0},
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": 0.3}
+        {
+          "input": "drpg",
+          "mean": 2.1875,
+          "sd": 1.7534,
+          "weight": 1.0
+        },
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": 0.3
+        }
       ]
     },
     "Speed": {
       "components": [
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -1.0}
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": -1.0
+        }
       ],
-      "position_bonus": {"PG": 3}
+      "position_bonus": {
+        "PG": 3
+      }
     },
     "Agility": {
       "components": [
-        {"input": "height_cm", "mean": 192, "sd": 8, "weight": -1.0}
+        {
+          "input": "height_cm",
+          "mean": 192,
+          "sd": 8,
+          "weight": -1.0
+        }
       ]
     },
     "Strength": {
       "components": [
-        {"input": "weight_kg", "mean": 88, "sd": 12, "weight": 1.0}
+        {
+          "input": "weight_kg",
+          "mean": 88,
+          "sd": 12,
+          "weight": 1.0
+        }
       ]
     },
     "Vertical": {
       "components": [
-        {"input": "bpg", "mean": 0.3, "sd": 0.3, "weight": 0.5},
-        {"input": "orpg", "mean": 0.8, "sd": 0.6, "weight": 0.5}
+        {
+          "input": "bpg",
+          "mean": 0.2311,
+          "sd": 0.2391,
+          "weight": 0.5
+        },
+        {
+          "input": "orpg",
+          "mean": 0.8929,
+          "sd": 0.8236,
+          "weight": 0.5
+        }
       ]
     },
     "Stamina": {
       "components": [
-        {"input": "mpg", "mean": 20, "sd": 8, "weight": 1.0}
+        {
+          "input": "mpg",
+          "mean": 18.3591,
+          "sd": 8.2808,
+          "weight": 1.0
+        }
       ]
     }
   },
   "ovr": {
     "default": {
-      "Close Shot": 1, "Driving Layup": 1, "Mid-Range Shot": 1, "Three-Point Shot": 1,
-      "Free Throw": 0.5, "Pass Accuracy": 1, "Ball Handle": 1,
-      "Interior Defense": 1, "Perimeter Defense": 1, "Steal": 0.5, "Block": 0.5,
-      "Offensive Rebound": 0.5, "Defensive Rebound": 1, "Speed": 0.5, "Strength": 0.5
+      "Close Shot": 1,
+      "Driving Layup": 1,
+      "Mid-Range Shot": 1,
+      "Three-Point Shot": 1,
+      "Free Throw": 0.5,
+      "Pass Accuracy": 1,
+      "Ball Handle": 1,
+      "Interior Defense": 1,
+      "Perimeter Defense": 1,
+      "Steal": 0.5,
+      "Block": 0.5,
+      "Offensive Rebound": 0.5,
+      "Defensive Rebound": 1,
+      "Speed": 0.5,
+      "Strength": 0.5
     },
     "PG": {
-      "Driving Layup": 1, "Mid-Range Shot": 1, "Three-Point Shot": 1.5, "Free Throw": 0.5,
-      "Pass Accuracy": 2, "Ball Handle": 2, "Speed With Ball": 1,
-      "Perimeter Defense": 1, "Steal": 1, "Speed": 1
+      "Driving Layup": 1,
+      "Mid-Range Shot": 1,
+      "Three-Point Shot": 1.5,
+      "Free Throw": 0.5,
+      "Pass Accuracy": 2,
+      "Ball Handle": 2,
+      "Speed With Ball": 1,
+      "Perimeter Defense": 1,
+      "Steal": 1,
+      "Speed": 1
     },
     "C": {
-      "Close Shot": 1.5, "Standing Dunk": 1, "Post Control": 1, "Mid-Range Shot": 0.5,
-      "Interior Defense": 2, "Block": 1.5, "Offensive Rebound": 1.5, "Defensive Rebound": 2,
+      "Close Shot": 1.5,
+      "Standing Dunk": 1,
+      "Post Control": 1,
+      "Mid-Range Shot": 0.5,
+      "Interior Defense": 2,
+      "Block": 1.5,
+      "Offensive Rebound": 1.5,
+      "Defensive Rebound": 2,
       "Strength": 1
     }
   }

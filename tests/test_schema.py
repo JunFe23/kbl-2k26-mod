@@ -63,7 +63,7 @@ def test_verified_requires_source_and_date():
 
 def test_stat_line_pct_range():
     p = copy.deepcopy(GUARD)
-    p["stats"]["2025-26"]["fg3_pct"] = 38.0  # % 단위 실수
+    p["stats"][0]["fg3_pct"] = 38.0  # % 단위 실수
     assert any("fg3_pct" in i.path for i in schema_issues("player", p, "f"))
 
 

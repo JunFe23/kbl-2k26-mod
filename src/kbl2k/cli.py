@@ -11,10 +11,12 @@ from pathlib import Path
 from . import __version__
 from .backup import BackupError, create_backup, restore_backup, verify_backup
 from .dataset import RULES_FILE, DataError, load_dataset
+from .fetch import fetch_league, fetch_players, league_file
 from .issues import has_errors
+from .kbl_api import KblApiError, fetch_team_names, season_code
 from .mapping import coverage
 from .positions import export_csv, import_csv
-from .ratings import calibrate, rate_team
+from .ratings import KBL, calibrate, rate_team
 from .validate import validate_dataset
 
 DEFAULT_DATA = Path("data")
@@ -59,27 +61,67 @@ def cmd_ratings(args: argparse.Namespace) -> int:
     if ds.rules.get("provisional"):
         print("※ 잠정 규칙(provisional) — 결과는 참고용입니다.\n")
     print(f"{team['name_ko']} ({team['season']})")
-    print(f"{'선수':<10} {'POS':<6} {'시즌':<8} {'OVR':>4}  주요 능력치")
+    print(f"{'선수':<10} {'POS':<6} {'기록 기준':<14} {'OVR':>4}  주요 능력치")
     for r in sorted(rows, key=lambda r: -r.ovr):
         top = sorted(r.attributes.items(), key=lambda kv: -kv[1].value)[:3]
         top_s = ", ".join(f"{k} {v.value}" for k, v in top)
         pos = "/".join(r.positions) or "-"
-        print(f"{r.name_ko:<10} {pos:<6} {r.season or '-':<8} {r.ovr:>4}  {top_s}")
+        print(f"{r.name_ko:<10} {pos:<6} {r.basis:<14} {r.ovr:>4}  {top_s}")
     return 0
 
 
 def cmd_calibrate(args: argparse.Namespace) -> int:
     ds = _load_valid(args.data)
-    players = [p for t in ds.teams.values() for p in t["players"]]
-    new, counts = calibrate(players, ds.rules, args.season, args.min_samples)
+    league = ds.league.get(league_file(args.season))
+    if league is not None:
+        rows = league["players"]
+        print(f"모집단: {league_file(args.season)} ({len(rows)}명)", file=sys.stderr)
+    else:
+        rows = [
+            {**ln, "height_cm": p["height_cm"], "weight_kg": p["weight_kg"]}
+            for t in ds.teams.values()
+            for p in t["players"]
+            for ln in p.get("stats") or []
+            if ln["season"] == args.season and ln["league"] == KBL
+        ]
+        print(
+            f"모집단: 로스터 선수 {len(rows)}명 (리그 파일 없음 — kbl2k fetch league 권장)",
+            file=sys.stderr,
+        )
+    new, counts = calibrate(rows, ds.rules, args.season, args.min_samples)
     print(f"표본 수: {dict(sorted(counts.items()))}", file=sys.stderr)
     text = json.dumps(new, ensure_ascii=False, indent=2) + "\n"
     if args.write:
-        (args.data / RULES_FILE).write_text(text, "utf-8")
+        (args.data / RULES_FILE).write_text(text, "utf-8", newline="\n")
         print(f"갱신: {args.data / RULES_FILE}", file=sys.stderr)
     else:
         print(text)
     return 0
+
+
+def cmd_fetch_league(args: argparse.Namespace) -> int:
+    try:
+        path, n = fetch_league(args.data, args.season)
+    except (KblApiError, ValueError) as e:
+        print(f"수집 실패: {e}", file=sys.stderr)
+        return 1
+    print(f"저장: {path} ({n}명)")
+    return cmd_validate(argparse.Namespace(data=args.data, warnings=False))
+
+
+def cmd_fetch_players(args: argparse.Namespace) -> int:
+    _load_valid(args.data)
+    try:
+        for s in args.seasons:
+            season_code(s)
+        names = fetch_team_names()
+        result = fetch_players(args.data, set(args.seasons), team_names=names, delay=args.delay)
+    except (KblApiError, ValueError) as e:
+        print(f"수집 실패: {e}", file=sys.stderr)
+        return 1
+    none = [pid for pid, n in result.items() if n == 0]
+    print(f"완료: {len(result)}명, 대상 시즌 KBL 기록 없음 {len(none)}명")
+    return cmd_validate(argparse.Namespace(data=args.data, warnings=False))
 
 
 def cmd_mapping(args: argparse.Namespace) -> int:
@@ -181,6 +223,16 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--min-samples", type=int, default=10)
     s.add_argument("--write", action="store_true", help="rating_rules.json 덮어쓰기")
     s.set_defaults(func=cmd_calibrate)
+
+    s = sub.add_parser("fetch", help="KBL 공식 기록 내려받기")
+    f_sub = s.add_subparsers(dest="fetch_command", required=True)
+    f = f_sub.add_parser("league", help="시즌 전체 선수 기록 → data/league/ (보정 모집단)")
+    f.add_argument("season", help="예: 2025-26")
+    f.set_defaults(func=cmd_fetch_league)
+    f = f_sub.add_parser("players", help="로스터 선수별 KBL 시즌 이력 → 팀 파일 stats")
+    f.add_argument("seasons", nargs="+", help="반영할 시즌 (예: 2025-26 2024-25)")
+    f.add_argument("--delay", type=float, default=1.0, help="요청 간 대기(초)")
+    f.set_defaults(func=cmd_fetch_players)
 
     s = sub.add_parser("mapping", help="에셋 매핑 진행 현황")
     s.add_argument("-v", "--verbose", action="store_true")

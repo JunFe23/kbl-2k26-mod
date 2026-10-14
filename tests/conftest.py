@@ -61,8 +61,10 @@ GUARD = make_player(
     player_type="domestic",
     nationality="KR",
     verification={"status": "verified", "sources": ["src-a"], "checked_at": "2026-10-14"},
-    stats={
-        "2025-26": {
+    stats=[
+        {
+            "season": "2025-26",
+            "league": "KBL",
             "source_id": "src-a",
             "gp": 54,
             "mpg": 32,
@@ -80,7 +82,7 @@ GUARD = make_player(
             "fg3a_pg": 5,
             "fta_pg": 3,
         }
-    },
+    ],
 )
 
 CENTER = make_player(
@@ -92,8 +94,10 @@ CENTER = make_player(
     weight_kg=110,
     player_type="foreign",
     verification={"status": "verified", "sources": ["src-a"], "checked_at": "2026-10-14"},
-    stats={
-        "2025-26": {
+    stats=[
+        {
+            "season": "2025-26",
+            "league": "KBL",
             "source_id": "src-a",
             "gp": 50,
             "mpg": 30,
@@ -111,7 +115,7 @@ CENTER = make_player(
             "fg3a_pg": 0,
             "fta_pg": 5,
         }
-    },
+    ],
 )
 
 

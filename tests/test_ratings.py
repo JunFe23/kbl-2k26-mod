@@ -8,9 +8,10 @@ from kbl2k.ratings import (
     component_z,
     compute_ovr,
     games_factor,
-    pick_stat_line,
+    league_adjustment,
     rate_player,
     round_half_up,
+    select_stat_line,
 )
 from kbl2k.schema import attribute_names, schema_issues
 
@@ -58,9 +59,9 @@ def test_override_wins_and_feeds_ovr(rules):
 
 def test_clamp_upper_and_lower(rules):
     hi = copy.deepcopy(GUARD)
-    hi["stats"]["2025-26"]["spg"] = 50
+    hi["stats"][0]["spg"] = 50
     lo = copy.deepcopy(GUARD)
-    lo["stats"]["2025-26"]["spg"] = 0
+    lo["stats"][0]["spg"] = 0
     rules = copy.deepcopy(rules)
     rules["z_cap"] = 1000
     assert rate_player(hi, rules).attributes["Steal"].value == 99
@@ -75,7 +76,7 @@ def test_z_cap_limits_outlier(rules):
 
 def test_games_factor_shrinks_small_samples(rules):
     small = copy.deepcopy(GUARD)
-    small["stats"]["2025-26"]["gp"] = 5
+    small["stats"][0]["gp"] = 5
     full = rate_player(GUARD, rules).attributes["Steal"].value
     shrunk = rate_player(small, rules).attributes["Steal"].value
     neutral = rules["base"] + rules["league_offset"]
@@ -117,24 +118,85 @@ def test_missing_component_renormalises(rules):
     assert r.inputs_used == ("fg3a_pg",)
 
 
-def test_pick_stat_line():
+def _ln(season, league="KBL", gp=30, **kw):
+    return {"season": season, "league": league, "source_id": "s", "gp": gp, **kw}
+
+
+def test_select_prefers_qualified_target_season(rules):
+    rules = {**rules, "stats_season": "2025-26", "min_games": 20}
+    p = make_player("test-x1", stats=[_ln("2024-25"), _ln("2025-26", gp=25), _ln("2023-24")])
+    assert select_stat_line(p, rules)["season"] == "2025-26"
+
+
+def test_select_skips_unqualified_target_for_recent_qualified(rules):
+    rules = {**rules, "stats_season": "2025-26", "min_games": 20}
+    p = make_player("test-x1", stats=[_ln("2025-26", gp=2), _ln("2023-24"), _ln("2024-25")])
+    assert select_stat_line(p, rules)["season"] == "2024-25"
+
+
+def test_select_falls_back_to_unqualified(rules):
+    rules = {**rules, "min_games": 20}
+    p = make_player("test-x1", stats=[_ln("2022-23", gp=3), _ln("2025-26", gp=2)])
+    assert select_stat_line(p, rules)["season"] == "2025-26"
+
+
+def test_select_prefers_kbl_then_regular_then_games(rules):
+    rules = {**rules, "stats_season": "2025-26"}
+    p = make_player("test-x1", stats=[
+        _ln("2025-26", "B.League B1", gp=40),
+        _ln("2025-26", "KBL", gp=30),
+    ])  # fmt: skip
+    assert select_stat_line(p, rules)["league"] == "KBL"
+    p["stats"] = [
+        _ln("2025-26", "LBA", gp=26, competition="regular_season"),
+        _ln("2025-26", "FIBA Europe Cup", gp=30, competition="cup"),
+    ]
+    assert select_stat_line(p, rules)["league"] == "LBA"
+    p["stats"] = [_ln("2025-26", "B.League B1", gp=9), _ln("2025-26", "B.League B2", gp=32)]
+    assert select_stat_line(p, rules)["league"] == "B.League B2"
+
+
+def test_rating_basis_overrides_auto_choice(rules):
     p = make_player(
         "test-x1",
-        stats={
-            "2024-25": {"source_id": "s", "gp": 1},
-            "2025-26": {"source_id": "s", "gp": 2},
-        },
+        stats=[_ln("2025-26", "B.League B2", gp=32), _ln("2025-26", "B.League B1", gp=9)],
+        rating_basis={"season": "2025-26", "league": "B.League B1"},
     )
-    assert pick_stat_line(p)[0] == "2025-26"
-    assert pick_stat_line(p, "2024-25")[1]["gp"] == 1
-    assert pick_stat_line(p, "2019-20") == (None, None)
+    assert select_stat_line(p, rules)["gp"] == 9
 
 
-def test_falls_back_to_latest_when_rules_season_missing(rules):
-    p = copy.deepcopy(GUARD)
-    p["stats"] = {"2024-25": p["stats"]["2025-26"]}
-    assert rate_player(p, rules).season == "2024-25"
-    assert rate_player(p, rules, season="2025-26").season is None
+def test_explicit_season(rules):
+    p = make_player("test-x1", stats=[_ln("2024-25"), _ln("2025-26")])
+    assert select_stat_line(p, rules, "2024-25")["season"] == "2024-25"
+    assert select_stat_line(p, rules, "2019-20") is None
+    assert rate_player(p, rules, season="2019-20").season is None
+
+
+def test_no_stats_selects_none(rules):
+    assert select_stat_line(make_player("test-x1"), rules) is None
+
+
+def test_league_adjustment_values(rules):
+    rules = {**rules, "league_offsets": {"LBA": 4}}
+    assert league_adjustment(None, rules) == 0
+    assert league_adjustment(_ln("2025-26"), rules) == 0
+    assert league_adjustment(_ln("2025-26", "LBA"), rules) == 4
+    assert league_adjustment(_ln("2025-26", "Unknown"), rules) == 0
+
+
+def test_league_adjustment_applies_only_to_stat_part(rules):
+    foreign = copy.deepcopy(GUARD)
+    foreign["stats"][0]["league"] = "LBA"
+    base = rate_player(foreign, rules).attributes
+    boosted = rate_player(foreign, {**rules, "league_offsets": {"LBA": 10}}).attributes
+    assert boosted["Steal"].value == min(99, base["Steal"].value + 10)  # 기록만 사용
+    assert boosted["Speed"].value == base["Speed"].value  # 신장만 사용
+    assert base["Block"].value < boosted["Block"].value < base["Block"].value + 10  # 혼합
+
+
+def test_kbl_line_not_adjusted(rules):
+    plain = rate_player(GUARD, rules)
+    assert rate_player(GUARD, {**rules, "league_offsets": {"KBL": 10}}) == plain
 
 
 def test_ovr_uses_position_weights(rules):
@@ -154,24 +216,23 @@ def test_deterministic(rules):
 
 
 def test_calibrate_updates_means_and_stays_schema_valid(rules):
-    players = []
-    for i in range(12):
-        p = copy.deepcopy(GUARD)
-        p["id"] = f"test-p{i}"
-        p["height_cm"] = 180 + i
-        players.append(p)
-    new, counts = calibrate(players, rules, "2025-26", min_samples=10)
-    assert counts["height_cm"] == 12
+    rows = [{**GUARD["stats"][0], "spg": 0.5 + i * 0.1, "height_cm": 180 + i} for i in range(12)]
+    new, counts = calibrate(rows, rules, "2025-26", min_samples=10)
+    assert counts["spg"] == 12 and counts["height_cm"] == 12
+    steal = new["attributes"]["Steal"]["components"][0]
+    assert steal["mean"] == pytest.approx(1.05)
     speed = new["attributes"]["Speed"]["components"][0]
     assert speed["mean"] == pytest.approx(185.5)
-    # 모든 선수 spg 동일 → sd 0 → 기존 값 유지
-    steal = new["attributes"]["Steal"]["components"][0]
-    assert steal["mean"] == rules["attributes"]["Steal"]["components"][0]["mean"]
-    assert new["provisional"] is False
+    # 모든 행 ppg 동일 → sd 0 → 기존 값 유지
+    ppg = new["attributes"]["Driving Layup"]["components"][0]
+    assert ppg["mean"] == rules["attributes"]["Driving Layup"]["components"][0]["mean"]
+    assert new["stats_season"] == "2025-26"
+    assert new["provisional"] == rules["provisional"]  # 잠정 표시는 유지
     assert schema_issues("rating_rules", new, "f") == []
-    assert rules["provisional"] is True  # 원본 불변
 
 
-def test_calibrate_ignores_small_samples(rules):
-    new, counts = calibrate([GUARD, CENTER], rules, "2025-26", min_samples=10)
+def test_calibrate_ignores_small_samples_and_low_games(rules):
+    rows = [{**GUARD["stats"][0], "spg": i, "gp": 5} for i in range(20)]
+    new, counts = calibrate(rows, rules, "2025-26", min_samples=10)
+    assert counts == {}
     assert new["attributes"] == rules["attributes"]

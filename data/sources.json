@@ -87,6 +87,65 @@
       "publisher": null,
       "official": false,
       "retrieved_at": "2026-10-14"
+    },
+    {
+      "id": "kbl-stats-2025-26",
+      "title": "KBL 2025-26 정규리그 전체 선수 기록 (traditional)",
+      "url": "https://api-stats.kbl.or.kr/api/records/player/general/traditional?seasonCode=47&gameCode=01",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "kbl.or.kr 기록 페이지가 사용하는 API. Origin/Referer https://www.kbl.or.kr 필요"
+    },
+    {
+      "id": "kbl-player-season-history",
+      "title": "KBL 선수별 1군 정규시즌 기록 이력",
+      "url": "https://kbl-api.sports2i.com/api/v1/players/categories/season/",
+      "publisher": "KBL",
+      "official": true,
+      "retrieved_at": "2026-10-14",
+      "notes": "kbl.or.kr 선수 상세 페이지가 사용하는 API. URL 끝에 kbl_player_id. Origin/Referer https://www.kbl.or.kr 필요"
+    },
+    {
+      "id": "bleague-reed",
+      "title": "B.LEAGUE 공식 선수 페이지 — Davon Reed 2025-26",
+      "url": "https://www.bleague.jp/roster_detail/?PlayerID=51000533",
+      "publisher": "B.LEAGUE",
+      "official": true,
+      "retrieved_at": "2026-10-14"
+    },
+    {
+      "id": "bleague-mooney",
+      "title": "B.LEAGUE 공식 선수 페이지 — John Mooney 2025-26",
+      "url": "https://www.bleague.jp/roster_detail/?PlayerID=5100000054",
+      "publisher": "B.LEAGUE",
+      "official": true,
+      "retrieved_at": "2026-10-14"
+    },
+    {
+      "id": "bleague-news-mooney-injury",
+      "title": "B.LEAGUE 뉴스 — 무니 우측 주상월상인대 부상 (2026-01)",
+      "url": "https://www.bleague.jp/media_news/detail/id=544544",
+      "publisher": "B.LEAGUE",
+      "official": true,
+      "retrieved_at": "2026-10-14"
+    },
+    {
+      "id": "bebasket-thomas",
+      "title": "BeBasket — Rashawn Thomas 2025-26 (LBA, FIBA Europe Cup)",
+      "url": "https://www.bebasket.be/joueur/rashawn-thomas",
+      "publisher": "BeBasket",
+      "official": false,
+      "retrieved_at": "2026-10-14",
+      "notes": "legabasket.it 공식 기록은 JS 로딩으로 확인 불가. 표 열 이름 없음(열 순서로 해석)"
+    },
+    {
+      "id": "fiba-thomas",
+      "title": "FIBA 공식 선수 페이지 — Rashawn Thomas",
+      "url": "https://www.fiba.basketball/en/players/249072",
+      "publisher": "FIBA",
+      "official": true,
+      "retrieved_at": "2026-10-14"
     }
   ]
 }

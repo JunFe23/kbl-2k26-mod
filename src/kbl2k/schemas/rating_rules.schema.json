@@ -13,6 +13,11 @@
     "base": {"type": "number", "description": "평균 선수(z=0)의 능력치"},
     "spread": {"type": "number", "exclusiveMinimum": 0, "description": "z 1당 능력치 변화량"},
     "league_offset": {"type": "number", "description": "KBL→NBA 수준 보정 (보통 음수)"},
+    "league_offsets": {
+      "type": "object",
+      "description": "기록이 KBL 이 아닌 리그일 때 추가 보정(능력치 점수). 키는 stat_line.league 와 동일. 없는 리그는 0 + 경고",
+      "additionalProperties": {"type": "number"}
+    },
     "clamp": {
       "type": "object",
       "additionalProperties": false,

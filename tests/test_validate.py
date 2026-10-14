@@ -53,8 +53,8 @@ def test_unknown_source(dataset):
 
 
 def test_unknown_stats_source(dataset):
-    _edit_team(dataset, lambda t: t["players"][0]["stats"]["2025-26"].update(source_id="nope"))
-    assert any("stats.2025-26" in e.path for e in errors(dataset))
+    _edit_team(dataset, lambda t: t["players"][0]["stats"][0].update(source_id="nope"))
+    assert any("stats[0]" in e.path for e in errors(dataset))
 
 
 def test_duplicate_player_across_teams(dataset):
@@ -170,3 +170,44 @@ def test_repo_roster_status_consistent():
     assert by_name["데이본 리드"]["roster_status"]["replaces"] == by_name["라숀 토마스"]["id"]
     sk = {p["name_ko"]: p for p in read(REPO_DATA / "teams" / "seoul_sk.json")["players"]}
     assert sk["프레디"]["nationality"] == "CD"
+
+
+def test_rating_basis_must_match_a_stat_line(dataset):
+    _edit_team(
+        dataset,
+        lambda t: t["players"][0].update(rating_basis={"season": "2025-26", "league": "LBA"}),
+    )
+    assert any("rating_basis" in e.path for e in errors(dataset))
+
+
+def test_unknown_league_warns(dataset):
+    _edit_team(dataset, lambda t: t["players"][0]["stats"][0].update(league="Mars League"))
+    issues = validate_dataset(dataset)
+    assert not has_errors(issues)
+    assert any("Mars League" in i.message for i in issues)
+
+
+def test_known_foreign_league_no_warning(dataset):
+    path = dataset / "rules" / "rating_rules.json"
+    r = read(path)
+    r["league_offsets"] = {"LBA": 3}
+    write(path, r)
+    _edit_team(dataset, lambda t: t["players"][0]["stats"][0].update(league="LBA"))
+    assert not any("LBA" in i.message for i in validate_dataset(dataset))
+
+
+def test_duplicate_stat_line(dataset):
+    _edit_team(
+        dataset, lambda t: t["players"][0]["stats"].append(dict(t["players"][0]["stats"][0]))
+    )
+    assert any("중복" in e.message for e in errors(dataset))
+
+
+def test_stat_line_requires_season_and_league(dataset):
+    _edit_team(dataset, lambda t: t["players"][0]["stats"][0].pop("league"))
+    assert errors(dataset)
+
+
+def test_stat_line_rejects_unknown_field(dataset):
+    _edit_team(dataset, lambda t: t["players"][0]["stats"][0].update(per=20))
+    assert errors(dataset)

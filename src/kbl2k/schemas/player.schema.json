@@ -62,10 +62,20 @@
     },
     "player_type": {"enum": ["domestic", "foreign", "asian_quota", null]},
     "stats": {
+      "type": "array",
+      "items": {"$ref": "urn:kbl2k:schema:common#/$defs/stat_line"},
+      "description": "시즌·리그별 경기당 기록 (KBL 및 해외 리그)"
+    },
+    "rating_basis": {
       "type": "object",
-      "propertyNames": {"$ref": "urn:kbl2k:schema:common#/$defs/season"},
-      "additionalProperties": {"$ref": "#/$defs/stat_line"},
-      "description": "시즌별 KBL 정규리그 경기당 기록"
+      "additionalProperties": false,
+      "required": ["season", "league"],
+      "description": "능력치 산정에 쓸 기록을 직접 지정 (생략 시 자동 선택)",
+      "properties": {
+        "season": {"$ref": "urn:kbl2k:schema:common#/$defs/season"},
+        "league": {"type": "string", "minLength": 1},
+        "reason": {"type": "string"}
+      }
     },
     "ratings_override": {
       "type": "object",
@@ -75,30 +85,5 @@
     },
     "verification": {"$ref": "urn:kbl2k:schema:common#/$defs/verification"},
     "notes": {"type": "string"}
-  },
-  "$defs": {
-    "stat_line": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["source_id", "gp"],
-      "properties": {
-        "source_id": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
-        "gp": {"type": ["integer", "null"], "minimum": 0},
-        "mpg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "ppg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "rpg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "orpg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "drpg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "apg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "spg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "bpg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "tpg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "fg_pct": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_pct"},
-        "fg3_pct": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_pct"},
-        "ft_pct": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_pct"},
-        "fg3a_pg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"},
-        "fta_pg": {"$ref": "urn:kbl2k:schema:common#/$defs/nullable_number"}
-      }
-    }
   }
 }

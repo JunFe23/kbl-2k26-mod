@@ -10,6 +10,7 @@ from .dataset import MAPPING_FILE, RULES_FILE, SOURCES_FILE, Dataset, load_datas
 from .issues import Issue, error, warning
 from .mapping import check_mapping
 from .positions import position_issues
+from .ratings import KBL
 from .schema import schema_issues
 
 EXPECTED_SEASON = "2026-27"
@@ -19,15 +20,26 @@ def validate_dataset(root: Path) -> list[Issue]:
     ds, issues = load_dataset(root)
     ok_teams = _schema_pass(ds, issues)
     source_ids = _check_sources(ds, issues)
+    leagues = _known_leagues(ds, issues)
     if source_ids is not None:
         for file, team in ok_teams.items():
-            issues += check_team(team, file, source_ids)
+            issues += check_team(team, file, source_ids, leagues)
+        for file, doc in ds.league.items():
+            if _no_errors_for(issues, file):
+                issues += _check_refs([doc["source_id"]], source_ids, file, "$.source_id")
     issues += _check_cross_team(ok_teams)
     if ds.mapping is not None and _no_errors_for(issues, MAPPING_FILE):
         issues += check_mapping(ds.mapping, list(ok_teams.values()), MAPPING_FILE)
     if ds.rules is not None and _no_errors_for(issues, RULES_FILE):
         issues += check_rules(ds.rules, RULES_FILE)
     return sorted(set(issues))
+
+
+def _known_leagues(ds: Dataset, issues: list[Issue]) -> set[str] | None:
+    """보정값이 정의된 리그 목록. 규칙 파일이 없거나 오류면 None(검사 생략)."""
+    if ds.rules is None or not _no_errors_for(issues, RULES_FILE):
+        return None
+    return {KBL, *ds.rules.get("league_offsets", {})}
 
 
 def _no_errors_for(issues: list[Issue], file: str) -> bool:
@@ -42,6 +54,8 @@ def _schema_pass(ds: Dataset, issues: list[Issue]) -> dict[str, Any]:
     if ds.rules is not None:
         issues += schema_issues("rating_rules", ds.rules, RULES_FILE)
     ok: dict[str, Any] = {}
+    for file, doc in ds.league.items():
+        issues += schema_issues("league_stats", doc, file)
     for file, team in ds.teams.items():
         errs = schema_issues("team", team, file)
         issues += errs
@@ -60,7 +74,12 @@ def _check_sources(ds: Dataset, issues: list[Issue]) -> set[str] | None:
     return set(ids)
 
 
-def check_team(team: dict[str, Any], file: str, source_ids: set[str]) -> list[Issue]:
+def check_team(
+    team: dict[str, Any],
+    file: str,
+    source_ids: set[str],
+    known_leagues: set[str] | None = None,
+) -> list[Issue]:
     """스키마를 통과한 팀 문서 한 개에 대한 의미 검증."""
     issues: list[Issue] = []
     issues += _check_refs(team["verification"]["sources"], source_ids, file, "$.verification")
@@ -77,13 +96,7 @@ def check_team(team: dict[str, Any], file: str, source_ids: set[str]) -> list[Is
         issues += _check_refs(
             p["verification"]["sources"], source_ids, file, f"{path}.verification"
         )
-        for season, line in p.get("stats", {}).items():
-            if line["source_id"] not in source_ids:
-                issues.append(
-                    error(
-                        file, f"{path}.stats.{season}", f"알 수 없는 source '{line['source_id']}'"
-                    )
-                )
+        issues += _check_stats(p, file, path, source_ids, known_leagues)
         if p["verification"]["status"] == "verified":
             # positions(2K 포지션)는 모드 설계 결정이므로 사실 확인 대상에서 제외
             missing = [k for k in ("jersey_number", "height_cm", "player_type") if p[k] is None]
@@ -96,6 +109,46 @@ def check_team(team: dict[str, Any], file: str, source_ids: set[str]) -> list[Is
         if n > 1:
             issues.append(error(file, "$.players", f"등번호 {num} 중복 ({n}명)"))
     issues += _check_roster_status(team, file)
+    return issues
+
+
+def _check_stats(
+    p: dict[str, Any],
+    file: str,
+    path: str,
+    source_ids: set[str],
+    known_leagues: set[str] | None,
+) -> list[Issue]:
+    issues: list[Issue] = []
+    lines = p.get("stats") or []
+    seen: Counter[tuple] = Counter()
+    for j, ln in enumerate(lines):
+        lp = f"{path}.stats[{j}]"
+        if ln["source_id"] not in source_ids:
+            issues.append(error(file, lp, f"알 수 없는 source '{ln['source_id']}'"))
+        seen[(ln["season"], ln["league"], ln.get("team"), ln.get("competition"))] += 1
+        if known_leagues is not None and ln["league"] not in known_leagues:
+            issues.append(
+                warning(
+                    file,
+                    lp,
+                    f"리그 '{ln['league']}' 보정값 없음 (league_offsets, 0 으로 계산)",
+                )
+            )
+    for key, n in seen.items():
+        if n > 1:
+            issues.append(error(file, f"{path}.stats", f"같은 기록 행 중복: {key}"))
+    basis = p.get("rating_basis")
+    if basis and not any(
+        ln["season"] == basis["season"] and ln["league"] == basis["league"] for ln in lines
+    ):
+        issues.append(
+            error(
+                file,
+                f"{path}.rating_basis",
+                f"{basis['season']} {basis['league']} 기록이 stats 에 없습니다",
+            )
+        )
     return issues
 
 

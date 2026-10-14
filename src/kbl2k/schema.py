@@ -20,6 +20,7 @@ SCHEMA_NAMES = (
     "sources",
     "asset_mapping",
     "rating_rules",
+    "league_stats",
 )
 
 

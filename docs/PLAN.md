@@ -22,10 +22,14 @@
 - [x] 정관장·SK 로스터 1차 입력(공식 출처 기반, 미확인 값은 null)
 
 ### 2단계 — 데이터 보강
-- [ ] KBL 공식 기록에서 2025-26 시즌 경기당 기록 입력(선수별 `stats`)
+- [x] KBL 공식 기록 수집 도구(`kbl2k fetch`) — 2021-22~2025-26 선수별 이력, 2025-26 리그 전체
+- [x] 외국인 신규 선수 2025-26 해외 기록 입력(리드·무니: B.League, 토마스: LBA·FIBA Europe Cup)
+- [ ] 해외 리그 보정값(`league_offsets`) 결정
 - [ ] 미확인 필드(신장·체중·생년월일·포지션) 보완, 선수별 `verified` 전환
 - [ ] 외국인/아시아쿼터 선수 2026-27 등록 확인
-- [ ] 10개 구단 기록으로 `kbl2k calibrate 2025-26 --write` → `provisional: false`
+- [x] 10개 구단 기록으로 `kbl2k calibrate 2025-26 --write` (기록 지표 평균/표준편차)
+- [ ] 신장·체중 기준값 보정(리그 전체 신체 정보 수집)
+- [ ] 전체 수준(base/spread/league_offset) 결정 → `provisional: false`
 - [ ] 능력치 결과 검토(포지션별 분포, OVR 범위) 및 `ratings_override` 수동 보정
 
 ### 3단계 — 도구 검증 (게임 쓰기 직전 단계)

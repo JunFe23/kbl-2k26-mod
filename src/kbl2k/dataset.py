@@ -5,6 +5,7 @@
     data/teams/*.json
     data/mappings/assets.json
     data/rules/rating_rules.json
+    data/league/*.json      (선택) 리그 전체 시즌 기록
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ SOURCES_FILE = "sources.json"
 TEAMS_DIR = "teams"
 MAPPING_FILE = "mappings/assets.json"
 RULES_FILE = "rules/rating_rules.json"
+LEAGUE_DIR = "league"
 
 
 class DataError(Exception):
@@ -42,6 +44,7 @@ class Dataset:
     teams: dict[str, Any] = field(default_factory=dict)  # 상대 경로 → 팀 문서
     mapping: dict[str, Any] | None = None
     rules: dict[str, Any] | None = None
+    league: dict[str, Any] = field(default_factory=dict)  # 상대 경로 → 리그 기록 문서
 
     def rel(self, path: Path) -> str:
         return path.relative_to(self.root).as_posix()
@@ -74,5 +77,11 @@ def load_dataset(root: Path) -> tuple[Dataset, list[Issue]]:
         doc = load(ds.rel(path))
         if doc is not None:
             ds.teams[ds.rel(path)] = doc
+
+    league_dir = root / LEAGUE_DIR
+    for path in sorted(league_dir.glob("*.json")) if league_dir.is_dir() else []:
+        doc = load(ds.rel(path))
+        if doc is not None:
+            ds.league[ds.rel(path)] = doc
 
     return ds, issues

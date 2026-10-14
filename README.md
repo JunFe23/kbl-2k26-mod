@@ -22,7 +22,9 @@ pip install -e ".[dev]"
 kbl2k validate -w                 # 스키마 + 의미 검증 (오류 시 exit 1, -w 는 경고도 출력)
 kbl2k ratings anyang-kgc          # 팀 능력치 산정 표
 kbl2k ratings seoul-sk --json     # 22개 능력치 전체를 JSON 으로 출력
-kbl2k calibrate 2025-26           # 데이터로 평균/표준편차 재계산 (--write 로 저장)
+kbl2k fetch league 2025-26        # KBL 시즌 전체 선수 기록 → data/league/ (보정 모집단)
+kbl2k fetch players 2025-26 2024-25 2023-24   # 로스터 선수별 KBL 이력 → stats
+kbl2k calibrate 2025-26           # 리그 기록으로 평균/표준편차 재계산 (--write 로 저장)
 kbl2k mapping -v                  # 얼굴/유니폼/코트/로고 매핑 진행 현황
 
 # 2K26 포지션 직접 입력 (엑셀)
@@ -103,7 +105,32 @@ rating = clamp(base + spread·z + league_offset + position_bonus, 25, 99)
 - 출전 경기가 `min_games` 미만이면 평균 쪽으로 축소한다.
 - 3P%·FT% 같은 성공률은 시도 수가 적으면 축소한다.
 - 계수는 모두 `data/rules/rating_rules.json` 에 있다.
-- 현재 계수는 **잠정값(provisional)** 이다. KBL 기록을 입력한 뒤 `calibrate` 로 보정해야 한다.
+- 평균/표준편차는 2025-26 KBL 정규리그 20경기 이상 출전자 133명으로 보정했다(`calibrate`).
+- 신장·체중 기준값, `base`/`spread`/`league_offset`(전체 수준), 해외 리그 보정값은 아직 **잠정값**이다.
+
+### 경기 기록 (`stats`)
+선수마다 시즌·리그별 기록 행의 배열이다.
+
+```json
+{"season": "2025-26", "league": "KBL", "team": "서울 SK 나이츠", "competition": "regular_season",
+ "source_id": "kbl-player-season-history", "gp": 50, "mpg": 33.7, "ppg": 23.2, ...}
+```
+
+- KBL 기록은 `kbl2k fetch players` 로 내려받는다.
+  - KBL 공식 사이트 내부 API 를 쓰며, 같은 시즌 KBL 행만 교체하고 해외 기록은 그대로 둔다.
+- 해외 리그 기록(외국인 선수)은 출처 URL 과 함께 직접 입력한다.
+  - 리그명은 `rating_rules.json` 의 `league_offsets` 키와 같게 쓴다.
+- 능력치에 쓸 기록은 자동으로 고른다. 우선순위는 다음과 같다.
+  1. 20경기 이상 출전한 기록
+  2. 기준 시즌(2025-26), 그다음 최신 시즌
+  3. KBL > 해외, 정규시즌 > 컵대회, 경기 수 많은 순
+- 직접 지정하려면 `rating_basis` 를 쓴다.
+  ```json
+  "rating_basis": {"season": "2025-26", "league": "B.League B1", "reason": "..."}
+  ```
+- 해외 리그 기록이면 `league_offsets[리그]` 점수를 더한다.
+  - 신장·체중으로만 정해지는 능력치에는 적용하지 않는다.
+  - 보정값이 없는 리그는 0 으로 계산하고 경고를 띄운다.
 
 ## 에셋 매핑
 `data/mappings/assets.json` 의 각 항목은 다음과 같다.

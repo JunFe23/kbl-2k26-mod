@@ -45,6 +45,48 @@
       }
     },
     "nullable_number": {"type": ["number", "null"], "minimum": 0},
-    "nullable_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+    "nullable_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "stat_values": {
+      "type": "object",
+      "description": "경기당 기록. 비율은 0–1",
+      "properties": {
+        "gp": {"type": ["integer", "null"], "minimum": 0},
+        "mpg": {"$ref": "#/$defs/nullable_number"},
+        "ppg": {"$ref": "#/$defs/nullable_number"},
+        "rpg": {"$ref": "#/$defs/nullable_number"},
+        "orpg": {"$ref": "#/$defs/nullable_number"},
+        "drpg": {"$ref": "#/$defs/nullable_number"},
+        "apg": {"$ref": "#/$defs/nullable_number"},
+        "spg": {"$ref": "#/$defs/nullable_number"},
+        "bpg": {"$ref": "#/$defs/nullable_number"},
+        "tpg": {"$ref": "#/$defs/nullable_number"},
+        "fg_pct": {"$ref": "#/$defs/nullable_pct"},
+        "fg3_pct": {"$ref": "#/$defs/nullable_pct"},
+        "ft_pct": {"$ref": "#/$defs/nullable_pct"},
+        "fg3a_pg": {"$ref": "#/$defs/nullable_number"},
+        "fta_pg": {"$ref": "#/$defs/nullable_number"}
+      }
+    },
+    "stat_line": {
+      "type": "object",
+      "allOf": [{"$ref": "#/$defs/stat_values"}],
+      "required": ["season", "league", "source_id", "gp"],
+      "properties": {
+        "season": {"$ref": "#/$defs/season"},
+        "league": {
+          "type": "string",
+          "minLength": 1,
+          "description": "KBL 은 'KBL'. 해외 리그는 rating_rules.league_offsets 의 키와 같은 이름"
+        },
+        "team": {"type": ["string", "null"]},
+        "competition": {
+          "enum": ["regular_season", "playoffs", "cup", "other"],
+          "default": "regular_season"
+        },
+        "source_id": {"$ref": "#/$defs/slug"},
+        "notes": {"type": "string"}
+      },
+      "unevaluatedProperties": false
+    }
   }
 }

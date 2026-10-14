@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:kbl2k:schema:league_stats",
+  "title": "리그 전체 선수 시즌 기록 (능력치 보정 모집단)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["league", "season", "competition", "source_id", "retrieved_at", "players"],
+  "properties": {
+    "league": {"const": "KBL"},
+    "season": {"$ref": "urn:kbl2k:schema:common#/$defs/season"},
+    "competition": {"const": "regular_season"},
+    "kbl_season_code": {"type": "integer"},
+    "source_id": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},
+    "retrieved_at": {"$ref": "urn:kbl2k:schema:common#/$defs/date"},
+    "players": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "allOf": [{"$ref": "urn:kbl2k:schema:common#/$defs/stat_values"}],
+        "required": ["kbl_player_id", "name_ko", "team_code", "gp"],
+        "properties": {
+          "kbl_player_id": {"type": "string", "pattern": "^\\d+$"},
+          "name_ko": {"type": "string"},
+          "name_en": {"type": ["string", "null"]},
+          "team_code": {"type": "string"}
+        },
+        "unevaluatedProperties": false
+      }
+    }
+  }
+}
