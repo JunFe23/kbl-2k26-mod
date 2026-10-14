@@ -173,6 +173,28 @@ def fetch_player_history(kbl_player_id: str) -> dict[str, Any]:
     return get_json(f"{S2I_API}/players/categories/season/{kbl_player_id}")
 
 
+def body_from_list_row(row: dict[str, Any]) -> dict[str, float | None]:
+    """players 목록 한 행 → 신장/체중. 0 은 미표기로 보고 None."""
+
+    def val(v: Any) -> float | None:
+        try:
+            f = float(v)
+        except (TypeError, ValueError):
+            return None
+        return f if f > 0 else None
+
+    return {"height_cm": val(row.get("pHeight")), "weight_kg": val(row.get("pWeight"))}
+
+
+def fetch_player_bodies() -> dict[str, dict[str, float | None]]:
+    """KBL 전체 선수(역대 포함) 신장/체중. {kbl_player_id: {...}}"""
+    data = get_json(f"{S2I_API}/players?pageNo=1&listCn=3000")
+    items = data
+    while isinstance(items, dict):
+        items = next((v for v in items.values() if isinstance(v, (list, dict))), [])
+    return {str(r["playerNo"]): body_from_list_row(r) for r in items or []}
+
+
 def fetch_team_names() -> dict[str, str]:
     data = get_json(
         f"{KBL_API}/common/teamList",

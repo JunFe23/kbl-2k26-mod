@@ -46,13 +46,20 @@ def ensure_source(data_root: Path, source: dict[str, Any]) -> None:
     write_json(path, doc)
 
 
-def build_league_doc(season: str, raw_rows: list[dict[str, Any]], today: str) -> dict[str, Any]:
+def build_league_doc(
+    season: str,
+    raw_rows: list[dict[str, Any]],
+    today: str,
+    bodies: dict[str, dict[str, float | None]] | None = None,
+) -> dict[str, Any]:
+    empty = {"height_cm": None, "weight_kg": None}
     players = [
         {
             "kbl_player_id": str(r["playerNo"]),
             "name_ko": r.get("kname") or "",
             "name_en": r.get("ename"),
             "team_code": str(r.get("teamCode") or ""),
+            **(bodies or {}).get(str(r["playerNo"]), empty),
             **kbl_api.league_row_to_stats(r),
         }
         for r in raw_rows
@@ -73,10 +80,11 @@ def fetch_league(
     data_root: Path,
     season: str,
     fetch: Callable[[str], list[dict[str, Any]]] = kbl_api.fetch_league_rows,
+    fetch_bodies: Callable[[], dict[str, dict[str, float | None]]] = kbl_api.fetch_player_bodies,
     today: str | None = None,
 ) -> tuple[Path, int]:
     today = today or date.today().isoformat()
-    doc = build_league_doc(season, fetch(season), today)
+    doc = build_league_doc(season, fetch(season), today, fetch_bodies())
     path = data_root / league_file(season)
     write_json(path, doc)
     ensure_source(data_root, {
@@ -87,7 +95,8 @@ def fetch_league(
         "publisher": "KBL",
         "official": True,
         "retrieved_at": today,
-        "notes": "kbl.or.kr 기록 페이지가 사용하는 API. Origin/Referer https://www.kbl.or.kr 필요",
+        "notes": "kbl.or.kr 기록 페이지가 사용하는 API. Origin/Referer https://www.kbl.or.kr 필요. "
+        "신장/체중은 같은 사이트의 선수 목록 API(players?listCn=3000) 에서 결합",
     })  # fmt: skip
     return path, len(doc["players"])
 

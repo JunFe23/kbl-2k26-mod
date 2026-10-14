@@ -124,7 +124,9 @@ def test_build_league_doc_is_schema_valid():
 
 
 def test_fetch_league_writes_file_and_source(dataset):
-    path, n = fetch_league(dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], today="2026-10-14")
+    path, n = fetch_league(
+        dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], fetch_bodies=dict, today="2026-10-14"
+    )
     assert n == 1 and path == dataset / league_file("2025-26")
     ids = {s["id"] for s in read(dataset / "sources.json")["sources"]}
     assert "kbl-stats-2025-26" in ids
@@ -132,14 +134,20 @@ def test_fetch_league_writes_file_and_source(dataset):
 
 
 def test_fetch_league_refreshes_existing_source_date(dataset):
-    fetch_league(dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], today="2026-10-14")
-    fetch_league(dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], today="2026-11-01")
+    fetch_league(
+        dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], fetch_bodies=dict, today="2026-10-14"
+    )
+    fetch_league(
+        dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], fetch_bodies=dict, today="2026-11-01"
+    )
     srcs = [s for s in read(dataset / "sources.json")["sources"] if s["id"] == "kbl-stats-2025-26"]
     assert len(srcs) == 1 and srcs[0]["retrieved_at"] == "2026-11-01"
 
 
 def test_invalid_league_file_reported(dataset):
-    fetch_league(dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], today="2026-10-14")
+    fetch_league(
+        dataset, "2025-26", fetch=lambda s: [LEAGUE_ROW], fetch_bodies=dict, today="2026-10-14"
+    )
     path = dataset / league_file("2025-26")
     doc = read(path)
     doc["players"][0]["ppg"] = -1
@@ -166,3 +174,23 @@ def test_fetch_players_updates_only_players_with_kbl_id(dataset):
     kbl = [ln for ln in p["stats"] if ln["source_id"] == HISTORY_SOURCE]
     assert len(kbl) == 1 and kbl[0]["ppg"] == 23.16
     assert [i for i in validate_dataset(dataset) if i.level == "error"] == []
+
+
+def test_body_from_list_row_zero_is_none():
+    assert kbl_api.body_from_list_row({"pHeight": "199.0", "pWeight": 118}) == {
+        "height_cm": 199.0,
+        "weight_kg": 118.0,
+    }
+    assert kbl_api.body_from_list_row({"pHeight": 0, "pWeight": None}) == {
+        "height_cm": None,
+        "weight_kg": None,
+    }
+
+
+def test_league_doc_joins_body_info():
+    bodies = {"291248": {"height_cm": 199.0, "weight_kg": 118.0}}
+    doc = build_league_doc("2025-26", [LEAGUE_ROW, {**LEAGUE_ROW, "playerNo": "1"}], "d", bodies)
+    by = {p["kbl_player_id"]: p for p in doc["players"]}
+    assert by["291248"]["height_cm"] == 199.0
+    assert by["1"]["height_cm"] is None
+    assert schema_issues("league_stats", {**doc, "retrieved_at": "2026-10-14"}, "f") == []

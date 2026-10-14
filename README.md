@@ -4,7 +4,7 @@ NBA 2K26 PC(Steam) 용 KBL 통합 모드. 2026-27 시즌 기준 **안양 정관�
 첫 목표는 오프라인 MyNBA 에서 두 팀으로 정상적으로 경기하는 것이다.
 
 현재 단계는 **로스터 데이터 파이프라인**이다. 이 단계는 게임 파일을 전혀 건드리지 않는다.
-전체 로드맵은 [docs/PLAN.md](docs/PLAN.md), 외부 도구 조사 결과는 [docs/modding-tools.md](docs/modding-tools.md) 에 있다.
+전체 로드맵은 [docs/PLAN.md](docs/PLAN.md), 외부 도구 조사 결과는 [docs/modding-tools.md](docs/modding-tools.md), 주요 결정은 [docs/adr/](docs/adr/README.md) 에 있다.
 
 > ⚠️ 모드 작업과 테스트는 **오프라인에서만** 한다. PC 판은 Easy Anti-Cheat 를 쓰므로 온라인 모드와 섞지 않는다.
 
@@ -105,8 +105,9 @@ rating = clamp(base + spread·z + league_offset + position_bonus, 25, 99)
 - 출전 경기가 `min_games` 미만이면 평균 쪽으로 축소한다.
 - 3P%·FT% 같은 성공률은 시도 수가 적으면 축소한다.
 - 계수는 모두 `data/rules/rating_rules.json` 에 있다.
-- 평균/표준편차는 2025-26 KBL 정규리그 20경기 이상 출전자 133명으로 보정했다(`calibrate`).
-- 신장·체중 기준값, `base`/`spread`/`league_offset`(전체 수준), 해외 리그 보정값은 아직 **잠정값**이다.
+- 평균/표준편차는 2025-26 KBL 정규리그 20경기 이상 출전자 133명(기록·신장·체중)으로 보정했다(`calibrate`).
+- 전체 수준은 '현실 반영'(워니 OVR≈75)으로 시험 중이다([ADR-0012](docs/adr/0012-rating-scale-realistic.md)).
+- 해외 리그 보정값은 [ADR-0008](docs/adr/0008-league-offsets.md) 의 잠정값을 쓴다.
 
 ### 경기 기록 (`stats`)
 선수마다 시즌·리그별 기록 행의 배열이다.

@@ -203,6 +203,6 @@ def check_rules(rules: dict[str, Any], file: str) -> list[Issue]:
         issues.append(error(file, "$.clamp", "min 이 max 보다 큽니다"))
     if rules.get("provisional"):
         issues.append(
-            warning(file, "$.provisional", "잠정 규칙 — 평균/표준편차 보정(calibrate) 필요")
+            warning(file, "$.provisional", "잠정 규칙 — 전체 수준(base/spread) 확정 필요")
         )
     return issues

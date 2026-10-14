@@ -669,7 +669,12 @@
           "fg3a_pg": 3.3,
           "fta_pg": 2.3
         }
-      ]
+      ],
+      "rating_basis": {
+        "season": "2025-26",
+        "league": "B.League B1",
+        "reason": "상위 리그(B1) 기록 기준 — 결정 ADR-0009"
+      }
     },
     {
       "id": "kgc-heo-ilyoung",
