@@ -112,7 +112,63 @@ def select_stat_line(
             ln for ln in lines
             if ln["season"] == basis["season"] and ln["league"] == basis["league"]
         ]  # fmt: skip
+    elif (rules.get("blend") or {}).get("enabled"):
+        return blend_stat_lines(lines, rules)
     return max(lines, key=lambda ln: _rank(ln, min_games, rules.get("stats_season")), default=None)
+
+
+def _season_index(season: str) -> int:
+    return int(season[:4])
+
+
+def blend_stat_lines(lines: list[dict[str, Any]], rules: dict[str, Any]) -> dict[str, Any] | None:
+    """여러 시즌 정규시즌 기록의 가중 평균 (ADR-0017).
+
+    가중치 = 시즌 가중치(최근일수록 큼) × 출전 경기 수.
+    성공률은 해당 시도 수까지 곱해 평균한다(3P%: 3점 시도, FT%: 자유투 시도, FG%: 출전시간).
+    리그 보정은 기록 비중대로 평균해 `league_adjustment` 로 담는다.
+    """
+    cfg = rules["blend"]
+    current = _season_index(cfg["current_season"])
+    weights = cfg["recency_weights"]
+    used = []
+    for ln in lines:
+        if ln.get("competition", "regular_season") != "regular_season" or not ln.get("gp"):
+            continue
+        age = current - _season_index(ln["season"])
+        if 0 <= age < len(weights) and weights[age] > 0:
+            used.append((ln, weights[age] * ln["gp"]))
+    if not used:
+        return None
+
+    def avg(key: str, volume: str | None = None) -> float | None:
+        num = den = 0.0
+        for ln, w in used:
+            v = ln.get(key)
+            if v is None:
+                continue
+            vw = w * (ln.get(volume) or 0) if volume else w
+            num += v * vw
+            den += vw
+        return round(num / den, 4) if den else None
+
+    offsets = rules.get("league_offsets", {})
+    total_w = sum(w for _, w in used)
+    adj = sum(
+        w * (0.0 if ln["league"] == KBL else offsets.get(ln["league"], 0.0)) for ln, w in used
+    )
+    leagues = sorted({ln["league"] for ln, _ in used})
+    blended: dict[str, Any] = {
+        "season": "+".join(sorted({ln["season"] for ln, _ in used}, reverse=True)),
+        "league": leagues[0] if len(leagues) == 1 else "+".join(leagues),
+        "gp": sum(ln["gp"] for ln, _ in used),
+        "league_adjustment": adj / total_w,
+        "blend_parts": [(ln["season"], ln["league"], ln["gp"]) for ln, _ in used],
+    }
+    volume = {"fg3_pct": "fg3a_pg", "ft_pct": "fta_pg", "fg_pct": "mpg"}
+    for k in STAT_INPUTS:
+        blended[k] = avg(k, volume.get(k))
+    return blended
 
 
 def player_inputs(player: dict[str, Any], line: dict[str, Any] | None) -> dict[str, float | None]:
@@ -129,7 +185,11 @@ def games_factor(line: dict[str, Any] | None, min_games: int) -> float:
 
 
 def league_adjustment(line: dict[str, Any] | None, rules: dict[str, Any]) -> float:
-    if not line or line["league"] == KBL:
+    if not line:
+        return 0.0
+    if "league_adjustment" in line:  # 다시즌 블렌드
+        return float(line["league_adjustment"])
+    if line["league"] == KBL:
         return 0.0
     return rules.get("league_offsets", {}).get(line["league"], 0.0)
 

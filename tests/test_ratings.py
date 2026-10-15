@@ -120,29 +120,43 @@ def test_missing_component_renormalises(rules):
     assert r.inputs_used == ("fg3a_pg",)
 
 
+def no_blend(rules):
+    return {
+        **rules,
+        "blend": {
+            **rules.get("blend", {"current_season": "2026-27", "recency_weights": [1]}),
+            "enabled": False,
+        },
+    }
+
+
 def _ln(season, league="KBL", gp=30, **kw):
     return {"season": season, "league": league, "source_id": "s", "gp": gp, **kw}
 
 
 def test_select_prefers_qualified_target_season(rules):
+    rules = no_blend(rules)
     rules = {**rules, "stats_season": "2025-26", "min_games": 20}
     p = make_player("test-x1", stats=[_ln("2024-25"), _ln("2025-26", gp=25), _ln("2023-24")])
     assert select_stat_line(p, rules)["season"] == "2025-26"
 
 
 def test_select_skips_unqualified_target_for_recent_qualified(rules):
+    rules = no_blend(rules)
     rules = {**rules, "stats_season": "2025-26", "min_games": 20}
     p = make_player("test-x1", stats=[_ln("2025-26", gp=2), _ln("2023-24"), _ln("2024-25")])
     assert select_stat_line(p, rules)["season"] == "2024-25"
 
 
 def test_select_falls_back_to_unqualified(rules):
+    rules = no_blend(rules)
     rules = {**rules, "min_games": 20}
     p = make_player("test-x1", stats=[_ln("2022-23", gp=3), _ln("2025-26", gp=2)])
     assert select_stat_line(p, rules)["season"] == "2025-26"
 
 
 def test_select_prefers_kbl_then_regular_then_games(rules):
+    rules = no_blend(rules)
     rules = {**rules, "stats_season": "2025-26"}
     p = make_player("test-x1", stats=[
         _ln("2025-26", "B.League B1", gp=40),
@@ -267,3 +281,64 @@ def test_extended_attributes_computed(rules):
     assert a["Pass IQ"].value > c["Pass IQ"].value
     assert c["Post Hook"].value > a["Post Hook"].value
     assert c["Draw Foul"].source == "computed"
+
+
+def blend_rules(rules, weights=(4, 3, 2, 1, 1)):
+    return {
+        **rules,
+        "blend": {"enabled": True, "current_season": "2026-27", "recency_weights": list(weights)},
+    }
+
+
+def test_blend_weights_by_recency_and_games(rules):
+    from kbl2k.ratings import blend_stat_lines
+
+    lines = [_ln("2026-27", gp=5, ppg=20.0), _ln("2025-26", gp=40, ppg=10.0)]
+    b = blend_stat_lines(lines, blend_rules(rules))
+    # 가중치 4×5=20, 3×40=120 → (20·20 + 10·120)/140
+    assert b["ppg"] == pytest.approx((20 * 20 + 10 * 120) / 140, abs=1e-3)
+    assert b["gp"] == 45 and b["season"] == "2026-27+2025-26"
+
+
+def test_blend_pct_weighted_by_attempts(rules):
+    from kbl2k.ratings import blend_stat_lines
+
+    lines = [
+        _ln("2025-26", gp=10, fg3_pct=0.5, fg3a_pg=1.0),
+        _ln("2024-25", gp=10, fg3_pct=0.3, fg3a_pg=6.0),
+    ]
+    b = blend_stat_lines(lines, blend_rules(rules, (1, 1, 1)))
+    assert b["fg3_pct"] == pytest.approx((0.5 * 10 + 0.3 * 60) / 70, abs=1e-3)
+
+
+def test_blend_excludes_old_seasons_and_cups(rules):
+    from kbl2k.ratings import blend_stat_lines
+
+    lines = [
+        _ln("2026-27", gp=5, ppg=10.0),
+        _ln("2025-26", "FIBA Europe Cup", gp=12, ppg=30.0, competition="cup"),
+        _ln("2019-20", gp=50, ppg=30.0),
+    ]
+    b = blend_stat_lines(lines, blend_rules(rules))
+    assert b["ppg"] == 10.0 and b["blend_parts"] == [("2026-27", "KBL", 5)]
+    assert blend_stat_lines([_ln("2019-20")], blend_rules(rules)) is None
+
+
+def test_blend_league_adjustment_weighted(rules):
+    from kbl2k.ratings import blend_stat_lines
+
+    r = {**blend_rules(rules, (1, 1, 1, 1, 1)), "league_offsets": {"LBA": 4}}
+    b = blend_stat_lines([_ln("2025-26", "LBA", gp=30), _ln("2022-23", "KBL", gp=10)], r)
+    assert league_adjustment(b, r) == pytest.approx(3.0)
+    assert b["league"] == "KBL+LBA"
+
+
+def test_blend_used_by_rate_player_but_basis_and_explicit_season_bypass(rules):
+    r = blend_rules(rules)
+    p = make_player(
+        "test-x1", stats=[_ln("2026-27", gp=5, spg=3.0), _ln("2025-26", gp=40, spg=0.5)]
+    )
+    assert "+" in rate_player(p, r).season
+    assert rate_player(p, r, season="2025-26").season == "2025-26"
+    p["rating_basis"] = {"season": "2026-27", "league": "KBL"}
+    assert rate_player(p, r).season == "2026-27"

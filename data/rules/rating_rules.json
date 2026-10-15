@@ -6,6 +6,17 @@
   "base": 60,
   "spread": 15,
   "league_offset": -3,
+  "blend": {
+    "enabled": true,
+    "current_season": "2026-27",
+    "recency_weights": [
+      4,
+      3,
+      2,
+      1,
+      1
+    ]
+  },
   "league_offsets": {
     "B.League B1": 2,
     "B.League B2": -3,
