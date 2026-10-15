@@ -954,3 +954,84 @@ def diff_team_captures(a_hex: str, b_hex: str, context: int = 0) -> list[dict[st
             "after_text": _utf16_preview(b[start:start + 64]),
         })  # fmt: skip
     return out
+
+
+# --- MyNBA 이전 도시 이름 (ADR-0018 분석 3) --------------------------------------
+# 이전한 팀은 도시 이름을 팀 레코드 문자열이 아니라 도시 테이블에서 가져온다.
+#   팀 +0xFD0 = 도시 레코드 포인터, 팀 +0xE98(16바이트) = 도시 ID
+#   도시 레코드(간격 0x80): +0x00 약어 UTF-16, +0x0E 도시 이름 ASCII(18바이트 칸),
+#   +0x20 주 약어 UTF-16, +0x38 도시 ID(8바이트 두 덩어리, 팀 쪽과 순서가 반대)
+# 도시 테이블은 게임 데이터라 세이브에 저장되지 않는다고 본다 → 게임을 켤 때마다 다시 쓴다.
+
+CITY_POINTER_OFFSET = 0xFD0
+CITY_ID_OFFSET = 0xE98
+CITY_RECORD_LENGTH = 0x80
+CITY_NAME_OFFSET = 0x0E
+CITY_NAME_BYTES = 18
+
+
+def city_id_matches(team_raw: bytes, city_raw: bytes) -> bool:
+    tid = team_raw[CITY_ID_OFFSET : CITY_ID_OFFSET + 16]
+    if not any(tid):
+        return False  # 이전하지 않은 팀
+    return tid[:8] == city_raw[0x40:0x48] and tid[8:] == city_raw[0x38:0x40]
+
+
+def city_name(city_raw: bytes) -> str:
+    raw = city_raw[CITY_NAME_OFFSET : CITY_NAME_OFFSET + CITY_NAME_BYTES]
+    return raw.split(b"\0")[0].decode("ascii", errors="replace")
+
+
+def encode_city_name(text: str) -> bytes:
+    if not text.isascii() or not text.strip():
+        raise VenueLabError(f"도시 이름은 영문(ASCII)만 가능합니다: {text!r}")
+    if len(text) > CITY_NAME_BYTES - 1:
+        raise VenueLabError(f"도시 이름이 너무 깁니다({len(text)}자, 최대 {CITY_NAME_BYTES - 1})")
+    return text.encode("ascii").ljust(CITY_NAME_BYTES, b"\0")
+
+
+def plan_city_write(team_raw: bytes, city_raw: bytes, new_name: str) -> WriteOp | None:
+    """팀 레코드·도시 레코드 → 도시 이름 쓰기 연산. 이미 같으면 None."""
+    if len(city_raw) < CITY_RECORD_LENGTH:
+        raise VenueLabError("도시 레코드를 읽지 못했습니다")
+    if not city_id_matches(team_raw, city_raw):
+        raise VenueLabError(
+            "팀이 가리키는 도시 레코드의 ID 가 팀의 도시 ID 와 다릅니다"
+            "(이전하지 않은 팀이거나 구조가 예상과 다름) — 쓰지 않습니다"
+        )
+    ptr = int.from_bytes(team_raw[CITY_POINTER_OFFSET : CITY_POINTER_OFFSET + 8], "little")
+    old = city_raw[CITY_NAME_OFFSET : CITY_NAME_OFFSET + CITY_NAME_BYTES]
+    new = encode_city_name(new_name)
+    if old == new:
+        return None
+    return WriteOp("city_table_name", ptr + CITY_NAME_OFFSET, "bytes", old, new)
+
+
+def rename_relocated_city(
+    probe: ProbeRunner,
+    names: list[str],
+    new_name: str,
+    *,
+    write: bool = False,
+    processes: list[str] | None = None,
+) -> dict[str, Any]:
+    """이전한 팀의 도시 표시 이름을 바꾼다(메모리, 이번 실행 동안)."""
+    cap = capture_team(probe, names, "city", processes=processes)
+    team_raw = bytes.fromhex(cap["raw_hex"])
+    ptr = int.from_bytes(team_raw[CITY_POINTER_OFFSET : CITY_POINTER_OFFSET + 8], "little")
+    res = probe([READ_BYTES, json.dumps([{"address": ptr, "length": CITY_RECORD_LENGTH}])])
+    hexes = res.get("results") or [None]
+    city_raw = bytes.fromhex(hexes[0]) if hexes[0] else b""
+    op = plan_city_write(team_raw, city_raw, new_name)
+    out: dict[str, Any] = {
+        "team": cap["team"],
+        "city_pointer": hex(ptr),
+        "from": city_name(city_raw),
+        "to": new_name,
+        "status": "unchanged" if op is None else ("planned" if not write else ""),
+    }
+    if op is not None and write:
+        r = probe([BATCH_WRITE, json.dumps([{"kwargs": op_kwargs(op), "needs_read": False}])])
+        rr = (r.get("results") or [{}])[0]
+        out["status"], out["reason"] = rr.get("status", "unknown"), rr.get("reason", "")
+    return out

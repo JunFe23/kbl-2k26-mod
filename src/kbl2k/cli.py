@@ -367,6 +367,28 @@ def cmd_venuelab_capture_team(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_venuelab_city(args: argparse.Namespace) -> int:
+    from .venuelab import rename_relocated_city
+
+    names = [args.team] + (args.alt or [])
+    try:
+        r = rename_relocated_city(
+            make_probe_runner(args.venuelab_dir), names, args.name, write=args.apply
+        )
+    except VenueLabError as e:
+        print(f"실패: {e}", file=sys.stderr)
+        return 1
+    t = r["team"]
+    print(
+        f"{t.get('city')} {t.get('nickname')}: 도시 표시 '{r['from']}' → '{r['to']}' {r['status']}"
+    )
+    if r.get("reason"):
+        print(f"  {r['reason']}")
+    if not args.apply and r["status"] == "planned":
+        print("dry-run: 아무것도 쓰지 않았습니다. 실제로 쓰려면 --apply")
+    return 0 if r["status"] in ("planned", "unchanged", "write_readback_ok") else 1
+
+
 def cmd_venuelab_diff_team(args: argparse.Namespace) -> int:
     from .venuelab import diff_team_captures
 
@@ -508,6 +530,13 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("--label", required=True)
     v.add_argument("--venuelab-dir", type=Path, default=Path("D:/2K Tools/2KVenueLab-2.15"))
     v.set_defaults(func=cmd_venuelab_capture_team)
+    v = v_sub.add_parser("city", help="MyNBA 이전 팀의 도시 표시 이름 바꾸기 (메모리, 실행마다)")
+    v.add_argument("team", help="게임에 보이는 팀 이름, 예: 'Anyang Red Boosters'")
+    v.add_argument("name", help="새 도시 이름(영문 17자 이내), 예: Anyang")
+    v.add_argument("--alt", action="append", help="다른 이름으로도 찾기")
+    v.add_argument("--apply", action="store_true", help="실제로 게임 메모리에 쓴다")
+    v.add_argument("--venuelab-dir", type=Path, default=Path("D:/2K Tools/2KVenueLab-2.15"))
+    v.set_defaults(func=cmd_venuelab_city)
     v = v_sub.add_parser("diff-team", help="두 팀 레코드 캡처 비교")
     v.add_argument("a", type=Path)
     v.add_argument("b", type=Path)
