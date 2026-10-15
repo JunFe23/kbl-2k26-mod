@@ -82,7 +82,15 @@ def make_face_texture(donor: Path, photo: Path, dst: Path, feather: float = 0.06
         idx = nd.distance_transform_edt(beard, return_distances=False, return_indices=True)
         base = base[tuple(idx)]
         base = np.where(beard[..., None], nd.gaussian_filter(base, (6, 6, 0)), base)
-    base = np.clip(base * gain, 0, 255)
+    # 피부색 보정은 피부에만. 두피에 그려진 어두운 머리카락은 밝히지 않고 검은 머리로
+    skin_l = float(tex_skin.mean())
+    lum = base.mean(-1, keepdims=True)
+    t = np.clip((lum - 0.45 * skin_l) / (0.35 * skin_l), 0, 1)
+    scalp_bottom = int(min(t_pts[i][1] for i in (105, 66, 334, 296)))  # 눈썹 위만 두피로 본다
+    ramp = np.clip((np.arange(t.shape[0]) - scalp_bottom + 40) / 80.0, 0, 1)[:, None, None]
+    t = np.maximum(t, ramp)
+    hair = np.clip(lum / max(skin_l, 1) * np.array([42, 38, 36], np.float32), 0, 60)
+    base = np.clip(base * gain * t + hair * (1 - t), 0, 255)
 
     # 얼굴 안쪽: 텍스처 좌표 → 사진 좌표 구간별 아핀
     tform = PiecewiseAffineTransform.from_estimate(t_pts, p_pts)
