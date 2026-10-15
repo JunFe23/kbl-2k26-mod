@@ -8,6 +8,11 @@
   "head_coach": "전희철",
   "season": "2026-27",
   "nba_slot": "Atlanta Hawks",
+  "game_identity": {
+    "city": "Seoul",
+    "name": "Knights",
+    "abbr": "SK"
+  },
   "game_roster": [
     "sk-lee-min-seo",
     "sk-choi-wonhyuk",

@@ -21,6 +21,17 @@
       "type": ["string", "null"],
       "description": "MyNBA에서 대체할 NBA 팀 이름(미정이면 null)"
     },
+    "game_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["city", "name", "abbr"],
+      "description": "게임 팀 레코드에 쓸 영문 도시·팀명·약어 (ADR-0018). UTF-16 고정 칸: 도시 18, 팀명 25, 약어 7 (널 포함)",
+      "properties": {
+        "city": {"type": "string", "minLength": 1, "maxLength": 17},
+        "name": {"type": "string", "minLength": 1, "maxLength": 24},
+        "abbr": {"type": "string", "minLength": 1, "maxLength": 6}
+      }
+    },
     "game_roster": {
       "type": "array",
       "items": {"$ref": "urn:kbl2k:schema:common#/$defs/slug"},

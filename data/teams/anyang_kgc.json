@@ -8,6 +8,11 @@
   "head_coach": "유도훈",
   "season": "2026-27",
   "nba_slot": "Chicago Bulls",
+  "game_identity": {
+    "city": "Anyang",
+    "name": "Red Boosters",
+    "abbr": "JKJ"
+  },
   "game_roster": [
     "kgc-kim-s-c",
     "kgc-park-jung-woong",

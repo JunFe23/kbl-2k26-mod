@@ -92,7 +92,15 @@ RATING_FIELD_MAP: dict[str, tuple[str, ...]] = {
 # 게임이 스스로 다시 계산하는 필드 — 쓰지 않는다 (ADR-0015 보충, 2026-10-15 검증 결과)
 GAME_MANAGED_FIELDS = ("rating_potential",)
 
-NAME_CHARS = 20  # 성·이름 각각 UTF-16 20자 고정 버퍼 (playerBase+0x00 성, +0x28 이름)
+NAME_CHARS = 20
+
+# 팀 레코드(team_pointer 기준) 고정 UTF-16 칸: (오프셋, 칸 크기[문자]) — VenueLab probe 의
+# 팀 필드 정의(team_name +0x2E2 50B, city_name +0x314 36B, city_short_name +0x338 14B)
+TEAM_TEXT_FIELDS = {
+    "team_name": (0x2E2, 25),
+    "team_city": (0x314, 18),
+    "team_abbr": (0x338, 7),
+}  # 성·이름 각각 UTF-16 20자 고정 버퍼 (playerBase+0x00 성, +0x28 이름)
 LAST_NAME_OFFSET = 0x00
 FIRST_NAME_OFFSET = 0x28
 JERSEY_MASK = 0x03F8  # 등번호 = (u16 & 0x3F8) >> 3
@@ -163,11 +171,12 @@ def game_name(player: dict[str, Any]) -> GameName:
     return GameName(first, last, review, "대문자 3단어 이상 — 성/이름 구분 확인" if review else "")
 
 
-def encode_name(text: str) -> bytes:
-    if len(text) > NAME_CHARS - 1:
-        raise VenueLabError(f"이름이 너무 깁니다({len(text)}자, 최대 {NAME_CHARS - 1}): {text!r}")
+def encode_name(text: str, chars: int = NAME_CHARS) -> bytes:
+    """UTF-16LE 고정 칸(chars 문자, 널 포함)으로 인코딩."""
+    if len(text) > chars - 1:
+        raise VenueLabError(f"이름이 너무 깁니다({len(text)}자, 최대 {chars - 1}): {text!r}")
     raw = text.encode("utf-16-le")
-    return raw + b"\x00" * (NAME_CHARS * 2 - len(raw))
+    return raw + b"\x00" * (chars * 2 - len(raw))
 
 
 # --- 계획 ---------------------------------------------------------------------
@@ -208,6 +217,7 @@ def build_plan(teams: list[dict[str, Any]], rules: dict[str, Any]) -> dict[str, 
                 "team_id": team["id"],
                 "name_ko": team["name_ko"],
                 "nba_slot": team["nba_slot"],
+                "identity": team.get("game_identity"),
                 "players": [player_plan(by_id[pid], rules) for pid in team["game_roster"]],
             }
         )
@@ -561,6 +571,45 @@ def describe_team(catalog: dict[str, Any], entry: dict[str, Any]) -> dict[str, A
     }
 
 
+def team_display_names(team_plan: dict[str, Any]) -> list[str]:
+    """계획 팀을 게임에서 찾을 때 쓸 이름들: 교체 전 NBA 이름, 교체 후 이름."""
+    names = [team_plan["nba_slot"]]
+    ident = team_plan.get("identity")
+    if ident:
+        names.append(f"{ident['city']} {ident['name']}")
+    return names
+
+
+def select_team_any(catalog: dict[str, Any], names: list[str]) -> tuple[dict[str, Any], str]:
+    errors = []
+    for name in names:
+        try:
+            entry, decision = select_team(catalog, name)
+            return entry, f"'{name}' — {decision}"
+        except VenueLabError as e:
+            errors.append(str(e)[:200])
+    raise VenueLabError(" / ".join(errors))
+
+
+def plan_team_writes(entry: dict[str, Any], identity: dict[str, Any] | None) -> list[WriteOp]:
+    """팀 도시·팀명·약어 쓰기. 이미 같으면 생략, 이전 바이트는 실행 시 읽는다."""
+    if not identity:
+        return []
+    base = int(str(entry["team_pointer"]), 0)
+    current = entry.get("team", {})
+    want = {
+        "team_name": (identity["name"], current.get("nickname")),
+        "team_city": (identity["city"], current.get("city")),
+        "team_abbr": (identity["abbr"], current.get("abbr")),
+    }
+    ops = []
+    for label, (text, now) in want.items():
+        off, chars = TEAM_TEXT_FIELDS[label]
+        if now != text:
+            ops.append(WriteOp(label, base + off, "bytes", None, encode_name(text, chars), True))
+    return ops
+
+
 def select_team(catalog: dict[str, Any], display: str) -> tuple[dict[str, Any], str]:
     """display 이름의 팀 레코드를 고른다.
 
@@ -631,7 +680,7 @@ def apply_plan(
         )
 
     for team in plan["teams"]:
-        entry, decision = select_team(catalog, team["nba_slot"])
+        entry, decision = select_team_any(catalog, team_display_names(team))
         report.log(
             stage="team",
             team=team["nba_slot"],
@@ -639,7 +688,24 @@ def apply_plan(
             decision=decision,
             **describe_team(catalog, entry),
         )
-        slots = team_slots(catalog, team["nba_slot"])
+        slots = [
+            s
+            for s in sorted(entry.get("slots", []), key=lambda s: s["slot"])
+            if s.get("player") and s.get("pointer")
+        ]
+        team_ops = plan_team_writes(entry, team.get("identity"))
+        team_who = dict(
+            team=team["nba_slot"],
+            slot=0,
+            player_base=entry.get("team_pointer"),
+            from_player=entry.get("team", {}).get("display"),
+            to_player=" ".join((team.get("identity") or {}).get(k, "") for k in ("city", "name")),
+        )
+        if write:
+            _execute_batch(team_ops, probe, report, team_who)
+        else:
+            for op in team_ops:
+                report.log(stage="op", status="dry_run", op=_op_dict(op), **team_who)
         progress(f"3/3 {team['nba_slot']}: 선수 {min(len(slots), len(team['players']))}명 처리")
         targets = team["players"]
         if len(slots) < len(targets):

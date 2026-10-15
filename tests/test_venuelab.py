@@ -517,3 +517,70 @@ def test_apply_stops_when_no_usable_catalog():
     bogus = {"status": "ok", "teams": [{"team": {"display": "Team 0x1"}, "slots": []}]}
     with pytest.raises(VenueLabError, match="제대로 읽지 못했습니다"):
         apply_plan(plan1(), lambda a: bogus, processes=["NBA2K26.exe"])
+
+
+def team_entry(display="Chicago Bulls", city="Chicago", nick="Bulls", abbr="CHI", ptr=0x5000):
+    return {
+        "team_pointer": hex(ptr),
+        "team": {"display": display, "city": city, "nickname": nick, "abbr": abbr},
+        "slots": [{"slot": 1, "pointer": hex(BASE), "player": {"display_name": "P0"}}],
+    }
+
+
+def test_plan_team_writes_offsets_and_lengths():
+    from kbl2k.venuelab import plan_team_writes
+
+    ident = {"city": "Anyang", "name": "Red Boosters", "abbr": "JKJ"}
+    ops = {o.label: o for o in plan_team_writes(team_entry(), ident)}
+    assert ops["team_name"].address == 0x5000 + 0x2E2 and len(ops["team_name"].new) == 50
+    assert ops["team_city"].address == 0x5000 + 0x314 and len(ops["team_city"].new) == 36
+    assert ops["team_abbr"].address == 0x5000 + 0x338 and len(ops["team_abbr"].new) == 14
+    assert ops["team_name"].new.startswith("Red Boosters".encode("utf-16-le"))
+    assert all(o.needs_read for o in ops.values())
+
+
+def test_plan_team_writes_skips_equal_and_none():
+    from kbl2k.venuelab import plan_team_writes
+
+    done = team_entry("Anyang Red Boosters", "Anyang", "Red Boosters", "JKJ")
+    assert plan_team_writes(done, {"city": "Anyang", "name": "Red Boosters", "abbr": "JKJ"}) == []
+    assert plan_team_writes(team_entry(), None) == []
+
+
+def test_abbr_too_long_rejected():
+    from kbl2k.venuelab import plan_team_writes
+
+    with pytest.raises(VenueLabError):
+        plan_team_writes(team_entry(), {"city": "A", "name": "B", "abbr": "TOOLONG"})
+
+
+def test_renamed_team_found_by_new_name():
+    from kbl2k.venuelab import select_team_any, team_display_names
+
+    cat = {
+        "status": "ok",
+        "teams": [
+            team_entry("Anyang Red Boosters", "Anyang", "Red Boosters", "JKJ"),
+            team_entry("Atlanta Hawks", "Atlanta", "Hawks", "ATL", 0x6000),
+        ],
+    }
+    plan_team = {
+        "nba_slot": "Chicago Bulls",
+        "identity": {"city": "Anyang", "name": "Red Boosters", "abbr": "JKJ"},
+    }
+    entry, decision = select_team_any(cat, team_display_names(plan_team))
+    assert entry["team"]["abbr"] == "JKJ" and "Anyang Red Boosters" in decision
+    with pytest.raises(VenueLabError):
+        select_team_any(cat, ["Chicago Bulls"])
+
+
+def test_apply_dry_run_includes_team_ops():
+    cat = {
+        "status": "ok",
+        "teams": [team_entry(), team_entry("Atlanta Hawks", "Atlanta", "Hawks", "ATL", 0x6000)],
+    }
+    plan = plan1()
+    plan["teams"][0]["identity"] = {"city": "Anyang", "name": "Red Boosters", "abbr": "JKJ"}
+    rep = apply_plan(plan, FakeProbe(cat), processes=["NBA2K26.exe"])
+    team_ops = [e for e in rep.events if e.get("stage") == "op" and e.get("slot") == 0]
+    assert {e["op"]["label"] for e in team_ops} == {"team_name", "team_city", "team_abbr"}
