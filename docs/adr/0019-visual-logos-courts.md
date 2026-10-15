@@ -70,3 +70,11 @@
 - 코트 v2(중앙선) 반영: 게임 `mods\levels\` 두 파일 교체, 스냅샷 비교 변경 2 (기준 `20261015-150814-before-court-v2`)
 - 확인 (2026-10-15): 코트 v2 중앙선 표시, 경기 시작 화면 약어가 JKJ/SK 로 나온다(세션마다 `venuelab apply` 후, 사용자 확인).
   → 약어는 팀 레코드 CITYSHORTNAME(+0x338)에서 온다. 세션용 빠른 명령 `venuelab apply --apply --teams-only` 추가.
+
+## 유니폼 (2026-10-15, 진행 중)
+- 목표: 2026-27 실제 유니폼과 거의 같게(사용자 요청). 참고: 정관장 공식 스토어(redboostersstore.com) 홈·원정 앞뒤 사진(브라우저로 보기만 함).
+- 방식: CustomMyNBA(OzWolf) — 4096² 그림을 로고 칸 IFF 로 넣고, 게임 유니폼 편집기에서 배율 4.40·위치 (-0.34, 0.17)로 저지 전체에 씌운다.
+  - 원본 저지 텍스처 교체는 보류: VenueLab 로 TXTR 설명은 꺼냈지만 실제 픽셀(.tld)은 풀리지 않는다.
+- 전개도 보정 시험: 템플릿 영역 색칠 + 256px 격자 이미지를 정관장 홈 자리로 생성 → `logo005_secondary_5.iff`(NBA Secondary 목록)
+  - 게임 `mods\logos\` 에 추가. 스냅샷: 추가 1 (기준 `20261015-152350-before-uniform-test`)
+- 슈팅저지: Bulls/Hawks 전용 `clothing_resource_tshirt_ss_nba_pregame_core_003/009_color_tex.iff` 존재. 픽셀 데이터를 풀 수 없어 보류(별도 분석).
