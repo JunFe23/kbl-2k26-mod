@@ -584,3 +584,39 @@ def test_apply_dry_run_includes_team_ops():
     rep = apply_plan(plan, FakeProbe(cat), processes=["NBA2K26.exe"])
     team_ops = [e for e in rep.events if e.get("stage") == "op" and e.get("slot") == 0]
     assert {e["op"]["label"] for e in team_ops} == {"team_name", "team_city", "team_abbr"}
+
+
+def test_diff_team_captures_groups_and_decodes_text():
+    from kbl2k.venuelab import diff_team_captures
+
+    a = bytearray(64)
+    b = bytearray(64)
+    a[0:10] = "Bulls".encode("utf-16-le")
+    b[0:10] = "Kites".encode("utf-16-le")
+    b[40] = 1  # 플래그 하나
+    d = diff_team_captures(a.hex(" "), b.hex())
+    assert [x["offset"] for x in d] == ["+0x0", "+0x28"]
+    assert d[0]["before_text"] == "Bulls" and d[0]["after_text"] == "Kites"
+    assert d[1]["length"] == 1 and d[1]["before"] == "00" and d[1]["after"] == "01"
+
+
+def test_capture_team_uses_selected_pointer():
+    from kbl2k.venuelab import capture_team
+
+    calls = []
+
+    def probe(args):
+        calls.append(args)
+        if args[0] == OWNER_TABLE_CATALOG:
+            return {
+                "status": "ok",
+                "teams": [
+                    team_entry(),
+                    team_entry("Atlanta Hawks", "Atlanta", "Hawks", "ATL", 0x6000),
+                ],
+            }
+        return {"status": "ok", "raw_hex": "00 01", "sha256": "x"}
+
+    cap = capture_team(probe, ["Chicago Bulls"], "t1", processes=["NBA2K26.exe"])
+    assert cap["team_pointer"] == "0x5000" and cap["raw_hex"] == "00 01"
+    assert calls[-1][:3] == ["--capture-team-record-state", "--team-pointer", "0x5000"]

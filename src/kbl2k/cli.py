@@ -326,6 +326,44 @@ def cmd_assets_logo(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_venuelab_capture_team(args: argparse.Namespace) -> int:
+    from .venuelab import capture_team
+
+    names = [args.team] + (args.alt or [])
+    try:
+        cap = capture_team(make_probe_runner(args.venuelab_dir), names, args.label)
+    except VenueLabError as e:
+        print(f"캡처 실패: {e}", file=sys.stderr)
+        return 1
+    out = Path("game_backup/venuelab/team-captures") / f"{args.label}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(cap, ensure_ascii=False, indent=1), "utf-8", newline="\n")
+    t = cap["team"]
+    print(
+        f"캡처: {t.get('city')} {t.get('nickname')} ({t.get('abbr')}) {cap['team_pointer']} → {out}"
+    )
+    return 0
+
+
+def cmd_venuelab_diff_team(args: argparse.Namespace) -> int:
+    from .venuelab import diff_team_captures
+
+    a = json.loads(args.a.read_text("utf-8"))
+    b = json.loads(args.b.read_text("utf-8"))
+    diffs = diff_team_captures(a["raw_hex"], b["raw_hex"])
+    print(f"{a['label']} → {b['label']}: 변경 구간 {len(diffs)}개")
+    for d in diffs:
+        text = (
+            f"  [{d['before_text']!r} → {d['after_text']!r}]"
+            if d["before_text"] or d["after_text"]
+            else ""
+        )
+        print(
+            f"{d['offset']:>8} ({d['length']:>3}B) {d['before'][:47]:<47} → {d['after'][:47]}{text}"
+        )
+    return 0
+
+
 def cmd_backup(args: argparse.Namespace) -> int:
     try:
         dest = create_backup(args.game_dir, args.files, args.out, args.label)
@@ -437,6 +475,16 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("--apply", action="store_true", help="실제로 게임 메모리에 쓴다")
     v.add_argument("--report", type=Path, help="결과 JSONL 경로")
     v.set_defaults(func=cmd_venuelab_apply)
+    v = v_sub.add_parser("capture-team", help="팀 레코드 바이트 캡처 (읽기 전용, 분석용)")
+    v.add_argument("team", help="게임에 보이는 팀 이름, 예: 'Chicago Bulls'")
+    v.add_argument("--alt", action="append", help="다른 이름으로도 찾기")
+    v.add_argument("--label", required=True)
+    v.add_argument("--venuelab-dir", type=Path, default=Path("D:/2K Tools/2KVenueLab-2.15"))
+    v.set_defaults(func=cmd_venuelab_capture_team)
+    v = v_sub.add_parser("diff-team", help="두 팀 레코드 캡처 비교")
+    v.add_argument("a", type=Path)
+    v.add_argument("b", type=Path)
+    v.set_defaults(func=cmd_venuelab_diff_team)
 
     s = sub.add_parser("assets", help="비주얼 에셋 준비 (ADR-0019)")
     a_sub = s.add_subparsers(dest="assets_command", required=True)

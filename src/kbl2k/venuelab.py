@@ -784,3 +784,74 @@ def write_report(report: ApplyReport, path: Path) -> None:
     with path.open("w", encoding="utf-8", newline="\n") as f:
         for e in report.events:
             f.write(json.dumps(e, ensure_ascii=False) + "\n")
+
+
+# --- 팀 레코드 분석 (ADR-0018 후속, 읽기 전용) ---------------------------------
+
+TEAM_RECORD_LENGTH = 5672  # 팀 레코드 간격(stride)
+
+
+def capture_team(
+    probe: ProbeRunner,
+    names: list[str],
+    label: str,
+    *,
+    processes: list[str] | None = None,
+    length: int = TEAM_RECORD_LENGTH,
+) -> dict[str, Any]:
+    """이름으로 팀을 찾아 팀 레코드 바이트를 캡처한다(쓰기 없음)."""
+    check_gate(processes if processes is not None else running_processes())
+    catalog, tried = read_catalog(probe)
+    if not catalog_is_usable(catalog):
+        raise VenueLabError(f"팀 목록을 읽지 못했습니다: {tried}")
+    entry, decision = select_team_any(catalog, names)
+    cap = probe([
+        "--capture-team-record-state", "--team-pointer", str(entry["team_pointer"]),
+        "--team-record-label", label, "--team-record-capture-length", str(length),
+    ])  # fmt: skip
+    if not cap.get("raw_hex"):
+        raise VenueLabError(f"캡처 실패: {cap.get('status')} {cap.get('reason')}")
+    return {
+        "label": label,
+        "team": entry.get("team", {}),
+        "team_pointer": entry["team_pointer"],
+        "decision": decision,
+        "raw_hex": cap["raw_hex"],
+        "sha256": cap.get("sha256"),
+    }
+
+
+def _utf16_preview(b: bytes) -> str:
+    try:
+        s = b.decode("utf-16-le", errors="strict")
+    except UnicodeDecodeError:
+        return ""
+    s = s.split("\x00")[0]
+    return s if s and all(32 <= ord(c) < 0x10000 for c in s) else ""
+
+
+def diff_team_captures(a_hex: str, b_hex: str, context: int = 0) -> list[dict[str, Any]]:
+    """두 캡처의 바뀐 바이트 구간. 4바이트 이내로 붙은 변경은 한 구간으로 묶는다."""
+    a = bytes.fromhex(a_hex.replace(" ", ""))
+    b = bytes.fromhex(b_hex.replace(" ", ""))
+    n = min(len(a), len(b))
+    diffs = [i for i in range(n) if a[i] != b[i]]
+    ranges: list[list[int]] = []
+    for i in diffs:
+        if ranges and i - ranges[-1][1] <= 4:
+            ranges[-1][1] = i
+        else:
+            ranges.append([i, i])
+    out = []
+    for s, e in ranges:
+        s0, e0 = max(0, s - context), min(n, e + 1 + context)
+        start = s0 - (s0 % 2)
+        out.append({
+            "offset": f"+0x{s:X}",
+            "length": e - s + 1,
+            "before": a[s0:e0].hex(" "),
+            "after": b[s0:e0].hex(" "),
+            "before_text": _utf16_preview(a[start:start + 64]),
+            "after_text": _utf16_preview(b[start:start + 64]),
+        })  # fmt: skip
+    return out
