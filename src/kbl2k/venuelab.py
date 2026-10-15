@@ -571,12 +571,15 @@ def describe_team(catalog: dict[str, Any], entry: dict[str, Any]) -> dict[str, A
     }
 
 
-def team_display_names(team_plan: dict[str, Any]) -> list[str]:
-    """계획 팀을 게임에서 찾을 때 쓸 이름들: 교체 전 NBA 이름, 교체 후 이름."""
+def team_display_names(
+    team_plan: dict[str, Any], aliases: dict[str, list[str]] | None = None
+) -> list[str]:
+    """계획 팀을 게임에서 찾을 때 쓸 이름들: 교체 전 NBA 이름, 교체 후 이름, 별칭(예: MyNBA 이전 후 이름)."""
     names = [team_plan["nba_slot"]]
     ident = team_plan.get("identity")
     if ident:
         names.append(f"{ident['city']} {ident['name']}")
+    names += (aliases or {}).get(team_plan["nba_slot"], [])
     return names
 
 
@@ -657,6 +660,7 @@ def apply_plan(
     report: ApplyReport | None = None,
     progress: Callable[[str], None] = lambda msg: None,
     catalog_path: Path | None = None,
+    aliases: dict[str, list[str]] | None = None,
 ) -> ApplyReport:
     report = report or ApplyReport()
     progress("1/3 안전 확인 (안티치트·게임 실행 여부)")
@@ -680,7 +684,7 @@ def apply_plan(
         )
 
     for team in plan["teams"]:
-        entry, decision = select_team_any(catalog, team_display_names(team))
+        entry, decision = select_team_any(catalog, team_display_names(team, aliases))
         report.log(
             stage="team",
             team=team["nba_slot"],

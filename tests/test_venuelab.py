@@ -620,3 +620,23 @@ def test_capture_team_uses_selected_pointer():
     cap = capture_team(probe, ["Chicago Bulls"], "t1", processes=["NBA2K26.exe"])
     assert cap["team_pointer"] == "0x5000" and cap["raw_hex"] == "00 01"
     assert calls[-1][:3] == ["--capture-team-record-state", "--team-pointer", "0x5000"]
+
+
+def test_alias_finds_relocated_team():
+    from kbl2k.venuelab import select_team_any, team_display_names
+
+    cat = {"status": "ok", "teams": [team_entry("Denver Bulls", "Denver", "Bulls", "DEN")]}
+    t = {"nba_slot": "Chicago Bulls", "identity": None}
+    entry, _ = select_team_any(cat, team_display_names(t, {"Chicago Bulls": ["Denver Bulls"]}))
+    assert entry["team"]["city"] == "Denver"
+
+
+def test_parse_aliases():
+    from kbl2k.cli import parse_aliases
+
+    assert parse_aliases(["Chicago Bulls=Denver Bulls", "Atlanta Hawks = X Y"]) == {
+        "Chicago Bulls": ["Denver Bulls"],
+        "Atlanta Hawks": ["X Y"],
+    }
+    with pytest.raises(SystemExit):
+        parse_aliases(["nope"])

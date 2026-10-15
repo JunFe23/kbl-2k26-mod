@@ -268,6 +268,17 @@ def cmd_venuelab_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def parse_aliases(items: list[str]) -> dict[str, list[str]]:
+    """'Chicago Bulls=Denver Bulls' → {'Chicago Bulls': ['Denver Bulls']}"""
+    out: dict[str, list[str]] = {}
+    for item in items:
+        if "=" not in item:
+            raise SystemExit(f"--alias 형식: '원래 팀=게임에 보이는 이름' (받은 값: {item!r})")
+        k, v = (x.strip() for x in item.split("=", 1))
+        out.setdefault(k, []).append(v)
+    return out
+
+
 def cmd_venuelab_apply(args: argparse.Namespace) -> int:
     plan = json.loads(args.plan.read_text("utf-8"))
     report_path = args.report or Path("game_backup/venuelab") / (
@@ -287,6 +298,7 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
             report=report,
             progress=lambda m: print(m, file=sys.stderr, flush=True),
             catalog_path=catalog_path,
+            aliases=parse_aliases(args.alias or []),
         )
     except VenueLabError as e:
         failed = str(e)
@@ -474,6 +486,11 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("--venuelab-dir", type=Path, default=Path("D:/2K Tools/2KVenueLab-2.15"))
     v.add_argument("--apply", action="store_true", help="실제로 게임 메모리에 쓴다")
     v.add_argument("--report", type=Path, help="결과 JSONL 경로")
+    v.add_argument(
+        "--alias",
+        action="append",
+        help="팀 이름이 바뀐 경우 찾을 이름, 예: 'Chicago Bulls=Denver Bulls'",
+    )
     v.set_defaults(func=cmd_venuelab_apply)
     v = v_sub.add_parser("capture-team", help="팀 레코드 바이트 캡처 (읽기 전용, 분석용)")
     v.add_argument("team", help="게임에 보이는 팀 이름, 예: 'Chicago Bulls'")
