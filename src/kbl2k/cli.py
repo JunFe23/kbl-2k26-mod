@@ -531,7 +531,7 @@ def build_parser() -> argparse.ArgumentParser:
     v.set_defaults(func=cmd_venuelab_capture_team)
     v = v_sub.add_parser("city", help="MyNBA 이전 팀의 도시 표시 이름 바꾸기 (메모리, 실행마다)")
     v.add_argument("team", help="게임에 보이는 팀 이름, 예: 'Anyang Red Boosters'")
-    v.add_argument("name", help="새 도시 이름(영문 17자 이내), 예: Anyang")
+    v.add_argument("name", help="새 도시 이름(영문 17자 이내). 현재 화면 표시는 안 바뀜(ADR-0018)")
     v.add_argument("--alt", action="append", help="다른 이름으로도 찾기")
     v.add_argument("--apply", action="store_true", help="실제로 게임 메모리에 쓴다")
     v.add_argument("--venuelab-dir", type=Path, default=Path("D:/2K Tools/2KVenueLab-2.15"))

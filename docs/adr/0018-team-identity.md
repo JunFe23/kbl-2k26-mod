@@ -113,3 +113,8 @@
   - 경기장 레코드(팀 +0xFC8 → +0x82 도시 UTF-16 24자, "United Center"/"arena_003_int" 와 함께) — 이전 시 바뀐 칸
   - "Virginia Beach"+"Bulls" UTF-16 구조 2곳(용도 미상), 도시 선택 목록 사본, 도시 테이블 사본 2곳
 - 시험 2: `venuelab city` 가 경기장 레코드 도시 칸도 함께 바꾸도록 확장(모양 확인: +0xBA "arena_").
+- 시험 2 결과: 도시 테이블 + 경기장 레코드를 바꿔도 화면은 **그대로 Virginia Beach**(사용자 확인).
+- 결정 (2026-10-15): 도시명 작업은 **보류**한다. MyNBA 표시는 "Virginia Beach Red Boosters" 로 둔다.
+  - 남은 후보: "Virginia Beach"+"Bulls" UTF-16 구조 2곳, 도시 선택 목록 사본, 도시 테이블 사본 2곳
+  - `venuelab city` 명령은 남겨 두되 효과 없음(위 두 칸만 바꿈)을 명시한다.
+  - 우선순위: 비주얼(코트·유니폼·얼굴) 먼저.
