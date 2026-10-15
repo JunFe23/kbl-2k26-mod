@@ -22,8 +22,10 @@ LAYER_WOOD = "Court_Floors_Full_Floor_1"
 LAYER_OUTSIDE = "Outside_Color"
 LAYER_KEY = "Keys_Full_Key"
 LAYER_KEY_CIRCLE = "Keys_Full_Circle"
+# 템플릿 'Center Line' 은 psd-tools 로 렌더링되지 않는다(빈 레이어) → 직접 그린다.
+# 위치·굵기는 Out of Bounds 선에서 잰 값: 선 굵기 10px, 코트 위·아래 끝 y 438~3659.
+CENTER_LINE_BOX = (4092, 438, 4101, 3659)
 LINE_LAYERS = (
-    "Lines_Center_Line",
     "Lines_3_point_lines",
     "Lines_Hash_Lines",
     "Lines_Media_Boxes",
@@ -128,12 +130,18 @@ def make_court(layers: Path, design: dict[str, Any], dst: Path, logo: Path | Non
         _paint(base, _layer(layers, LAYER_KEY), design["key"])
     if design.get("key_circle"):
         _paint(base, _layer(layers, LAYER_KEY_CIRCLE), design["key_circle"])
+    for name in LINE_LAYERS:
+        _paint(base, _layer(layers, name), design.get("lines", "#FFFFFF"))
+    from PIL import ImageDraw
+
+    ImageDraw.Draw(base).rectangle(
+        CENTER_LINE_BOX, fill=(*_rgb(design.get("lines", "#FFFFFF")), 255)
+    )
+    # 로고는 선 위에 얹는다(실제 코트처럼 중앙선·센터서클이 로고 아래로 지나감)
     if logo and design.get("center_logo_diameter"):
         _logo(
             base, logo, design["center_logo_diameter"], CENTER, design.get("center_logo_opacity", 1)
         )
-    for name in LINE_LAYERS:
-        _paint(base, _layer(layers, name), design.get("lines", "#FFFFFF"))
     font = design.get("font", "C:/Windows/Fonts/ariblk.ttf")
     color = design.get("text_color", "#FFFFFF")
     for box, text in zip(SIDELINE_BOXES, design.get("sideline_text", []), strict=False):
