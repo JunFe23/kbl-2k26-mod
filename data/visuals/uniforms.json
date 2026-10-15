@@ -208,12 +208,20 @@
     "side_r": {
       "bg": "#C01725",
       "text": "RED BOOSTERS",
-      "color": "#FFFFFF"
+      "color": "#FFFFFF",
+      "text_v": [
+        650,
+        1700
+      ]
     },
     "side_l": {
       "bg": "#151517",
       "text": "RED BOOSTERS",
-      "color": "#FFFFFF"
+      "color": "#FFFFFF",
+      "text_v": [
+        650,
+        1700
+      ]
     },
     "belt": "#C01725",
     "shorts": {
@@ -230,7 +238,8 @@
           ]
         }
       ]
-    }
+    },
+    "waist_uv": 1780
   },
   "kgc_away": {
     "slot_png": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/away_uniform.png",
@@ -451,12 +460,20 @@
     "side_r": {
       "bg": "#D3132C",
       "text": "RED BOOSTERS",
-      "color": "#FFFFFF"
+      "color": "#FFFFFF",
+      "text_v": [
+        650,
+        1700
+      ]
     },
     "side_l": {
       "bg": "#F7F7F8",
       "text": "RED BOOSTERS",
-      "color": "#151517"
+      "color": "#151517",
+      "text_v": [
+        650,
+        1700
+      ]
     },
     "belt": "#F7F7F8",
     "shorts": {
@@ -473,6 +490,7 @@
           ]
         }
       ]
-    }
+    },
+    "waist_uv": 1780
   }
 }

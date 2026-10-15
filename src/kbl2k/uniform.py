@@ -169,13 +169,13 @@ def _paste_logo(img, path: Path, box):
     img.alpha_composite(logo, (u0 + (u1 - u0 - logo.width) // 2, v0 + (v1 - v0 - logo.height) // 2))
 
 
-def _side(canvas, x_range, cfg: dict[str, Any]):
+def _side(canvas, x_range, cfg: dict[str, Any], waist: int = JERSEY_BOTTOM):
     from PIL import ImageDraw, ImageFont
 
     Image = _pil()
     x0, x1 = x_range
     d = ImageDraw.Draw(canvas)
-    d.rectangle((x0, 0, x1 - 1, JERSEY_BOTTOM - 1), fill=(*_rgb(cfg["bg"]), 255))
+    d.rectangle((x0, 0, x1 - 1, waist - 1), fill=(*_rgb(cfg["bg"]), 255))
     text = cfg.get("text")
     if not text:
         return
@@ -212,8 +212,16 @@ def make_uniform(design: dict[str, Any], dst: Path, root: Path = Path(".")) -> d
     left_part = 4096 - BACK_START  # 뒤에서 볼 때 왼쪽 부분은 x BACK_START~4096
     canvas.alpha_composite(back.crop((0, 0, left_part, JERSEY_BOTTOM)), (BACK_START, 0))
     canvas.alpha_composite(back.crop((left_part, 0, BACK_RENDER, JERSEY_BOTTOM)), (0, 0))
-    _side(canvas, SIDE_R, design["side_r"])
-    _side(canvas, SIDE_L, design["side_l"])
+    from PIL import ImageDraw
+
+    # 허리선(게임 확인 y≈1780) 아래는 반바지에 투영된다 → 반바지 색으로 덮는다
+    waist = design.get("waist_uv", JERSEY_BOTTOM)
+    if waist < JERSEY_BOTTOM:
+        ImageDraw.Draw(canvas).rectangle(
+            (0, waist, S - 1, JERSEY_BOTTOM - 1), fill=(*_rgb(design["shorts"]["bg"]), 255)
+        )
+    _side(canvas, SIDE_R, design["side_r"], waist)
+    _side(canvas, SIDE_L, design["side_l"], waist)
 
     from PIL import ImageDraw
 
