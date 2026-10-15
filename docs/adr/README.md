@@ -22,3 +22,4 @@
 | [0013](0013-editor-verification-procedure.md) | 로스터 에디터 검증 절차 | 승인 |
 | [0014](0014-roster-editing-route.md) | 로스터 편집 경로 — 공식 오프라인 실행 + 2KVenueLab | 승인 |
 | [0015](0015-game-roster-mapping.md) | 게임 반영 방식 — NBA 팀 2개 교체, 15명 수동 선발, 능력치 확장, 영문 이름 | 승인 |
+| [0016](0016-2k-positions.md) | 2K 포지션 — 규칙 제안 + 사용자 수정, 게임 안 수동 입력 | 승인 |

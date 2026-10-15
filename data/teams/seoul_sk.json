@@ -43,7 +43,10 @@
       "name_en": "Lee Min Seo",
       "team_id": "seoul-sk",
       "jersey_number": 1,
-      "positions": [],
+      "positions": [
+        "PG",
+        "SG"
+      ],
       "position_kbl": "G",
       "height_cm": 180.0,
       "weight_kg": 80,
@@ -91,7 +94,10 @@
       "name_en": "CHOI WONHYUK",
       "team_id": "seoul-sk",
       "jersey_number": 3,
-      "positions": [],
+      "positions": [
+        "PG",
+        "SG"
+      ],
       "position_kbl": "G",
       "height_cm": 183.0,
       "weight_kg": 80,
@@ -227,7 +233,10 @@
       "name_en": "KIM NAK HYEON",
       "team_id": "seoul-sk",
       "jersey_number": 4,
-      "positions": [],
+      "positions": [
+        "PG",
+        "SG"
+      ],
       "position_kbl": "G",
       "height_cm": 184.0,
       "weight_kg": 88,
@@ -435,7 +444,10 @@
       "name_en": "AN YOUNGJUN",
       "team_id": "seoul-sk",
       "jersey_number": 8,
-      "positions": [],
+      "positions": [
+        "SF",
+        "PF"
+      ],
       "position_kbl": "F",
       "height_cm": 195.0,
       "weight_kg": 95,
@@ -549,7 +561,10 @@
       "name_en": "SUN SANGHYUK",
       "team_id": "seoul-sk",
       "jersey_number": 11,
-      "positions": [],
+      "positions": [
+        "C",
+        "PF"
+      ],
       "position_kbl": "C",
       "height_cm": 205.0,
       "weight_kg": 105,
@@ -711,7 +726,10 @@
       "name_en": "CHOI BUKYUNG",
       "team_id": "seoul-sk",
       "jersey_number": 14,
-      "positions": [],
+      "positions": [
+        "PF",
+        "C"
+      ],
       "position_kbl": "F",
       "height_cm": 200.0,
       "weight_kg": 105,
@@ -847,7 +865,10 @@
       "name_en": "JEON JUN BEOM",
       "team_id": "seoul-sk",
       "jersey_number": 17,
-      "positions": [],
+      "positions": [
+        "SF",
+        "PF"
+      ],
       "position_kbl": "F",
       "height_cm": 194.0,
       "weight_kg": 80,
@@ -1035,7 +1056,10 @@
       },
       "team_id": "seoul-sk",
       "jersey_number": 21,
-      "positions": [],
+      "positions": [
+        "C",
+        "PF"
+      ],
       "position_kbl": "C",
       "height_cm": 202.0,
       "weight_kg": 103,
@@ -1085,7 +1109,10 @@
       "name_en": "OH JAEHYUN",
       "team_id": "seoul-sk",
       "jersey_number": 22,
-      "positions": [],
+      "positions": [
+        "SG",
+        "PG"
+      ],
       "position_kbl": "G",
       "height_cm": 187.0,
       "weight_kg": 85,
@@ -1221,7 +1248,10 @@
       "name_en": "KIM HYUNGBIN",
       "team_id": "seoul-sk",
       "jersey_number": 23,
-      "positions": [],
+      "positions": [
+        "PF",
+        "C"
+      ],
       "position_kbl": "F",
       "height_cm": 201.0,
       "weight_kg": 99,
@@ -1357,7 +1387,10 @@
       "name_en": "Arvin Tolentino",
       "team_id": "seoul-sk",
       "jersey_number": 25,
-      "positions": [],
+      "positions": [
+        "SF",
+        "SG"
+      ],
       "position_kbl": "F",
       "height_cm": 192.0,
       "weight_kg": 93,
@@ -1405,7 +1438,10 @@
       "name_en": "Isaiah Hicks",
       "team_id": "seoul-sk",
       "jersey_number": 31,
-      "positions": [],
+      "positions": [
+        "PF",
+        "C"
+      ],
       "position_kbl": "F",
       "height_cm": 203.0,
       "weight_kg": 116,
@@ -1497,7 +1533,10 @@
       "name_en": "Jameel Warney",
       "team_id": "seoul-sk",
       "jersey_number": 34,
-      "positions": [],
+      "positions": [
+        "C",
+        "PF"
+      ],
       "position_kbl": "C",
       "height_cm": 199.0,
       "weight_kg": 118,
@@ -1682,7 +1721,10 @@
       "name_en": "EDI DANIEL",
       "team_id": "seoul-sk",
       "jersey_number": 36,
-      "positions": [],
+      "positions": [
+        "SF",
+        "SG"
+      ],
       "position_kbl": "F",
       "height_cm": 191.0,
       "weight_kg": 97,
@@ -1730,7 +1772,10 @@
       "name_en": "OH SEKEUN",
       "team_id": "seoul-sk",
       "jersey_number": 41,
-      "positions": [],
+      "positions": [
+        "PF",
+        "C"
+      ],
       "position_kbl": "F",
       "height_cm": 200.0,
       "weight_kg": 105,

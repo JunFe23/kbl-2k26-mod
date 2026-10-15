@@ -117,7 +117,10 @@
       },
       "team_id": "anyang-kgc",
       "jersey_number": 2,
-      "positions": [],
+      "positions": [
+        "PG",
+        "SG"
+      ],
       "position_kbl": "G",
       "height_cm": 183.0,
       "weight_kg": 73,
@@ -209,7 +212,10 @@
       "name_en": "Park Jung Woong",
       "team_id": "anyang-kgc",
       "jersey_number": 4,
-      "positions": [],
+      "positions": [
+        "SG",
+        "SF"
+      ],
       "position_kbl": "G",
       "height_cm": 193.0,
       "weight_kg": 81,
@@ -279,7 +285,10 @@
       "name_en": "BYUN JUN HYUNG",
       "team_id": "anyang-kgc",
       "jersey_number": 5,
-      "positions": [],
+      "positions": [
+        "PG",
+        "SG"
+      ],
       "position_kbl": "G",
       "height_cm": 185.0,
       "weight_kg": 92,
@@ -393,7 +402,10 @@
       "name_en": "PARK JIHOON",
       "team_id": "anyang-kgc",
       "jersey_number": 6,
-      "positions": [],
+      "positions": [
+        "PG",
+        "SG"
+      ],
       "position_kbl": "G",
       "height_cm": 182.0,
       "weight_kg": 85,
@@ -529,7 +541,10 @@
       "name_en": "PYO SEONG BIN",
       "team_id": "anyang-kgc",
       "jersey_number": 7,
-      "positions": [],
+      "positions": [
+        "SF",
+        "SG"
+      ],
       "position_kbl": "F",
       "height_cm": 189.0,
       "weight_kg": 90,
@@ -599,7 +614,10 @@
       "name_en": "Davon Reed",
       "team_id": "anyang-kgc",
       "jersey_number": 9,
-      "positions": [],
+      "positions": [
+        "SF",
+        "PF"
+      ],
       "position_kbl": "F",
       "height_cm": 195.0,
       "weight_kg": 106,
@@ -704,7 +722,10 @@
       "name_en": "HEO ILYOUNG",
       "team_id": "anyang-kgc",
       "jersey_number": 10,
-      "positions": [],
+      "positions": [
+        "SF",
+        "PF"
+      ],
       "position_kbl": "F",
       "height_cm": 196.0,
       "weight_kg": 94,
@@ -840,7 +861,10 @@
       "name_en": "Rhenz Joseph Abando",
       "team_id": "anyang-kgc",
       "jersey_number": 12,
-      "positions": [],
+      "positions": [
+        "SG",
+        "PG"
+      ],
       "position_kbl": "G",
       "height_cm": 187.0,
       "weight_kg": 75,
@@ -933,7 +957,10 @@
       "name_en": "PARK CHAN HO",
       "team_id": "anyang-kgc",
       "jersey_number": 13,
-      "positions": [],
+      "positions": [
+        "C",
+        "PF"
+      ],
       "position_kbl": "C",
       "height_cm": 202.0,
       "weight_kg": 104,
@@ -1117,7 +1144,10 @@
       "name_en": "KIM JONG KYU",
       "team_id": "anyang-kgc",
       "jersey_number": 15,
-      "positions": [],
+      "positions": [
+        "C",
+        "PF"
+      ],
       "position_kbl": "C",
       "height_cm": 207.0,
       "weight_kg": 105,
@@ -1275,7 +1305,10 @@
       "name_en": "LEE DAE HEON",
       "team_id": "anyang-kgc",
       "jersey_number": 21,
-      "positions": [],
+      "positions": [
+        "PF",
+        "SF"
+      ],
       "position_kbl": "F",
       "height_cm": 195.0,
       "weight_kg": 98,
@@ -1433,7 +1466,10 @@
       "name_en": "MOON YU HYEON",
       "team_id": "anyang-kgc",
       "jersey_number": 24,
-      "positions": [],
+      "positions": [
+        "PG",
+        "SG"
+      ],
       "position_kbl": "G",
       "height_cm": 180.0,
       "weight_kg": 79,
@@ -1481,7 +1517,10 @@
       "name_en": "Rashawn Thomas",
       "team_id": "anyang-kgc",
       "jersey_number": 25,
-      "positions": [],
+      "positions": [
+        "PF",
+        "C"
+      ],
       "position_kbl": "F",
       "height_cm": 200.0,
       "weight_kg": null,
@@ -1584,7 +1623,10 @@
       "name_en": "John Mooney",
       "team_id": "anyang-kgc",
       "jersey_number": 33,
-      "positions": [],
+      "positions": [
+        "C",
+        "PF"
+      ],
       "position_kbl": "C",
       "height_cm": 203.0,
       "weight_kg": 111,
@@ -1797,7 +1839,10 @@
       "name_en": "HAN SEUNG HEE",
       "team_id": "anyang-kgc",
       "jersey_number": 51,
-      "positions": [],
+      "positions": [
+        "SF",
+        "PF"
+      ],
       "position_kbl": "F",
       "height_cm": 196.0,
       "weight_kg": 102,
