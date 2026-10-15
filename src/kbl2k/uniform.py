@@ -142,7 +142,12 @@ def _render_panel(
         m[y0:y1, x0:x1] = alpha[y0:y1, x0:x1]
         m = nd.gaussian_filter(m, 0.5)
         du, dv = ov.get("offset_uv", [0, 0])
-        a = nd.map_coordinates(m, [py - dv / panel.sv, px - du / panel.su], order=1)
+        qy, qx = py - dv / panel.sv, px - du / panel.su
+        sc = float(ov.get("scale", 1.0))  # 상자 가운데 기준 확대·축소
+        if sc != 1.0:
+            cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+            qx, qy = cx + (qx - cx) / sc, cy + (qy - cy) / sc
+        a = nd.map_coordinates(m, [qy, qx], order=1)
         a = np.clip((a - 0.5) * 4 + 0.5, 0, 1)[..., None]  # 경계를 다시 또렷하게
         color = np.array(_rgb(ov.get("color", ov["select"])), dtype=np.float32)
         out[..., :3] = (out[..., :3] * (1 - a) + color * a).astype(np.uint8)
