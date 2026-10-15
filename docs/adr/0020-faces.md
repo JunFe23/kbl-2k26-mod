@@ -28,3 +28,13 @@
 - 순서: 초상화 1명 + 얼굴 1명 시범 → 게임 확인 → 30명 확대.
 - 사진: KBL 공식 사이트 프로필 사진. 내려받기 전 사용자 승인. `assets_private/` 에만 둔다(커밋 금지).
 - 위험: 텍스처 교체가 게임 저장·온라인에 영향 없음(mods 폴더 방식). 되돌리기 = mods 파일 삭제.
+
+## 시범: 변준형 (2026-10-15)
+- 자리 번호(게임 메모리 읽기, `game_backup/venuelab/face_ids.json`): Bulls 3번 = 얼굴 8000(원래 Isaac Okoro), 초상화 9804.
+  - 얼굴 번호 1(기본 얼굴)인 자리: 한승희, 에디 다니엘 → 따로 확인 필요.
+- 사진: kbl.or.kr `files/kbl/players-photo/{kbl_player_id}.png` (470×609, 투명 배경, 사용자 승인) → `assets_private/reference/faces/`
+- 생성: `kbl2k.face`(mediapipe 0.10 FaceMesh 478점 + scikit-image 구간별 아핀), 이마는 눈썹 위에서 자르고 원래 선수 턱수염은 피부색으로 메움.
+- 묶기: `kbl2k.iffpack` — 원본 IFF + `<Binary>.dds`(texconv BC7 전체 mip).
+- 게임 반영: `mods/char/sig/png8000_config_default.iff`, `mods/player_images/chr_g9804.iff` 추가(스냅샷 `20261015-200845-before-face-byun`).
+  - 되돌리기: 두 파일 삭제.
+- 알려진 한계: 머리카락(오코로 레게 머리)·머리 형태는 원래 선수 것.

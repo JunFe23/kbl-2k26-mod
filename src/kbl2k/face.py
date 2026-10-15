@@ -68,8 +68,21 @@ def make_face_texture(donor: Path, photo: Path, dst: Path, feather: float = 0.06
     p_pts = landmarks(ph)
 
     # 바깥 영역(두피·귀·목): 원래 텍스처 피부색 → 사진 피부색 (채널별 비율)
-    gain = _skin(ph.astype(np.float32), p_pts, np) / np.maximum(_skin(tex, t_pts, np), 1)
-    base = np.clip(tex * gain, 0, 255)
+    tex_skin = _skin(tex, t_pts, np)
+    gain = _skin(ph.astype(np.float32), p_pts, np) / np.maximum(tex_skin, 1)
+    base = tex.copy()
+    # 원래 선수의 수염 지우기: 입 아래쪽에서 피부보다 확연히 어두운 털은 주변 피부로 메운다
+    lum = base.mean(-1)
+    below_mouth = np.zeros(lum.shape, bool)
+    jaw_x0, jaw_x1 = sorted((t_pts[172][0], t_pts[397][0]))  # 턱 양끝 안쪽만
+    below_mouth[int(t_pts[14][1]) :, int(jaw_x0) : int(jaw_x1)] = True
+    beard = below_mouth & (lum < tex_skin.mean() * 0.62)
+    beard = nd.binary_dilation(beard, iterations=4)
+    if beard.any():
+        idx = nd.distance_transform_edt(beard, return_distances=False, return_indices=True)
+        base = base[tuple(idx)]
+        base = np.where(beard[..., None], nd.gaussian_filter(base, (6, 6, 0)), base)
+    base = np.clip(base * gain, 0, 255)
 
     # 얼굴 안쪽: 텍스처 좌표 → 사진 좌표 구간별 아핀
     tform = PiecewiseAffineTransform.from_estimate(t_pts, p_pts)
@@ -80,7 +93,12 @@ def make_face_texture(donor: Path, photo: Path, dst: Path, feather: float = 0.06
     from PIL import ImageDraw
 
     mask_img = Image.new("L", (tex.shape[1], tex.shape[0]), 0)
-    ImageDraw.Draw(mask_img).polygon([tuple(t_pts[i]) for i in FACE_OVAL], fill=255)
+    # 사진은 눈썹 조금 위까지만 쓴다(사진 이마의 앞머리가 들어오지 않게) — 이마는 원래 텍스처
+    brow_y = min(t_pts[i][1] for i in (105, 66, 334, 296))
+    eye_gap = abs(t_pts[263][0] - t_pts[33][0])
+    top = brow_y - 0.04 * eye_gap
+    poly = [(x, max(y, top)) for x, y in (t_pts[i] for i in FACE_OVAL)]
+    ImageDraw.Draw(mask_img).polygon(poly, fill=255)
     inside = np.asarray(mask_img) > 0
     dist = nd.distance_transform_edt(inside)
     soft = np.clip(dist / (feather * tex.shape[0]), 0, 1)[..., None]
