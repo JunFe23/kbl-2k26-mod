@@ -38,3 +38,6 @@
 - 게임 반영: `mods/char/sig/png8000_config_default.iff`, `mods/player_images/chr_g9804.iff` 추가(스냅샷 `20261015-200845-before-face-byun`).
   - 되돌리기: 두 파일 삭제.
 - 알려진 한계: 머리카락(오코로 레게 머리)·머리 형태는 원래 선수 것.
+- 게임 확인: 초상화 교체 성공, 얼굴 그림도 바뀜(사용자). 레게 머리 때문에 다른 사람처럼 보임.
+- 머리카락 시험: 짧은 직모 + 같은 파일 체계(hair_01)인 페이튼 프리처드(8015)의 geo_hair_01·geo_hair_01_tangentspace·item_hair_01 을
+  png8000_* 이름으로 mods 에 넣음(스냅샷 `20261015-201730-before-hair-byun`). 후보 얼굴 번호: `game_backup/venuelab/donor_candidates.json`.
