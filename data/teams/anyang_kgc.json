@@ -393,7 +393,26 @@
           "fg3a_pg": 5.21,
           "fta_pg": 2.63
         }
-      ]
+      ],
+      "ratings_override": {
+        "Driving Dunk": 66,
+        "Standing Dunk": 50,
+        "Pass Accuracy": 84,
+        "Ball Handle": 83,
+        "Speed With Ball": 78,
+        "Pass IQ": 82,
+        "Pass Vision": 89,
+        "Hands": 70,
+        "Steal": 74,
+        "Block": 62,
+        "Help Defense IQ": 70,
+        "Speed": 77,
+        "Agility": 73,
+        "Vertical": 69,
+        "Hustle": 71,
+        "Shot IQ": 70
+      },
+      "notes": "ratings_override: 사용자가 게임 안에서 직접 수정한 값(2026-10-15, 점검 보고서에서 가져옴)"
     },
     {
       "id": "kgc-park-jihoon",
