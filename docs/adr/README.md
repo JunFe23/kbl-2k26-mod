@@ -18,7 +18,7 @@
 | [0009](0009-reed-rating-basis.md) | 데이본 리드 능력치 기준 기록 = B.League B1 | 승인 |
 | [0010](0010-rating-model.md) | 능력치 산정 모델 (기록 선택은 0017 로 보완) | 승인 |
 | [0011](0011-long-absence-players.md) | 장기 미출전 국내 선수 처리 | 승인 |
-| [0012](0012-rating-scale-realistic.md) | 전체 능력치 수준 = 현실 반영 | 시험 중 |
+| [0012](0012-rating-scale-realistic.md) | 전체 능력치 수준 = 현실 반영 | 승인 |
 | [0013](0013-editor-verification-procedure.md) | 로스터 에디터 검증 절차 | 승인 |
 | [0014](0014-roster-editing-route.md) | 로스터 편집 경로 — 공식 오프라인 실행 + 2KVenueLab | 승인 |
 | [0015](0015-game-roster-mapping.md) | 게임 반영 방식 — NBA 팀 2개 교체, 15명 수동 선발, 능력치 확장, 영문 이름 | 승인 |
