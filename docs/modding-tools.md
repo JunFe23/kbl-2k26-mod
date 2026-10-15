@@ -29,7 +29,7 @@
   - 자기 폴더의 `./mods/logos`, `./mods/levels`, `./work`, `./teams` 와 `%APPDATA%\NBA2K26CustomMyNBA\leagues.json` 에만 쓴다.
   - 게임 폴더는 건드리지 않는다. 사용자가 결과 IFF 를 게임의 `mods` 폴더로 직접 복사한다.
   - IFF 생성 방식: 내장 템플릿 IFF(logo.iff, arena_floor.iff)를 복사한다. PNG 를 texconv 로 BC7 DDS 로 변환해 7-Zip 으로 IFF 안에 넣는다.
-    - → **IFF 는 7z 형식 컨테이너**라는 근거다.
+    - IFF 실제 형식은 **ZIP** 이다(7-Zip 으로 확인, 2026-10-15).
   - 외부 의존성: Microsoft texconv, 7-Zip
 - 팀 슬롯 매핑 [소스 Configuration.json, 게임 내 미확인]:
   - 36팀(NBA 30 + 확장 6)

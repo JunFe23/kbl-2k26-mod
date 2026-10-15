@@ -14,7 +14,7 @@
 
 - 2K26 은 게임 폴더의 `mods` 폴더에서 대체 IFF 를 읽는 것으로 알려져 있다.
   - 근거: OzWolf README, 2kspecialist 설치 안내. 이 프로젝트에서는 아직 검증하지 않았다.
-- IFF 는 7z 컨테이너다. 안에 BC7 DDS 텍스처가 들어 있다(OzWolf 소스).
+- IFF 는 **ZIP 컨테이너**다(7-Zip 으로 확인). 안에 텍스처 설명(`*.TXTR`)과 DDS 텍스처가 들어 있다.
 
 ## 결정
 - 도구: **OzWolf/nba2k26-custom-mynba v1.1.0**
@@ -32,3 +32,15 @@
 
 ## 결과
 - 로고가 게임에 반영되는지, EAC 켠 일반 실행에서도 되는지 확인한다(`mods` 는 EAC 와 무관하다는 주장이 있으나 미검증).
+
+## 진행 (2026-10-15)
+- OzWolf v1.1.0 해시를 확인했다. 실행 시 AhnLab V3 가 검사 경고를 띄웠으나 차단하지는 않았다.
+- 로고 변환: `kbl2k assets logo`
+  - SK 는 SVG 렌더링
+  - 정관장은 JPG 의 바깥 흰 배경만 제거하고, 로고 실루엣 안쪽 틈은 흰색으로 채웠다
+- 생성: `logo003.iff`(정관장/Bulls), `logo009.iff`(SK/Hawks)
+  - 각 ZIP 안에 `logo.TXTR` + `logo.2df327256b936ada.dds`(1024² BC7+mip)
+- 게임 반영: `NBA 2K26\mods\logos\` 에 복사했다. 스냅샷 비교 결과 추가 2 / 삭제 0 / 변경 0
+  - 기준 스냅샷: `20261015-121436-before-mods-logos`
+- 되돌리기: `mods\logos\logo003.iff`, `logo009.iff` 삭제
+- 확인할 것: 게임 화면에 새 로고가 나오는가, 일반(EAC) 실행에서도 되는가
