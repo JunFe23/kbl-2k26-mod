@@ -16,14 +16,17 @@ from kbl2k.venuelab import (
     DURABILITY_FIELDS,
     OWNER_TABLE_CATALOG,
     RATING_FIELD_MAP,
+    READ_BYTES,
     VenueLabError,
     WriteOp,
     apply_plan,
+    birth_read_requests,
     build_plan,
     check_gate,
     display_to_raw,
     encode_name,
     game_name,
+    plan_birth_writes,
     plan_writes,
     raw_to_display,
     team_slots,
@@ -325,7 +328,9 @@ class FakeProbe:
     OLD_NAME_HEX = "4f006c0064" + "00" * 35
 
     def __init__(self, cat):
-        self.cat, self.calls, self.batches = cat, [], []
+        self.cat, self.calls, self.batches, self.reads = cat, [], [], []
+        # 생년월일 컨테이너: 2004년(+0x10A u16) / 12월(+0x343 bit4~7) / 25일(+0x10C bit1~5)
+        self.read_hex = [(0xF000 | 2004).to_bytes(2, "little").hex(), "c3", f"{(25 << 1) | 1:02x}"]
 
     def __call__(self, args):
         self.calls.append(args)
@@ -333,6 +338,9 @@ class FakeProbe:
             return self.cat
         if args[0] == "--inspect-player-base-roster-model":
             return fake_model(last="Old")
+        if args[0] == READ_BYTES:
+            self.reads.append(json.loads(args[1]))
+            return {"results": list(self.read_hex)}
         if args[0] == BATCH_WRITE:
             ops = json.loads(args[1])
             self.batches.append(ops)
@@ -429,6 +437,32 @@ def test_batch_worker_runs_against_fake_venuelab(tmp_path):
         "unchanged",
     ]
     assert res[2]["used_expected_old_hex"] == ("Old".encode("utf-16-le") + bytes(34)).hex()
+
+
+FAKE_READ_VENUELAB = """
+MEM = bytes(range(256))
+def find_processes(exe):
+    return [{"pid": 1}]
+def read_process_bytes(pid, address, length):
+    if address >= 250:
+        return {"ok": False, "error": "unreadable"}
+    return {"ok": True, "data": MEM[address:address + length]}
+"""
+
+
+def test_read_worker_runs_against_fake_venuelab(tmp_path):
+    """실제 READ_WORKER 코드를 가짜 VenueLab 모듈로 실행(읽기만)."""
+    from kbl2k.venuelab import READ_WORKER
+
+    (tmp_path / "roster_live_memory_probe.py").write_text(FAKE_READ_VENUELAB, "utf-8")
+    reqs, out_file = tmp_path / "reqs.json", tmp_path / "out.json"
+    reqs.write_text(json.dumps([{"address": 0x10, "length": 2}, {"address": 252, "length": 1}]))
+    subprocess.run(
+        [sys.executable, "-c", READ_WORKER, str(tmp_path), str(reqs), str(out_file)],
+        check=True,
+        cwd=tmp_path,
+    )
+    assert json.loads(out_file.read_text("utf-8")) == ["1011", None]
 
 
 def test_apply_refuses_with_eac():
@@ -640,3 +674,59 @@ def test_parse_aliases():
     }
     with pytest.raises(SystemExit):
         parse_aliases(["nope"])
+
+
+# --- 생년월일 (ADR-0018 분석 2) ---
+
+
+def test_plan_birth_writes_keeps_other_bits():
+    containers = [0xF000 | 2004, 0xC3, (25 << 1) | 1]
+    ops, current, problem = plan_birth_writes(BASE, "1996-03-11", containers)
+    assert problem == "" and current == {"birth_year": 2004, "birth_month": 12, "birth_day": 25}
+    by = {o.label: o for o in ops}
+    assert by["birth_year"].kind == "u16" and by["birth_year"].address == BASE + 0x10A
+    assert by["birth_year"].new == 0xF000 | 1996
+    assert by["birth_month"].kind == "u8" and by["birth_month"].address == BASE + 0x343
+    assert by["birth_month"].new == (3 << 4) | 0x03
+    assert by["birth_day"].address == BASE + 0x10C and by["birth_day"].new == (11 << 1) | 1
+
+
+def test_plan_birth_writes_skips_when_already_equal():
+    ops, _, problem = plan_birth_writes(BASE, "2004-12-25", [2004, 0xC0, 25 << 1])
+    assert ops == [] and problem == ""
+
+
+def test_plan_birth_writes_refuses_implausible_current():
+    ops, current, problem = plan_birth_writes(BASE, "1996-03-11", [2004, 0x00, 25 << 1])
+    assert ops == [] and current["birth_month"] == 0 and "birth_month" in problem
+
+
+def test_birth_read_requests():
+    assert birth_read_requests(BASE) == [
+        {"address": BASE + 0x10A, "length": 2},
+        {"address": BASE + 0x343, "length": 1},
+        {"address": BASE + 0x10C, "length": 1},
+    ]
+
+
+def test_apply_writes_birth_date():
+    plan = plan1()
+    plan["teams"][0]["players"][0]["birth_date"] = "1996-03-11"
+    probe = FakeProbe(catalog())
+    rep = apply_plan(plan, probe, write=True, processes=["NBA2K26.exe"])
+    (batch,) = probe.batches
+    labels = [o["kwargs"]["label"] for o in batch]
+    assert labels[-3:] == ["birth_year", "birth_month", "birth_day"]
+    ev = [e for e in rep.events if e.get("stage") == "birth"][0]
+    assert ev["status"] == "checked" and ev["current"]["birth_year"] == 2004
+
+
+def test_apply_skips_birth_when_format_unexpected():
+    plan = plan1()
+    plan["teams"][0]["players"][0]["birth_date"] = "1996-03-11"
+    probe = FakeProbe(catalog())
+    probe.read_hex[1] = "00"  # 월 = 0 → 형식 의심
+    rep = apply_plan(plan, probe, write=True, processes=["NBA2K26.exe"])
+    (batch,) = probe.batches
+    assert not any(o["kwargs"]["label"].startswith("birth") for o in batch)
+    assert [e for e in rep.events if e.get("stage") == "birth"][0]["status"] == "skipped"

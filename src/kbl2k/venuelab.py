@@ -107,6 +107,13 @@ JERSEY_MASK = 0x03F8  # 등번호 = (u16 & 0x3F8) >> 3
 PACKED_BASE_KEY = "rating_driving_layup"  # +0x3E1 bit6, post_fade +0x3E2 bit6 → 3바이트 공유
 PACKED_PAIR = ("rating_driving_layup", "rating_post_fade")
 KG_TO_LB = 2.2046226218
+# 생년월일 비트필드 (VenueLab 2.15 블루프린트·쓰기 감사 write_readback_ok, ADR-0018 분석 2)
+#   이름 → (playerBase 오프셋, 컨테이너 바이트 수, 시작 비트, 비트 수, 허용 범위)
+BIRTH_FIELDS: dict[str, tuple[int, int, int, int, tuple[int, int]]] = {
+    "birth_year": (0x10A, 2, 0, 12, (1950, 2015)),
+    "birth_month": (0x343, 1, 4, 4, (1, 12)),
+    "birth_day": (0x10C, 1, 1, 5, (1, 31)),
+}
 EAC_PROCESS_NAMES = ("easyanticheat", "easyanticheat_eos", "start_protected_game")
 
 
@@ -201,6 +208,7 @@ def player_plan(player: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]
         "jersey": player.get("jersey_number"),
         "height_cm": player.get("height_cm"),
         "weight_lb": round(weight * KG_TO_LB, 1) if weight else None,
+        "birth_date": player.get("birth_date"),
         "ovr": r.ovr,
         "ratings": fields,
     }
@@ -408,12 +416,63 @@ def plan_writes(model: dict[str, Any], target: dict[str, Any]) -> list[WriteOp]:
     return ops
 
 
+def birth_read_requests(base: int) -> list[dict[str, int]]:
+    """생년월일 컨테이너를 읽을 주소 목록 (BIRTH_FIELDS 순서)."""
+    return [{"address": base + off, "length": n} for off, n, *_ in BIRTH_FIELDS.values()]
+
+
+def plan_birth_writes(
+    base: int, birth_date: str, containers: list[int]
+) -> tuple[list[WriteOp], dict[str, int], str]:
+    """현재 컨테이너 값 → (쓰기 연산, 현재 해석값, 문제).
+
+    현재 값이 생년월일로 해석되지 않으면(범위 밖) 형식 가정이 틀렸을 수 있으므로 쓰지 않는다.
+    """
+    y, m, d = (int(x) for x in birth_date.split("-"))
+    target = {"birth_year": y, "birth_month": m, "birth_day": d}
+    ops: list[WriteOp] = []
+    current: dict[str, int] = {}
+    for (label, (off, n, start, bits, (lo, hi))), old in zip(
+        BIRTH_FIELDS.items(), containers, strict=True
+    ):
+        mask = ((1 << bits) - 1) << start
+        current[label] = (old & mask) >> start
+        if not lo <= current[label] <= hi:
+            return (
+                [],
+                current,
+                f"현재 {label}={current[label]} 이 범위({lo}~{hi}) 밖 — 형식 확인 필요",
+            )
+        new = (old & ~mask) | (target[label] << start)
+        if new != old:
+            ops.append(WriteOp(label, base + off, "u16" if n == 2 else "u8", old, new))
+    return ops, current, ""
+
+
 # --- 실행 -----------------------------------------------------------------------
 
 ProbeRunner = Callable[[list[str]], dict[str, Any]]
 OWNER_TABLE_CATALOG = "kbl2k:owner-table-catalog"  # 내부 전용 의사 명령
 BOOTSTRAP_CATALOG = "--bootstrap-team-slot-roster-catalog"
 BATCH_WRITE = "kbl2k:batch-write"  # 내부 전용: 한 프로세스에서 guarded write 연속 실행
+READ_BYTES = "kbl2k:read-bytes"  # 내부 전용: 메모리 읽기만 (ReadProcessMemory)
+
+READ_WORKER = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import roster_live_memory_probe as p
+reqs = json.load(open(sys.argv[2], encoding='utf-8'))
+procs = p.find_processes('NBA2K26.exe')
+out = []
+for q in reqs:
+    if not procs:
+        out.append(None)
+        continue
+    r = p.read_process_bytes(int(procs[0]['pid']), int(q['address']), int(q['length']))
+    ok = r.get('ok') and len(r.get('data', b'')) == int(q['length'])
+    out.append(r['data'].hex() if ok else None)
+json.dump(out, open(sys.argv[3], 'w', encoding='utf-8'))
+"""
 
 # VenueLab 파이썬으로 실행되는 일괄 쓰기 워커. 각 쓰기는 VenueLab 의 direct_guarded_write 를
 # 그대로 호출한다(이전값 확인 → 쓰기 → 다시 읽기). needs_read 항목은 이전값=새값 호출로
@@ -454,10 +513,11 @@ def make_probe_runner(venuelab_dir: Path, timeout: float = 600) -> ProbeRunner:
     def run(args: list[str]) -> dict[str, Any]:
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "out.json"
-            if args and args[0] == BATCH_WRITE:
+            if args and args[0] in (BATCH_WRITE, READ_BYTES):
                 ops_path = Path(td) / "ops.json"
                 ops_path.write_text(args[1], "utf-8")
-                cmd = [str(python), "-c", BATCH_WORKER, str(script.parent), str(ops_path), str(out)]
+                worker = BATCH_WORKER if args[0] == BATCH_WRITE else READ_WORKER
+                cmd = [str(python), "-c", worker, str(script.parent), str(ops_path), str(out)]
             elif args == [OWNER_TABLE_CATALOG]:
                 # CLI 플래그가 없는 읽기 전용 함수 — VenueLab 앱의 팀 목록과 같은 방식
                 code = (
@@ -734,6 +794,10 @@ def apply_plan(
             except VenueLabError as e:
                 report.log(stage="plan", status="error", reason=str(e), **who)
                 continue
+            if target.get("birth_date"):
+                ops += _birth_ops(
+                    probe, int(model["player"]["player_base"], 16), target, report, who
+                )
             ctx = model.get("current_context") or {}
             report.log(
                 stage="plan",
@@ -750,6 +814,37 @@ def apply_plan(
                 continue
             _execute_batch(ops, probe, report, who)
     return report
+
+
+def read_containers(probe: ProbeRunner, reqs: list[dict[str, int]]) -> list[int | None]:
+    """주소별 리틀엔디언 정수. 읽기 실패는 None."""
+    res = probe([READ_BYTES, json.dumps(reqs)]).get("results")
+    if not isinstance(res, list) or len(res) != len(reqs):
+        raise VenueLabError(f"메모리 읽기 결과 이상: {str(res)[:200]}")
+    return [int.from_bytes(bytes.fromhex(h), "little") if h else None for h in res]
+
+
+def _birth_ops(
+    probe: ProbeRunner, base: int, target: dict[str, Any], report: ApplyReport, who: dict
+) -> list[WriteOp]:
+    try:
+        containers = read_containers(probe, birth_read_requests(base))
+    except VenueLabError as e:
+        report.log(stage="birth", status="error", reason=str(e), **who)
+        return []
+    if None in containers:
+        report.log(stage="birth", status="error", reason="생년월일 읽기 실패", **who)
+        return []
+    ops, current, problem = plan_birth_writes(base, target["birth_date"], containers)
+    report.log(
+        stage="birth",
+        status="skipped" if problem else "checked",
+        reason=problem,
+        current=current,
+        target=target["birth_date"],
+        **who,
+    )
+    return ops
 
 
 def _op_dict(op: WriteOp) -> dict[str, Any]:

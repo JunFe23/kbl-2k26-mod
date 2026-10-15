@@ -85,3 +85,18 @@
 | `appearance_shoulder_length` | Shoulder Width | `Appearance+0x8` | float32 | 예 |
 | `appearance_arm_scale` | Arm Scale | `Appearance+0xC` | float32 | 아니오 |
 | `appearance_neck_length` | Neck Length | `Appearance+0x10` | float32 | 예 |
+
+## 생년월일 (블루프린트 Vitals, ADR-0018 분석 2)
+VenueLab 2.15 의 선수 모델(field_registry)에는 없다. 블루프린트(`nba2k26_player_blueprint.json`)와
+쓰기 감사(`nba2k26_blueprint_writability_audit.json`, `write_readback_ok`)에서 가져왔다.
+
+| key | 오프셋 | 컨테이너 | 비트 |
+|---|---|---|---|
+| Birth Year | `+0x10A` | u16 | 0~11 (12비트) |
+| Birth Month | `+0x343` | u8 | 4~7 (4비트) |
+| Birth Day | `+0x10C` | u8 | 1~5 (5비트) |
+
+- 값 형식(연도 그대로, 월 1~12, 일 1~31)은 **추정**이다. 그래서 `venuelab apply` 는
+  쓰기 전에 현재 값을 읽고, 이 범위로 해석되지 않으면 그 선수의 생년월일을 쓰지 않는다.
+- 같은 바이트의 다른 비트(예: +0x10C 의 bit 0·6·7)는 유지한다.
+- 읽기는 VenueLab 의 `read_process_bytes`(ReadProcessMemory)만 쓴다.

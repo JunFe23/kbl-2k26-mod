@@ -316,6 +316,16 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
         n = report.count(status)
         if n:
             print(f"{status:<18} {n}")
+    births = [e for e in report.events if e.get("stage") == "birth"]
+    if births:
+        skipped = [e for e in births if e["status"] != "checked"]
+        print(f"생년월일 확인 {len(births) - len(skipped)}명, 쓰지 않음 {len(skipped)}명")
+        for e in skipped:
+            print(f"  {e.get('to_player')}: {e.get('reason')}")
+        for e in births[:3]:
+            c = e.get("current") or {}
+            cur = "-".join(str(c.get(k, "?")) for k in ("birth_year", "birth_month", "birth_day"))
+            print(f"  예) {e.get('to_player')}: 현재 {cur} → {e.get('target')}")
     print(f"보고서: {report_path}")
     if failed:
         print(f"중단: {failed}", file=sys.stderr)
