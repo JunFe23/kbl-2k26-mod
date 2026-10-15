@@ -86,9 +86,11 @@ RATING_FIELD_MAP: dict[str, tuple[str, ...]] = {
     "Offensive Consistency": ("rating_offensive_consistency",),
     "Defensive Consistency": ("rating_defensive_consistency",),
     "Intangibles": ("rating_intangibles",),
-    "Potential": ("rating_potential",),
     "Durability": DURABILITY_FIELDS,
 }
+
+# 게임이 스스로 다시 계산하는 필드 — 쓰지 않는다 (ADR-0015 보충, 2026-10-15 검증 결과)
+GAME_MANAGED_FIELDS = ("rating_potential",)
 
 NAME_CHARS = 20  # 성·이름 각각 UTF-16 20자 고정 버퍼 (playerBase+0x00 성, +0x28 이름)
 LAST_NAME_OFFSET = 0x00

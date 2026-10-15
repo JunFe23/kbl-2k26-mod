@@ -138,8 +138,11 @@ def test_rating_map_matches_documented_2k26_fields():
         "utf-8"
     )
     documented = set(re.findall(r"`(rating_[a-z_]+)`", doc))
-    assert documented and set(ALL_KEYS) == documented
-    assert len(ALL_KEYS) == 52 and len(DURABILITY_FIELDS) == 16
+    from kbl2k.venuelab import GAME_MANAGED_FIELDS
+
+    assert documented and set(ALL_KEYS) | set(GAME_MANAGED_FIELDS) == documented
+    assert not set(ALL_KEYS) & set(GAME_MANAGED_FIELDS)
+    assert len(ALL_KEYS) == 51 and len(DURABILITY_FIELDS) == 16
 
 
 def test_encode_name():
