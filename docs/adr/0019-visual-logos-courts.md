@@ -44,3 +44,15 @@
   - 기준 스냅샷: `20261015-121436-before-mods-logos`
 - 되돌리기: `mods\logos\logo003.iff`, `logo009.iff` 삭제
 - 확인할 것: 게임 화면에 새 로고가 나오는가, 일반(EAC) 실행에서도 되는가
+
+## 코트 (2026-10-15)
+- 템플릿: OzWolf Export Templates → `templates.7z`(실제 ZIP) 안의 `court_floor.psd` 8192×4096.
+  - 위에서 본 전체 코트이고, 캔버스 좌표가 곧 코트 위치다. 코트 안쪽 x 975~7223, y 437~3660, 센터 (4096, 2048).
+  - 레이어(바깥 색, 키, 선 10종, 나무 바닥, 그림자·긁힘·요철)를 psd-tools 로 각각 PNG 로 꺼냈다.
+    위치: `D:\2K Tools\CustomMyNBA\templates\court_layers\` (저장소 밖)
+- 합성: `kbl2k assets court <팀> <출력> --layers ... --logo ...`, 디자인 값은 `data/visuals/courts.json`
+  - 실제 경기장 사진 썸네일을 참고한 근사치다: 밝은 원목, 빨간 키·바깥 띠, 센터 로고, 사이드라인·베이스라인 글자
+  - NBA 로고 레이어는 쓰지 않는다.
+- 출력: OzWolf 입력 규칙대로 `teams\RedBoosters\court_floor.png`, `teams\Knights\court_floor.png`
+- 다음: 사용자 확인 → OzWolf 에서 IFF 생성(사용자) → 스냅샷 → `mods\levels\` 복사
+  - 게임 안에서는 경기장(stadium)만 편집하고 코트 바닥 편집 화면에는 들어가지 않는다(OzWolf README: 들어가면 커스텀 바닥이 덮어써짐).

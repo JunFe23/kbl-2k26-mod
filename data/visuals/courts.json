@@ -1,0 +1,29 @@
+{
+  "_note": "코트 디자인 값 (ADR-0019). 실제 경기장 사진 썸네일을 참고한 근사치다. 템플릿·로고·결과 이미지는 커밋하지 않는다.",
+  "anyang_kgc": {
+    "slot": "arena_003_int_floor",
+    "ozwolf_team_dir": "RedBoosters",
+    "apron": "#C8102E",
+    "key": "#C8102E",
+    "key_circle": null,
+    "lines": "#FFFFFF",
+    "center_logo_diameter": 1300,
+    "sideline_text": ["ANYANG CITY", "JUNG KWAN JANG"],
+    "baseline_text": ["RED BOOSTERS", "RED BOOSTERS"],
+    "text_color": "#FFFFFF",
+    "font": "C:/Windows/Fonts/ariblk.ttf"
+  },
+  "seoul_sk": {
+    "slot": "arena_009_int_floor",
+    "ozwolf_team_dir": "Knights",
+    "apron": "#D6001C",
+    "key": "#D6001C",
+    "key_circle": null,
+    "lines": "#FFFFFF",
+    "center_logo_diameter": 1300,
+    "sideline_text": ["SEOUL SK KNIGHTS", "JAMSIL"],
+    "baseline_text": ["SK KNIGHTS", "SK KNIGHTS"],
+    "text_color": "#FFFFFF",
+    "font": "C:/Windows/Fonts/ariblk.ttf"
+  }
+}

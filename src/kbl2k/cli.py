@@ -336,6 +336,23 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
     return 1 if bad else 0
 
 
+def cmd_assets_court(args: argparse.Namespace) -> int:
+    from .assets import AssetError
+    from .court import make_court
+
+    designs = json.loads(args.designs.read_text("utf-8"))
+    if args.team not in designs:
+        print(f"디자인이 없습니다: {args.team} (있는 것: {[k for k in designs if k[0] != '_']})")
+        return 1
+    try:
+        r = make_court(args.layers, designs[args.team], args.dst, args.logo)
+    except AssetError as e:
+        print(f"코트 합성 실패: {e}", file=sys.stderr)
+        return 1
+    print(f"코트: {r['dst']} {r['size'][0]}x{r['size'][1]} (미리보기 *_preview.png)")
+    return 0
+
+
 def cmd_assets_logo(args: argparse.Namespace) -> int:
     from .assets import AssetError, make_logo
 
@@ -550,6 +567,13 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--margin", type=float, default=0.06, help="가장자리 여백 비율")
     a.add_argument("--gap-radius", type=int, help="JPG 로고 틈 채우기 반경(px, 0=끔, 기본 자동)")
     a.set_defaults(func=cmd_assets_logo)
+    a = a_sub.add_parser("court", help="코트 바닥 8192×4096 PNG 합성 (OzWolf 템플릿 레이어 사용)")
+    a.add_argument("team", help="data/visuals/courts.json 의 키, 예: anyang_kgc")
+    a.add_argument("dst", type=Path, help="출력 PNG (예: .../teams/RedBoosters/court_floor.png)")
+    a.add_argument("--layers", type=Path, required=True, help="템플릿 레이어 PNG 폴더")
+    a.add_argument("--logo", type=Path, help="센터 로고 PNG (투명 배경)")
+    a.add_argument("--designs", type=Path, default=Path("data/visuals/courts.json"))
+    a.set_defaults(func=cmd_assets_court)
 
     s = sub.add_parser("backup", help="게임 파일 백업 (게임 폴더는 읽기만 함)")
     s.add_argument("--game-dir", type=Path, required=True)
