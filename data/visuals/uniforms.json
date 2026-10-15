@@ -1,0 +1,466 @@
+{
+  "_note": "유니폼 전개도 설정 (ADR-0019). 좌표는 참고 사진(1024×1024) 픽셀. 사진은 assets_private/reference/ (커밋 안 함). anchors = [[사진 y, 전개도 y], ...] 두 점으로 세로 배율을 정한다(앞: 목 V 끝·밑단, 뒤: 게임 이름·번호 위치).",
+  "kgc_home": {
+    "slot_png": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/home_uniform.png",
+    "photos": {
+      "front": "assets_private/reference/kgc_2627/home_front.jpg",
+      "back": "assets_private/reference/kgc_2627/home_back.jpg"
+    },
+    "palette": {
+      "black": "#151517",
+      "red": "#C01725",
+      "white": "#FFFFFF"
+    },
+    "front": {
+      "seams": [
+        311,
+        717
+      ],
+      "anchors": [
+        [
+          250,
+          0
+        ],
+        [
+          925,
+          2531
+        ]
+      ],
+      "fill": [
+        "white"
+      ],
+      "erase": [
+        [
+          462,
+          478,
+          562,
+          612
+        ],
+        [
+          608,
+          420,
+          664,
+          484
+        ],
+        [
+          296,
+          90,
+          374,
+          362
+        ],
+        [
+          636,
+          90,
+          734,
+          362
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            352,
+            366,
+            658,
+            422
+          ],
+          "select": "#FFFFFF"
+        },
+        {
+          "box": [
+            368,
+            648,
+            638,
+            728
+          ],
+          "select": "#FFFFFF"
+        },
+        {
+          "box": [
+            362,
+            222,
+            428,
+            262
+          ],
+          "select": "#FFFFFF",
+          "offset_uv": [
+            0,
+            150
+          ]
+        },
+        {
+          "box": [
+            362,
+            262,
+            424,
+            326
+          ],
+          "select": "#FFFFFF",
+          "offset_uv": [
+            0,
+            150
+          ]
+        },
+        {
+          "box": [
+            572,
+            226,
+            642,
+            258
+          ],
+          "select": "#FFFFFF",
+          "offset_uv": [
+            0,
+            150
+          ]
+        }
+      ],
+      "logos": [
+        {
+          "path": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/logo.png",
+          "box": [
+            582,
+            256,
+            634,
+            326
+          ],
+          "offset_uv": [
+            0,
+            150
+          ]
+        }
+      ]
+    },
+    "back": {
+      "seams": [
+        299,
+        716
+      ],
+      "anchors": [
+        [
+          325,
+          270
+        ],
+        [
+          472,
+          777
+        ]
+      ],
+      "fill": [
+        "white"
+      ],
+      "erase": [
+        [
+          400,
+          296,
+          604,
+          354
+        ],
+        [
+          452,
+          386,
+          568,
+          558
+        ],
+        [
+          284,
+          90,
+          372,
+          362
+        ],
+        [
+          640,
+          90,
+          730,
+          362
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            432,
+            212,
+            572,
+            264
+          ],
+          "select": "#FFFFFF",
+          "offset_uv": [
+            0,
+            130
+          ]
+        },
+        {
+          "box": [
+            402,
+            582,
+            604,
+            660
+          ],
+          "select": "#FFFFFF"
+        }
+      ]
+    },
+    "side_r": {
+      "bg": "#C01725",
+      "text": "RED BOOSTERS",
+      "color": "#FFFFFF"
+    },
+    "side_l": {
+      "bg": "#151517",
+      "text": "RED BOOSTERS",
+      "color": "#FFFFFF"
+    },
+    "belt": "#151517",
+    "shorts": {
+      "bg": "#C01725",
+      "hem": "#151517",
+      "logos": [
+        {
+          "path": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/logo.png",
+          "box_uv": [
+            3060,
+            2860,
+            3360,
+            3220
+          ]
+        }
+      ]
+    }
+  },
+  "kgc_away": {
+    "slot_png": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/away_uniform.png",
+    "photos": {
+      "front": "assets_private/reference/kgc_2627/away_front.jpg",
+      "back": "assets_private/reference/kgc_2627/away_back.jpg"
+    },
+    "palette": {
+      "white": "#F7F7F8",
+      "gray": "#DCDCDE",
+      "red": "#D3132C",
+      "black": "#151517",
+      "blue": "#24418F"
+    },
+    "front": {
+      "seams": [
+        292,
+        722
+      ],
+      "anchors": [
+        [
+          236,
+          0
+        ],
+        [
+          925,
+          2531
+        ]
+      ],
+      "fill": [
+        "black",
+        "blue"
+      ],
+      "erase": [
+        [
+          466,
+          470,
+          560,
+          604
+        ],
+        [
+          618,
+          420,
+          668,
+          484
+        ],
+        [
+          276,
+          90,
+          362,
+          362
+        ],
+        [
+          646,
+          90,
+          740,
+          362
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            358,
+            362,
+            666,
+            422
+          ],
+          "select": "#151517",
+          "tol": 110
+        },
+        {
+          "box": [
+            378,
+            646,
+            642,
+            728
+          ],
+          "select": "#151517",
+          "tol": 110
+        },
+        {
+          "box": [
+            372,
+            222,
+            444,
+            262
+          ],
+          "select": "#24418F",
+          "tol": 90,
+          "offset_uv": [
+            0,
+            150
+          ]
+        },
+        {
+          "box": [
+            382,
+            262,
+            432,
+            326
+          ],
+          "select": "#151517",
+          "tol": 110,
+          "offset_uv": [
+            0,
+            150
+          ]
+        },
+        {
+          "box": [
+            574,
+            226,
+            642,
+            258
+          ],
+          "select": "#151517",
+          "tol": 110,
+          "offset_uv": [
+            0,
+            150
+          ]
+        }
+      ],
+      "logos": [
+        {
+          "path": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/logo.png",
+          "box": [
+            584,
+            254,
+            634,
+            326
+          ],
+          "offset_uv": [
+            0,
+            150
+          ]
+        }
+      ]
+    },
+    "back": {
+      "seams": [
+        300,
+        722
+      ],
+      "anchors": [
+        [
+          325,
+          270
+        ],
+        [
+          472,
+          777
+        ]
+      ],
+      "fill": [
+        "black",
+        "blue"
+      ],
+      "erase": [
+        [
+          400,
+          296,
+          604,
+          354
+        ],
+        [
+          452,
+          382,
+          568,
+          558
+        ],
+        [
+          284,
+          90,
+          372,
+          362
+        ],
+        [
+          640,
+          90,
+          736,
+          362
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            432,
+            212,
+            572,
+            264
+          ],
+          "select": "#151517",
+          "tol": 110,
+          "offset_uv": [
+            0,
+            130
+          ]
+        },
+        {
+          "box": [
+            402,
+            582,
+            604,
+            660
+          ],
+          "select": "#151517",
+          "tol": 110
+        }
+      ]
+    },
+    "side_r": {
+      "bg": "#D3132C",
+      "text": "RED BOOSTERS",
+      "color": "#FFFFFF"
+    },
+    "side_l": {
+      "bg": "#F7F7F8",
+      "text": "RED BOOSTERS",
+      "color": "#151517"
+    },
+    "belt": "#D3132C",
+    "shorts": {
+      "bg": "#F7F7F8",
+      "hem": "#D3132C",
+      "logos": [
+        {
+          "path": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/logo.png",
+          "box_uv": [
+            3060,
+            2860,
+            3360,
+            3220
+          ]
+        }
+      ]
+    }
+  }
+}

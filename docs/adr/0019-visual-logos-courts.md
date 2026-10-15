@@ -78,3 +78,10 @@
 - 전개도 보정 시험: 템플릿 영역 색칠 + 256px 격자 이미지를 정관장 홈 자리로 생성 → `logo005_secondary_5.iff`(NBA Secondary 목록)
   - 게임 `mods\logos\` 에 추가. 스냅샷: 추가 1 (기준 `20261015-152350-before-uniform-test`)
 - 슈팅저지: Bulls/Hawks 전용 `clothing_resource_tshirt_ss_nba_pregame_core_003/009_color_tex.iff` 존재. 픽셀 데이터를 풀 수 없어 보류(별도 분석).
+- 보정 결과 (게임 격자 시험): 템플릿 영역 그대로 맞는다. 앞판 가운데 x 2723, 게임 번호 중심 앞 y≈980·뒤 y≈780, 뒤 이름 y≈270,
+  허리띠 초록이 반바지 허리밴드에 정확히 놓인다. 전개도 맨 위(y≈0~50)가 앞 V넥 끝 높이다.
+- 참고 사진: 정관장 스토어 26-27 홈·원정 앞뒤 4장(사용자 승인 후 다운로드) → `assets_private/reference/kgc_2627/`
+- 생성기: `kbl2k assets uniform <키>` (src/kbl2k/uniform.py, 설정 data/visuals/uniforms.json)
+  - 사진을 팔레트 색으로 분류 → 번호·이름·글자 자리 메움 → 전개도로 옮김 → 글자·스폰서는 사진 마스크로 다시 얹음
+  - 가슴 위 스폰서는 V넥보다 위라 전개도 밖으로 잘려서 아래로 150 내렸다. 뒤 DOORA 도 130 내렸다. 뒤 KBL 로고는 공간이 없어 뺐다.
+  - 반바지 사진이 없어 단색 + RB 로고로 만들었다(추정 디자인).

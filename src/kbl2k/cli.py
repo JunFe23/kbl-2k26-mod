@@ -354,6 +354,25 @@ def cmd_assets_court(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_assets_uniform(args: argparse.Namespace) -> int:
+    from .assets import AssetError
+    from .uniform import make_uniform
+
+    designs = json.loads(args.designs.read_text("utf-8"))
+    if args.key not in designs:
+        print(f"디자인이 없습니다: {args.key} (있는 것: {[k for k in designs if k[0] != '_']})")
+        return 1
+    design = designs[args.key]
+    dst = args.dst or Path(design["slot_png"])
+    try:
+        r = make_uniform(design, dst)
+    except AssetError as e:
+        print(f"유니폼 생성 실패: {e}", file=sys.stderr)
+        return 1
+    print(f"유니폼: {r['dst']} {r['size'][0]}x{r['size'][1]} (미리보기 *_preview.png)")
+    return 0
+
+
 def cmd_assets_logo(args: argparse.Namespace) -> int:
     from .assets import AssetError, make_logo
 
@@ -580,6 +599,13 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--logo", type=Path, help="센터 로고 PNG (투명 배경)")
     a.add_argument("--designs", type=Path, default=Path("data/visuals/courts.json"))
     a.set_defaults(func=cmd_assets_court)
+    a = a_sub.add_parser(
+        "uniform", help="유니폼 전개도 4096² PNG (참고 사진 → CustomMyNBA 템플릿 배치)"
+    )
+    a.add_argument("key", help="data/visuals/uniforms.json 의 키, 예: kgc_home")
+    a.add_argument("--dst", type=Path, help="출력 PNG (기본: 설정의 slot_png)")
+    a.add_argument("--designs", type=Path, default=Path("data/visuals/uniforms.json"))
+    a.set_defaults(func=cmd_assets_uniform)
 
     s = sub.add_parser("backup", help="게임 파일 백업 (게임 폴더는 읽기만 함)")
     s.add_argument("--game-dir", type=Path, required=True)
