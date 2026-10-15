@@ -1,0 +1,112 @@
+"""선수 얼굴 텍스처·초상화 생성 (ADR-0020).
+
+얼굴: 기존 2K 얼굴 color 텍스처(정면 얼굴이 가운데 펼쳐진 배치)와 선수 정면 사진에서
+얼굴 랜드마크(mediapipe FaceMesh 478점)를 찾아, 사진을 텍스처 배치로 구간별 아핀 변형한다.
+  - 얼굴 윤곽 안쪽은 사진, 바깥(두피·귀·목)은 원래 텍스처를 사진 피부색으로 보정해 쓴다.
+  - 경계는 거리 기반으로 부드럽게 섞는다.
+초상화: 투명 배경 사진을 512² 캔버스에 2K 초상화와 같은 구도(얼굴 가운데 아래쪽)로 배치한다.
+
+사진·결과 이미지는 저장소에 넣지 않는다(assets_private/).
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from .assets import AssetError, _pil
+
+# FaceMesh 얼굴 윤곽(이마~턱) 인덱스
+FACE_OVAL = [
+    10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377,
+    152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109,
+]  # fmt: skip
+CHEEKS = [50, 280, 205, 425, 118, 347]  # 피부색 표본
+
+
+def _deps():
+    try:
+        import mediapipe as mp
+        import numpy as np
+        from scipy import ndimage
+        from skimage.transform import PiecewiseAffineTransform, warp
+    except ImportError as e:  # pragma: no cover
+        raise AssetError("mediapipe(0.10)·scikit-image·scipy 가 필요합니다") from e
+    return mp, np, ndimage, PiecewiseAffineTransform, warp
+
+
+def landmarks(rgb):
+    """RGB 배열 → (478, 2) 픽셀 좌표. 얼굴을 못 찾으면 AssetError."""
+    mp, np, *_ = _deps()
+    with mp.solutions.face_mesh.FaceMesh(
+        static_image_mode=True, max_num_faces=1, refine_landmarks=True
+    ) as fm:
+        r = fm.process(rgb)
+    if not r.multi_face_landmarks:
+        raise AssetError("얼굴을 찾지 못했습니다")
+    h, w = rgb.shape[:2]
+    return np.array([[p.x * w, p.y * h] for p in r.multi_face_landmarks[0].landmark])
+
+
+def _skin(rgb, pts, np):
+    vals = []
+    for i in CHEEKS:
+        x, y = (int(round(c)) for c in pts[i])
+        patch = rgb[max(0, y - 4) : y + 5, max(0, x - 4) : x + 5].reshape(-1, 3)
+        vals.append(patch)
+    return np.median(np.concatenate(vals), axis=0).astype(np.float32)
+
+
+def make_face_texture(donor: Path, photo: Path, dst: Path, feather: float = 0.06) -> dict:
+    mp, np, nd, PiecewiseAffineTransform, warp = _deps()
+    Image = _pil()
+    tex = np.asarray(Image.open(donor).convert("RGB")).astype(np.float32)
+    ph_img = Image.open(photo)
+    ph_rgba = np.asarray(ph_img.convert("RGBA"))
+    ph = ph_rgba[..., :3].copy()
+    ph[ph_rgba[..., 3] < 10] = 0
+    t_pts = landmarks(tex.astype(np.uint8))
+    p_pts = landmarks(ph)
+
+    # 바깥 영역(두피·귀·목): 원래 텍스처 피부색 → 사진 피부색 (채널별 비율)
+    gain = _skin(ph.astype(np.float32), p_pts, np) / np.maximum(_skin(tex, t_pts, np), 1)
+    base = np.clip(tex * gain, 0, 255)
+
+    # 얼굴 안쪽: 텍스처 좌표 → 사진 좌표 구간별 아핀
+    tform = PiecewiseAffineTransform.from_estimate(t_pts, p_pts)
+    if not tform:
+        raise AssetError("변형 추정 실패")
+    warped = warp(ph.astype(np.float32) / 255.0, tform, output_shape=tex.shape[:2], order=1) * 255
+
+    from PIL import ImageDraw
+
+    mask_img = Image.new("L", (tex.shape[1], tex.shape[0]), 0)
+    ImageDraw.Draw(mask_img).polygon([tuple(t_pts[i]) for i in FACE_OVAL], fill=255)
+    inside = np.asarray(mask_img) > 0
+    dist = nd.distance_transform_edt(inside)
+    soft = np.clip(dist / (feather * tex.shape[0]), 0, 1)[..., None]
+    out = base * (1 - soft) + warped * soft
+    dst = Path(dst)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(out.astype(np.uint8), "RGB").save(dst)
+    return {"dst": str(dst), "gain": [round(float(g), 3) for g in gain]}
+
+
+def make_portrait(photo: Path, dst: Path, size: int = 512) -> dict:
+    """2K 초상화 구도: 얼굴 중심 x 0.5, 눈 높이 ≈ 0.58, 얼굴 폭 ≈ 0.4 (chr_g 원본 기준)."""
+    _mp, np, *_ = _deps()
+    Image = _pil()
+    im = Image.open(photo).convert("RGBA")
+    a = np.asarray(im)
+    pts = landmarks(np.ascontiguousarray(a[..., :3]))
+    left, right = pts[234], pts[454]  # 광대 양끝
+    eyes_y = (pts[33][1] + pts[263][1]) / 2
+    cx = (left[0] + right[0]) / 2
+    face_w = np.linalg.norm(right - left)
+    s = size * 0.40 / face_w
+    im2 = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    canvas.alpha_composite(im2, (round(size * 0.5 - cx * s), round(size * 0.58 - eyes_y * s)))
+    dst = Path(dst)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(dst)
+    return {"dst": str(dst), "size": size}

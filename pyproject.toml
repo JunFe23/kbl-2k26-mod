@@ -12,7 +12,7 @@ dependencies = ["jsonschema>=4.21"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
-assets = ["pillow>=10", "resvg-py>=0.1", "numpy>=1.26", "scipy>=1.11", "psd-tools[composite]>=1.9"]
+assets = ["pillow>=10", "resvg-py>=0.1", "numpy>=1.26", "scipy>=1.11", "psd-tools[composite]>=1.9", "mediapipe==0.10.21", "scikit-image>=0.26"]
 
 [project.scripts]
 kbl2k = "kbl2k.cli:main"
