@@ -574,7 +574,7 @@ def describe_team(catalog: dict[str, Any], entry: dict[str, Any]) -> dict[str, A
 def team_display_names(
     team_plan: dict[str, Any], aliases: dict[str, list[str]] | None = None
 ) -> list[str]:
-    """계획 팀을 게임에서 찾을 때 쓸 이름들: 교체 전 NBA 이름, 교체 후 이름, 별칭(예: MyNBA 이전 후 이름)."""
+    """게임에서 팀을 찾을 이름들: 교체 전 NBA 이름, 교체 후 이름, 별칭(예: MyNBA 이전 후)."""
     names = [team_plan["nba_slot"]]
     ident = team_plan.get("identity")
     if ident:
