@@ -72,7 +72,11 @@
             638,
             728
           ],
-          "select": "#FFFFFF"
+          "select": "#FFFFFF",
+          "offset_uv": [
+            0,
+            -200
+          ]
         },
         {
           "box": [
@@ -185,7 +189,7 @@
           "select": "#FFFFFF",
           "offset_uv": [
             0,
-            130
+            100
           ]
         },
         {
@@ -197,7 +201,9 @@
           ],
           "select": "#FFFFFF"
         }
-      ]
+      ],
+      "center_x": 512,
+      "seam_width_uv": 1829
     },
     "side_r": {
       "bg": "#C01725",
@@ -303,7 +309,11 @@
             728
           ],
           "select": "#151517",
-          "tol": 110
+          "tol": 110,
+          "offset_uv": [
+            0,
+            -200
+          ]
         },
         {
           "box": [
@@ -421,7 +431,7 @@
           "tol": 110,
           "offset_uv": [
             0,
-            130
+            100
           ]
         },
         {
@@ -434,7 +444,9 @@
           "select": "#151517",
           "tol": 110
         }
-      ]
+      ],
+      "center_x": 512,
+      "seam_width_uv": 1829
     },
     "side_r": {
       "bg": "#D3132C",

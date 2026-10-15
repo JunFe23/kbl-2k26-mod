@@ -28,6 +28,12 @@ FRONT = (1946, 3500)
 SIDE_R = (1589, 1946)
 SIDE_L = (3500, 3856)
 BACK_WIDTH = (4096 - 3856) + 1589  # 1829
+# 뒤판 가운데 = 등번호 중심 x≈835 (게임 확인, 템플릿 뒤 목 NBA 로고 위치와 같다).
+# 뒤판 그림은 L 옆판 끝(3856)부터 R 옆판 안쪽(1749)까지 넓게 그린다(넘친 부분은 옆판이 덮음).
+# 사진의 등 가운데(cfg center_x)가 835 에 오고, 가로 배율은 사진 옆선 간격으로 정한다.
+BACK_CENTER = 835
+BACK_START = 3856
+BACK_RENDER = (4096 - BACK_START) + 1749
 JERSEY_BOTTOM = 2493
 ARMPIT = 1164
 BELT = (2493, 2655)
@@ -68,9 +74,11 @@ def fill_from_nearest(labels, bad):
 class Panel:
     """사진의 한 면(앞/뒤) → 전개도 좌표 변환. u = (x - x0) * su + u0, v = (y - y0) * sv + v0."""
 
-    def __init__(self, cfg: dict[str, Any], width: int):
+    def __init__(self, cfg: dict[str, Any], width: int, center_u: float | None = None):
         self.x0, self.x1 = cfg["seams"]
-        self.su = width / (self.x1 - self.x0)
+        self.su = cfg.get("seam_width_uv", width) / (self.x1 - self.x0)
+        if center_u is not None and "center_x" in cfg:
+            self.x0 = cfg["center_x"] - center_u / self.su
         a, b = cfg["anchors"]  # [[photo_y, uv_y], [photo_y, uv_y]]
         self.sv = (b[1] - a[1]) / (b[0] - a[0])
         self.y0, self.v0 = a[0], a[1]
@@ -89,7 +97,9 @@ class Panel:
         )
 
 
-def _render_panel(photo, cfg: dict[str, Any], palette: dict[str, str], width: int):
+def _render_panel(
+    photo, cfg: dict[str, Any], palette: dict[str, str], width: int, center_u: float | None = None
+):
     """사진 한 면 → width × JERSEY_BOTTOM RGBA (바탕 무늬 + 얹을 것)."""
     np, nd = _np()
     names = list(palette)
@@ -98,16 +108,24 @@ def _render_panel(photo, cfg: dict[str, Any], palette: dict[str, str], width: in
     for box in cfg.get("erase", []):  # 번호·이름 등 게임이 그리는 자리
         x0, y0, x1, y1 = box
         bad[y0:y1, x0:x1] = True
+    # 다시 얹을 글자·로고는 원래 자리에서 가장자리(안티에일리어싱)까지 넓혀 지운다
+    for ov in cfg.get("overlays", []):
+        x0, y0, x1, y1 = ov["box"]
+        sel = np.array(_rgb(ov["select"]), dtype=np.float32)
+        dist = np.sqrt(((photo[y0:y1, x0:x1].astype(np.float32) - sel) ** 2).sum(-1))
+        ink = nd.binary_dilation(dist < float(ov.get("tol", 90)) * 1.6, iterations=3)
+        bad[y0:y1, x0:x1] |= ink
     labels = fill_from_nearest(labels, bad)
 
-    panel = Panel(cfg, width)
+    panel = Panel(cfg, width, center_u)
     vv, uu = np.mgrid[0:JERSEY_BOTTOM, 0:width].astype(np.float32)
     px, py = panel.to_photo(uu, vv)
-    px = np.clip(px, 0, photo.shape[1] - 1)
+    sx0, sx1 = cfg["seams"]  # 옆선 바깥(사진 속 옆판)은 읽지 않는다 → 가장자리 색이 이어진다
+    px = np.clip(px, sx0 + 2, sx1 - 2)
     py = np.clip(py, 0, photo.shape[0] - 1)
     scores = []
     for i in range(len(names)):
-        onehot = nd.gaussian_filter((labels == i).astype(np.float32), 0.8)
+        onehot = nd.gaussian_filter((labels == i).astype(np.float32), 1.5)
         scores.append(nd.map_coordinates(onehot, [py, px], order=1))
     best = np.argmax(np.stack(scores), axis=0)
     cols = np.array([_rgb(c) for c in palette.values()], dtype=np.uint8)
@@ -188,10 +206,12 @@ def make_uniform(design: dict[str, Any], dst: Path, root: Path = Path(".")) -> d
 
     front = _render_panel(load("front"), design["front"], palette, FRONT[1] - FRONT[0])
     canvas.alpha_composite(front, (FRONT[0], 0))
-    back = _render_panel(load("back"), design["back"], palette, BACK_WIDTH)
-    left_part = 4096 - 3856  # 뒤에서 볼 때 왼쪽 240px 는 x 3856~4096
-    canvas.alpha_composite(back.crop((0, 0, left_part, JERSEY_BOTTOM)), (3856, 0))
-    canvas.alpha_composite(back.crop((left_part, 0, BACK_WIDTH, JERSEY_BOTTOM)), (0, 0))
+    back = _render_panel(
+        load("back"), design["back"], palette, BACK_RENDER, BACK_CENTER + (4096 - BACK_START)
+    )
+    left_part = 4096 - BACK_START  # 뒤에서 볼 때 왼쪽 부분은 x BACK_START~4096
+    canvas.alpha_composite(back.crop((0, 0, left_part, JERSEY_BOTTOM)), (BACK_START, 0))
+    canvas.alpha_composite(back.crop((left_part, 0, BACK_RENDER, JERSEY_BOTTOM)), (0, 0))
     _side(canvas, SIDE_R, design["side_r"])
     _side(canvas, SIDE_L, design["side_l"])
 
