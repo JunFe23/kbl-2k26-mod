@@ -12,6 +12,7 @@ dependencies = ["jsonschema>=4.21"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
+assets = ["pillow>=10", "resvg-py>=0.1"]
 
 [project.scripts]
 kbl2k = "kbl2k.cli:main"

@@ -314,6 +314,18 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
     return 1 if bad else 0
 
 
+def cmd_assets_logo(args: argparse.Namespace) -> int:
+    from .assets import AssetError, make_logo
+
+    try:
+        r = make_logo(args.src, args.dst, args.size, args.margin, args.gap_radius)
+    except AssetError as e:
+        print(f"변환 실패: {e}", file=sys.stderr)
+        return 1
+    print(f"{r['method']}: {r['src']} → {r['dst']} {r['size'][0]}x{r['size'][1]}")
+    return 0
+
+
 def cmd_backup(args: argparse.Namespace) -> int:
     try:
         dest = create_backup(args.game_dir, args.files, args.out, args.label)
@@ -425,6 +437,16 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("--apply", action="store_true", help="실제로 게임 메모리에 쓴다")
     v.add_argument("--report", type=Path, help="결과 JSONL 경로")
     v.set_defaults(func=cmd_venuelab_apply)
+
+    s = sub.add_parser("assets", help="비주얼 에셋 준비 (ADR-0019)")
+    a_sub = s.add_subparsers(dest="assets_command", required=True)
+    a = a_sub.add_parser("logo", help="로고(JPG/PNG/SVG) → 투명 정사각 PNG")
+    a.add_argument("src", type=Path)
+    a.add_argument("dst", type=Path)
+    a.add_argument("--size", type=int, default=1024)
+    a.add_argument("--margin", type=float, default=0.06, help="가장자리 여백 비율")
+    a.add_argument("--gap-radius", type=int, help="JPG 로고 틈 채우기 반경(px, 0=끔, 기본 자동)")
+    a.set_defaults(func=cmd_assets_logo)
 
     s = sub.add_parser("backup", help="게임 파일 백업 (게임 폴더는 읽기만 함)")
     s.add_argument("--game-dir", type=Path, required=True)
