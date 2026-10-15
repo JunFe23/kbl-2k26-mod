@@ -299,6 +299,7 @@ def cmd_venuelab_apply(args: argparse.Namespace) -> int:
             progress=lambda m: print(m, file=sys.stderr, flush=True),
             catalog_path=catalog_path,
             aliases=parse_aliases(args.alias or []),
+            teams_only=args.teams_only,
         )
     except VenueLabError as e:
         failed = str(e)
@@ -538,6 +539,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--alias",
         action="append",
         help="팀 이름이 바뀐 경우 찾을 이름, 예: 'Chicago Bulls=Denver Bulls'",
+    )
+    v.add_argument(
+        "--teams-only",
+        action="store_true",
+        help="팀 이름·도시·약어만 쓴다(빠름). 커스텀 로스터는 불러올 때마다 필요(ADR-0018)",
     )
     v.set_defaults(func=cmd_venuelab_apply)
     v = v_sub.add_parser("capture-team", help="팀 레코드 바이트 캡처 (읽기 전용, 분석용)")

@@ -68,3 +68,5 @@
   - 3D 로고는 별도 에셋 `logos/logo003_3d.iff`, `logo003_3d_mirror.iff`(Hawks 는 009)이다. 3D 모델이라 OzWolf 로는 못 바꾼다 → 조사 과제.
   - 약어는 팀 레코드 CITYSHORTNAME(+0x338)으로 추정한다. 커스텀 로스터에서는 재로드 시 되돌아가므로(ADR-0018) 세션마다 `venuelab apply` 로 다시 써야 한다(확인 필요).
 - 코트 v2(중앙선) 반영: 게임 `mods\levels\` 두 파일 교체, 스냅샷 비교 변경 2 (기준 `20261015-150814-before-court-v2`)
+- 확인 (2026-10-15): 코트 v2 중앙선 표시, 경기 시작 화면 약어가 JKJ/SK 로 나온다(세션마다 `venuelab apply` 후, 사용자 확인).
+  → 약어는 팀 레코드 CITYSHORTNAME(+0x338)에서 온다. 세션용 빠른 명령 `venuelab apply --apply --teams-only` 추가.

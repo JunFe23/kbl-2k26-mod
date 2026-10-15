@@ -730,3 +730,11 @@ def test_apply_skips_birth_when_format_unexpected():
     (batch,) = probe.batches
     assert not any(o["kwargs"]["label"].startswith("birth") for o in batch)
     assert [e for e in rep.events if e.get("stage") == "birth"][0]["status"] == "skipped"
+
+
+def test_apply_teams_only_skips_players():
+    plan = plan1()
+    probe = FakeProbe(catalog())
+    rep = apply_plan(plan, probe, write=False, processes=["NBA2K26.exe"], teams_only=True)
+    assert not any(c[0] == "--inspect-player-base-roster-model" for c in probe.calls)
+    assert rep.count("planned") == 0

@@ -721,7 +721,9 @@ def apply_plan(
     progress: Callable[[str], None] = lambda msg: None,
     catalog_path: Path | None = None,
     aliases: dict[str, list[str]] | None = None,
+    teams_only: bool = False,
 ) -> ApplyReport:
+    """teams_only: 팀 이름·도시·약어만 쓴다(선수 건너뜀). 커스텀 로스터 재로드 후 세션마다 쓴다."""
     report = report or ApplyReport()
     progress("1/3 안전 확인 (안티치트·게임 실행 여부)")
     check_gate(processes if processes is not None else running_processes())
@@ -770,6 +772,8 @@ def apply_plan(
         else:
             for op in team_ops:
                 report.log(stage="op", status="dry_run", op=_op_dict(op), **team_who)
+        if teams_only:
+            continue
         progress(f"3/3 {team['nba_slot']}: 선수 {min(len(slots), len(team['players']))}명 처리")
         targets = team["players"]
         if len(slots) < len(targets):
