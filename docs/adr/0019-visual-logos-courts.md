@@ -56,3 +56,8 @@
 - 출력: OzWolf 입력 규칙대로 `teams\RedBoosters\court_floor.png`, `teams\Knights\court_floor.png`
 - 다음: 사용자 확인 → OzWolf 에서 IFF 생성(사용자) → 스냅샷 → `mods\levels\` 복사
   - 게임 안에서는 경기장(stadium)만 편집하고 코트 바닥 편집 화면에는 들어가지 않는다(OzWolf README: 들어가면 커스텀 바닥이 덮어써짐).
+- 게임 반영 (2026-10-15): OzWolf Generate Mods 결과 `arena_003_int_floor.iff`, `arena_009_int_floor.iff`(각 ZIP 36개 항목, 약 39MB)를
+  `NBA 2K26\mods\levels\` 에 복사했다. 스냅샷 비교: 추가 2 / 삭제 0 / 변경 0
+  - 기준 스냅샷: `20261015-145601-before-mods-levels`
+  - 되돌리기: `mods\levels\` 의 두 파일 삭제
+  - 로고는 다시 생성됐지만(해시만 다름) 이미 확인된 기존 파일을 유지했다.
