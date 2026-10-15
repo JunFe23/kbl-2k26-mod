@@ -5,10 +5,38 @@ import pytest
 from kbl2k.venuelab import (
     CITY_NAME_OFFSET,
     VenueLabError,
+    arena_city,
     city_name,
     encode_city_name,
+    plan_arena_city_write,
     plan_city_write,
 )
+
+ARENA_PTR = 0xC706BDF0
+
+
+def arena_raw(city="Virginia Beach", marker=b"arena_"):
+    b = bytearray(0x100)
+    b[0:26] = "United Center".encode("utf-16-le")
+    b[0x82 : 0x82 + len(city) * 2] = city.encode("utf-16-le")
+    b[0xB2:0xB5] = b"003"
+    b[0xBA : 0xBA + len(marker)] = marker
+    return bytes(b)
+
+
+def test_plan_arena_city_write():
+    team = bytearray(5672)
+    team[0xFC8:0xFD0] = ARENA_PTR.to_bytes(8, "little")
+    assert arena_city(arena_raw()) == "Virginia Beach"
+    op = plan_arena_city_write(bytes(team), arena_raw(), "Anyang")
+    assert op.address == ARENA_PTR + 0x82 and len(op.new) == 48 and len(op.expected) == 48
+    assert op.new.decode("utf-16-le").rstrip("\0") == "Anyang"
+    assert plan_arena_city_write(bytes(team), arena_raw("Anyang"), "Anyang") is None
+    with pytest.raises(VenueLabError):
+        plan_arena_city_write(bytes(team), arena_raw(marker=b"xxxxxx"), "Anyang")
+    with pytest.raises(VenueLabError):
+        plan_arena_city_write(bytes(team), arena_raw(city=""), "Anyang")
+
 
 CITY_PTR = 0xC7FD2F60
 CITY_ID = bytes.fromhex("99 00 ed 01 53 1e 4c 0f 24 62 13 38 7b 8a 65 f2")  # 도시 레코드 +0x38

@@ -379,14 +379,13 @@ def cmd_venuelab_city(args: argparse.Namespace) -> int:
         print(f"실패: {e}", file=sys.stderr)
         return 1
     t = r["team"]
-    print(
-        f"{t.get('city')} {t.get('nickname')}: 도시 표시 '{r['from']}' → '{r['to']}' {r['status']}"
-    )
-    if r.get("reason"):
-        print(f"  {r['reason']}")
-    if not args.apply and r["status"] == "planned":
+    print(f"{t.get('city')} {t.get('nickname')}")
+    for f in r["fields"]:
+        print(f"  {f['field']:<11} '{f['from']}' → '{f['to']}' {f['status']} {f.get('reason', '')}")
+    statuses = {f["status"] for f in r["fields"]}
+    if not args.apply and "planned" in statuses:
         print("dry-run: 아무것도 쓰지 않았습니다. 실제로 쓰려면 --apply")
-    return 0 if r["status"] in ("planned", "unchanged", "write_readback_ok") else 1
+    return 0 if statuses <= {"planned", "unchanged", "write_readback_ok"} else 1
 
 
 def cmd_venuelab_diff_team(args: argparse.Namespace) -> int:

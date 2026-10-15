@@ -1007,6 +1007,35 @@ def plan_city_write(team_raw: bytes, city_raw: bytes, new_name: str) -> WriteOp 
     return WriteOp("city_table_name", ptr + CITY_NAME_OFFSET, "bytes", old, new)
 
 
+# 경기장 레코드 (팀 +0xFC8 포인터): +0x00 경기장 이름 UTF-16, +0x82 도시 UTF-16 24자 칸,
+# +0xB2 경기장 번호 ASCII("003"), +0xBA "arena_003_int". 이전하면 도시가 이전 도시로 바뀐다.
+ARENA_POINTER_OFFSET = 0xFC8
+ARENA_RECORD_LENGTH = 0x100
+ARENA_CITY_OFFSET = 0x82
+ARENA_CITY_CHARS = 24
+
+
+def arena_city(arena_raw: bytes) -> str:
+    raw = arena_raw[ARENA_CITY_OFFSET : ARENA_CITY_OFFSET + ARENA_CITY_CHARS * 2]
+    return raw.decode("utf-16-le", errors="replace").split("\0")[0]
+
+
+def plan_arena_city_write(team_raw: bytes, arena_raw: bytes, new_name: str) -> WriteOp | None:
+    """경기장 레코드의 도시 칸 쓰기 연산. 레코드 모양이 예상과 다르면 거부."""
+    if len(arena_raw) < ARENA_RECORD_LENGTH or not arena_raw[0xBA:0xC0] == b"arena_":
+        raise VenueLabError(
+            "경기장 레코드 모양이 예상과 다릅니다('arena_' 표시 없음) — 쓰지 않습니다"
+        )
+    if not arena_city(arena_raw).strip():
+        raise VenueLabError("경기장 레코드의 도시 칸이 비어 있습니다 — 쓰지 않습니다")
+    ptr = int.from_bytes(team_raw[ARENA_POINTER_OFFSET : ARENA_POINTER_OFFSET + 8], "little")
+    old = arena_raw[ARENA_CITY_OFFSET : ARENA_CITY_OFFSET + ARENA_CITY_CHARS * 2]
+    new = encode_name(new_name, chars=ARENA_CITY_CHARS)
+    if old == new:
+        return None
+    return WriteOp("arena_city", ptr + ARENA_CITY_OFFSET, "bytes", old, new)
+
+
 def rename_relocated_city(
     probe: ProbeRunner,
     names: list[str],
@@ -1015,23 +1044,28 @@ def rename_relocated_city(
     write: bool = False,
     processes: list[str] | None = None,
 ) -> dict[str, Any]:
-    """이전한 팀의 도시 표시 이름을 바꾼다(메모리, 이번 실행 동안)."""
+    """이전한 팀의 도시 표시 이름을 바꾼다(메모리). 도시 테이블 + 경기장 레코드."""
     cap = capture_team(probe, names, "city", processes=processes)
     team_raw = bytes.fromhex(cap["raw_hex"])
-    ptr = int.from_bytes(team_raw[CITY_POINTER_OFFSET : CITY_POINTER_OFFSET + 8], "little")
-    res = probe([READ_BYTES, json.dumps([{"address": ptr, "length": CITY_RECORD_LENGTH}])])
-    hexes = res.get("results") or [None]
-    city_raw = bytes.fromhex(hexes[0]) if hexes[0] else b""
-    op = plan_city_write(team_raw, city_raw, new_name)
-    out: dict[str, Any] = {
-        "team": cap["team"],
-        "city_pointer": hex(ptr),
-        "from": city_name(city_raw),
-        "to": new_name,
-        "status": "unchanged" if op is None else ("planned" if not write else ""),
-    }
-    if op is not None and write:
-        r = probe([BATCH_WRITE, json.dumps([{"kwargs": op_kwargs(op), "needs_read": False}])])
-        rr = (r.get("results") or [{}])[0]
-        out["status"], out["reason"] = rr.get("status", "unknown"), rr.get("reason", "")
-    return out
+    city_ptr = int.from_bytes(team_raw[CITY_POINTER_OFFSET : CITY_POINTER_OFFSET + 8], "little")
+    arena_ptr = int.from_bytes(team_raw[ARENA_POINTER_OFFSET : ARENA_POINTER_OFFSET + 8], "little")
+    reqs = [
+        {"address": city_ptr, "length": CITY_RECORD_LENGTH},
+        {"address": arena_ptr, "length": ARENA_RECORD_LENGTH},
+    ]
+    hexes = probe([READ_BYTES, json.dumps(reqs)]).get("results") or [None, None]
+    city_raw, arena_raw = (bytes.fromhex(h) if h else b"" for h in hexes)
+    fields = [
+        ("city_table", city_name(city_raw), plan_city_write(team_raw, city_raw, new_name)),
+        ("arena", arena_city(arena_raw), plan_arena_city_write(team_raw, arena_raw, new_name)),
+    ]
+    results = []
+    for field_name, before, op in fields:
+        status = "unchanged" if op is None else ("planned" if not write else "")
+        item = {"field": field_name, "from": before, "to": new_name, "status": status}
+        if op is not None and write:
+            r = probe([BATCH_WRITE, json.dumps([{"kwargs": op_kwargs(op), "needs_read": False}])])
+            rr = (r.get("results") or [{}])[0]
+            item["status"], item["reason"] = rr.get("status", "unknown"), rr.get("reason", "")
+        results.append(item)
+    return {"team": cap["team"], "fields": results}
