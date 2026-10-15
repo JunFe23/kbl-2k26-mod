@@ -1,5 +1,5 @@
 {
-  "_note": "유니폼 전개도 설정 (ADR-0019). 좌표는 참고 사진(1024×1024) 픽셀. 사진은 assets_private/reference/ (커밋 안 함). anchors = [[사진 y, 전개도 y], ...] 두 점으로 세로 배율을 정한다(앞: 목 V 끝·밑단, 뒤: 게임 이름·번호 위치).",
+  "_note": "유니폼 전개도 설정 (ADR-0019). 좌표는 참고 사진(1024×1024) 픽셀. 사진은 assets_private/reference/ (커밋 안 함). anchors = [[사진 y, 전개도 y], ...] 두 점으로 세로 배율을 정한다(앞: 목 V 끝·밑단, 뒤: 게임 이름·번호 위치). 주의: 그림은 몸에 투영되므로 BELT 구역(y 2493~2655)은 허리밴드가 아니라 반바지 중간 높이다 → 반바지 색과 같게 둔다.",
   "kgc_home": {
     "slot_png": "D:/2K Tools/CustomMyNBA/teams/RedBoosters/home_uniform.png",
     "photos": {
@@ -209,7 +209,7 @@
       "text": "RED BOOSTERS",
       "color": "#FFFFFF"
     },
-    "belt": "#151517",
+    "belt": "#C01725",
     "shorts": {
       "bg": "#C01725",
       "hem": "#151517",
@@ -446,7 +446,7 @@
       "text": "RED BOOSTERS",
       "color": "#151517"
     },
-    "belt": "#D3132C",
+    "belt": "#F7F7F8",
     "shorts": {
       "bg": "#F7F7F8",
       "hem": "#D3132C",
