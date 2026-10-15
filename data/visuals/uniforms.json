@@ -497,5 +497,439 @@
     },
     "waist_uv": 1780
   },
-  "_game_setting": "게임 유니폼 편집기 이미지 항목: 크기 4.40, 이동 X -0.30, Y 0.17 (ADR-0019)"
+  "_game_setting": "게임 유니폼 편집기 이미지 항목: 크기 4.40, 이동 X -0.30, Y 0.17 (ADR-0019)",
+  "sk_home": {
+    "slot_png": "D:/2K Tools/CustomMyNBA/teams/Knights/home_uniform.png",
+    "photos": {
+      "front": "assets_private/reference/sk_2627/home_front_d.png",
+      "back": "assets_private/reference/sk_2627/home_back_d.png"
+    },
+    "palette": {
+      "red": "#D1342F",
+      "white": "#FFFFFF",
+      "gray": "#8C8C8C",
+      "black": "#1A1A1A"
+    },
+    "waist_uv": 1780,
+    "front": {
+      "seams": [
+        390,
+        950
+      ],
+      "anchors": [
+        [
+          340,
+          0
+        ],
+        [
+          610,
+          560
+        ],
+        [
+          745,
+          980
+        ],
+        [
+          1000,
+          1650
+        ],
+        [
+          1204,
+          1900
+        ]
+      ],
+      "fill": [
+        "gray",
+        "black"
+      ],
+      "erase": [
+        [
+          611,
+          655,
+          730,
+          840
+        ],
+        [
+          825,
+          1105,
+          925,
+          1165
+        ],
+        [
+          370,
+          90,
+          500,
+          520
+        ],
+        [
+          840,
+          90,
+          970,
+          520
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            436,
+            408,
+            898,
+            622
+          ],
+          "select": "#FFFFFF",
+          "scale": 0.9
+        },
+        {
+          "box": [
+            495,
+            860,
+            850,
+            1008
+          ],
+          "select": "#FFFFFF"
+        }
+      ]
+    },
+    "back": {
+      "seams": [
+        397,
+        958
+      ],
+      "center_x": 677,
+      "seam_width_uv": 1829,
+      "anchors": [
+        [
+          200,
+          -15
+        ],
+        [
+          300,
+          80
+        ],
+        [
+          366,
+          185
+        ],
+        [
+          470,
+          270
+        ],
+        [
+          705,
+          777
+        ],
+        [
+          1215,
+          2300
+        ]
+      ],
+      "fill": [
+        "gray",
+        "black"
+      ],
+      "erase": [
+        [
+          514,
+          425,
+          841,
+          525
+        ],
+        [
+          580,
+          547,
+          775,
+          864
+        ],
+        [
+          385,
+          90,
+          470,
+          520
+        ],
+        [
+          885,
+          90,
+          970,
+          520
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            540,
+            320,
+            816,
+            372
+          ],
+          "select": "#FFFFFF"
+        }
+      ]
+    },
+    "side_r": {
+      "bg": "#D1342F",
+      "stripes": [
+        [
+          0,
+          110,
+          "#FFFFFF"
+        ],
+        [
+          247,
+          110,
+          "#FFFFFF"
+        ]
+      ]
+    },
+    "side_l": {
+      "bg": "#D1342F",
+      "stripes": [
+        [
+          0,
+          110,
+          "#FFFFFF"
+        ],
+        [
+          247,
+          110,
+          "#FFFFFF"
+        ]
+      ]
+    },
+    "belt": "#D1342F",
+    "shorts": {
+      "bg": "#D1342F",
+      "hem": "#FFFFFF",
+      "logos": [
+        {
+          "path": "D:/2K Tools/CustomMyNBA/teams/Knights/logo.png",
+          "box_uv": [
+            3060,
+            2860,
+            3360,
+            3220
+          ]
+        }
+      ]
+    }
+  },
+  "sk_away": {
+    "slot_png": "D:/2K Tools/CustomMyNBA/teams/Knights/away_uniform.png",
+    "photos": {
+      "front": "assets_private/reference/sk_2627/away_front_d.png",
+      "back": "assets_private/reference/sk_2627/away_back_d.png"
+    },
+    "palette": {
+      "white": "#FFFFFF",
+      "red": "#D32F2E",
+      "black": "#1A1A1A",
+      "gray": "#8C8C8C",
+      "orange": "#F28C28"
+    },
+    "waist_uv": 1780,
+    "front": {
+      "seams": [
+        390,
+        950
+      ],
+      "anchors": [
+        [
+          340,
+          0
+        ],
+        [
+          610,
+          560
+        ],
+        [
+          745,
+          980
+        ],
+        [
+          1000,
+          1650
+        ],
+        [
+          1204,
+          1900
+        ]
+      ],
+      "fill": [
+        "gray",
+        "black",
+        "orange"
+      ],
+      "erase": [
+        [
+          562,
+          655,
+          787,
+          840
+        ],
+        [
+          825,
+          1105,
+          925,
+          1165
+        ],
+        [
+          370,
+          90,
+          500,
+          520
+        ],
+        [
+          840,
+          90,
+          970,
+          520
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            436,
+            408,
+            898,
+            622
+          ],
+          "select": "#D32F2E",
+          "scale": 0.9
+        },
+        {
+          "box": [
+            495,
+            860,
+            850,
+            1008
+          ],
+          "select": "#FFFFFF",
+          "mode": "photo",
+          "tol": 60
+        }
+      ]
+    },
+    "back": {
+      "seams": [
+        397,
+        958
+      ],
+      "center_x": 677,
+      "seam_width_uv": 1829,
+      "anchors": [
+        [
+          200,
+          -15
+        ],
+        [
+          300,
+          80
+        ],
+        [
+          366,
+          185
+        ],
+        [
+          470,
+          270
+        ],
+        [
+          705,
+          777
+        ],
+        [
+          1215,
+          2300
+        ]
+      ],
+      "fill": [
+        "gray",
+        "black",
+        "orange"
+      ],
+      "erase": [
+        [
+          514,
+          425,
+          835,
+          525
+        ],
+        [
+          477,
+          546,
+          872,
+          864
+        ],
+        [
+          385,
+          90,
+          470,
+          520
+        ],
+        [
+          885,
+          90,
+          970,
+          520
+        ]
+      ],
+      "overlays": [
+        {
+          "box": [
+            580,
+            320,
+            770,
+            382
+          ],
+          "select": "#1A1A1A",
+          "tol": 110
+        }
+      ]
+    },
+    "side_r": {
+      "bg": "#FFFFFF",
+      "stripes": [
+        [
+          0,
+          110,
+          "#D32F2E"
+        ],
+        [
+          247,
+          110,
+          "#D32F2E"
+        ]
+      ]
+    },
+    "side_l": {
+      "bg": "#FFFFFF",
+      "stripes": [
+        [
+          0,
+          110,
+          "#D32F2E"
+        ],
+        [
+          247,
+          110,
+          "#D32F2E"
+        ]
+      ]
+    },
+    "belt": "#FFFFFF",
+    "shorts": {
+      "bg": "#FFFFFF",
+      "hem": "#D32F2E",
+      "logos": [
+        {
+          "path": "D:/2K Tools/CustomMyNBA/teams/Knights/logo.png",
+          "box_uv": [
+            3060,
+            2860,
+            3360,
+            3220
+          ]
+        }
+      ]
+    }
+  }
 }

@@ -72,28 +72,47 @@ def fill_from_nearest(labels, bad):
 
 
 class Panel:
-    """사진의 한 면(앞/뒤) → 전개도 좌표 변환. u = (x - x0) * su + u0, v = (y - y0) * sv + v0."""
+    """사진의 한 면(앞/뒤) → 전개도 좌표 변환.
+
+    가로: u = (x - x0) * su (옆선 간격으로 배율, center_x 가 있으면 그 점이 center_u 에 온다)
+    세로: anchors [[사진 y, 전개도 v], ...] 두 점 이상을 구간별 선형으로 잇는다(양 끝은 연장).
+    """
 
     def __init__(self, cfg: dict[str, Any], width: int, center_u: float | None = None):
         self.x0, self.x1 = cfg["seams"]
         self.su = cfg.get("seam_width_uv", width) / (self.x1 - self.x0)
         if center_u is not None and "center_x" in cfg:
             self.x0 = cfg["center_x"] - center_u / self.su
-        a, b = cfg["anchors"]  # [[photo_y, uv_y], [photo_y, uv_y]]
-        self.sv = (b[1] - a[1]) / (b[0] - a[0])
-        self.y0, self.v0 = a[0], a[1]
+        pts = sorted(cfg["anchors"])
+        if len(pts) < 2:
+            raise AssetError("anchors 는 두 점 이상이어야 합니다")
+        self.ys = [float(a) for a, _ in pts]
+        self.vs = [float(b) for _, b in pts]
         self.width = width
 
+    @staticmethod
+    def _interp(x, xs, ys):
+        np, _ = _np()
+        x = np.asarray(x, dtype=np.float64)
+        out = np.interp(x, xs, ys)
+        lo = (ys[1] - ys[0]) / (xs[1] - xs[0])
+        hi = (ys[-1] - ys[-2]) / (xs[-1] - xs[-2])
+        out = np.where(x < xs[0], ys[0] + (x - xs[0]) * lo, out)
+        return np.where(x > xs[-1], ys[-1] + (x - xs[-1]) * hi, out)
+
     def to_photo(self, u, v):
-        return self.x0 + u / self.su, self.y0 + (v - self.v0) / self.sv
+        return self.x0 + u / self.su, self._interp(v, self.vs, self.ys)
+
+    def y_to_v(self, y):
+        return float(self._interp(y, self.ys, self.vs))
 
     def box_to_uv(self, box):
         x0, y0, x1, y1 = box
         return (
             (x0 - self.x0) * self.su,
-            (y0 - self.y0) * self.sv + self.v0,
+            self.y_to_v(y0),
             (x1 - self.x0) * self.su,
-            (y1 - self.y0) * self.sv + self.v0,
+            self.y_to_v(y1),
         )
 
 
@@ -113,7 +132,9 @@ def _render_panel(
         x0, y0, x1, y1 = ov["box"]
         sel = np.array(_rgb(ov["select"]), dtype=np.float32)
         dist = np.sqrt(((photo[y0:y1, x0:x1].astype(np.float32) - sel) ** 2).sum(-1))
-        ink = nd.binary_dilation(dist < float(ov.get("tol", 90)) * 1.6, iterations=3)
+        tol = float(ov.get("tol", 90))
+        near = dist > tol if ov.get("mode") == "photo" else dist < tol * 1.6
+        ink = nd.binary_dilation(near, iterations=3)
         bad[y0:y1, x0:x1] |= ink
     labels = fill_from_nearest(labels, bad)
 
@@ -137,19 +158,30 @@ def _render_panel(
         sel = np.array(_rgb(ov["select"]), dtype=np.float32)
         dist = np.sqrt(((photo.astype(np.float32) - sel) ** 2).sum(-1))
         tol = float(ov.get("tol", 90))
-        alpha = np.clip((tol - dist) / (tol * 0.5), 0, 1)
+        if ov.get("mode") == "photo":  # select = 바탕색, 바탕과 다른 픽셀을 원래 색 그대로
+            alpha = np.clip((dist - tol) / (tol * 0.5), 0, 1)
+        else:  # select 색에 가까운 픽셀만 color(기본 select)로
+            alpha = np.clip((tol - dist) / (tol * 0.5), 0, 1)
         m = np.zeros_like(alpha)
         m[y0:y1, x0:x1] = alpha[y0:y1, x0:x1]
         m = nd.gaussian_filter(m, 0.5)
         du, dv = ov.get("offset_uv", [0, 0])
-        qy, qx = py - dv / panel.sv, px - du / panel.su
+        qx, qy = panel.to_photo(uu - du, vv - dv)
         sc = float(ov.get("scale", 1.0))  # 상자 가운데 기준 확대·축소
         if sc != 1.0:
             cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
             qx, qy = cx + (qx - cx) / sc, cy + (qy - cy) / sc
         a = nd.map_coordinates(m, [qy, qx], order=1)
         a = np.clip((a - 0.5) * 4 + 0.5, 0, 1)[..., None]  # 경계를 다시 또렷하게
-        color = np.array(_rgb(ov.get("color", ov["select"])), dtype=np.float32)
+        if ov.get("mode") == "photo":
+            color = np.dstack(
+                [
+                    nd.map_coordinates(photo[..., c].astype(np.float32), [qy, qx], order=1)
+                    for c in range(3)
+                ]
+            )
+        else:
+            color = np.array(_rgb(ov.get("color", ov["select"])), dtype=np.float32)
         out[..., :3] = (out[..., :3] * (1 - a) + color * a).astype(np.uint8)
     img = _pil().fromarray(out, "RGBA")
     for logo in cfg.get("logos", []):
@@ -181,6 +213,8 @@ def _side(canvas, x_range, cfg: dict[str, Any], waist: int = JERSEY_BOTTOM):
     x0, x1 = x_range
     d = ImageDraw.Draw(canvas)
     d.rectangle((x0, 0, x1 - 1, waist - 1), fill=(*_rgb(cfg["bg"]), 255))
+    for sx, sw, sc in cfg.get("stripes", []):  # [옆판 왼쪽에서 거리, 폭, 색]
+        d.rectangle((x0 + sx, 0, x0 + sx + sw - 1, waist - 1), fill=(*_rgb(sc), 255))
     text = cfg.get("text")
     if not text:
         return
