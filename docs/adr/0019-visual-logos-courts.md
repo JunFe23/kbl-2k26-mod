@@ -67,3 +67,4 @@
 - 경기 시작 화면의 팀 마크·약어(ATL/CHI):
   - 3D 로고는 별도 에셋 `logos/logo003_3d.iff`, `logo003_3d_mirror.iff`(Hawks 는 009)이다. 3D 모델이라 OzWolf 로는 못 바꾼다 → 조사 과제.
   - 약어는 팀 레코드 CITYSHORTNAME(+0x338)으로 추정한다. 커스텀 로스터에서는 재로드 시 되돌아가므로(ADR-0018) 세션마다 `venuelab apply` 로 다시 써야 한다(확인 필요).
+- 코트 v2(중앙선) 반영: 게임 `mods\levels\` 두 파일 교체, 스냅샷 비교 변경 2 (기준 `20261015-150814-before-court-v2`)
